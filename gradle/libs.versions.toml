@@ -1,0 +1,21 @@
+[libraries.jetbrains-annotations]
+module = "org.jetbrains:annotations"
+version = "20.1.0"
+
+[libraries.checkerframework-qual]
+module = "org.checkerframework:checker-qual"
+version = "3.13.0"
+
+[libraries.junit-bom]
+module = "org.junit:junit-bom"
+version = "5.7.1"
+
+[libraries.junit-jupiter-api]
+module = "org.junit.jupiter:junit-jupiter-api"
+
+[libraries.junit-jupiter-engine]
+module = "org.junit.jupiter:junit-jupiter-engine"
+
+[libraries.truth]
+module = "com.google.truth:truth"
+version = "1.1.2"
