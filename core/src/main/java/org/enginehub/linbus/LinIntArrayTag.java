@@ -24,6 +24,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.IntBuffer;
+import java.util.Arrays;
 
 public final class LinIntArrayTag extends LinTag<int @NonNull []> {
     public static LinIntArrayTag readFrom(DataInput input) throws IOException {
@@ -37,7 +38,7 @@ public final class LinIntArrayTag extends LinTag<int @NonNull []> {
 
     private final int[] value;
 
-    public LinIntArrayTag(int[] value) {
+    public LinIntArrayTag(int... value) {
         this(value.clone(), true);
     }
 
@@ -72,5 +73,25 @@ public final class LinIntArrayTag extends LinTag<int @NonNull []> {
         for (int i : value) {
             output.writeInt(i);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LinIntArrayTag that = (LinIntArrayTag) o;
+        return Arrays.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + Arrays.hashCode(value);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return type().name() + "{" + Arrays.toString(value()) + '}';
     }
 }

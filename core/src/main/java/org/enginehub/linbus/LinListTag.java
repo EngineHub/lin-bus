@@ -39,6 +39,9 @@ public final class LinListTag<T extends @NonNull LinTag<?>> extends LinTag<@NonN
             throw new IllegalStateException("Read a non-empty list with an element type of 'end', this is not legal");
         }
         List<LinTag<?>> value = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            value.add(type.readFrom(input));
+        }
         return new LinListTag<>(
             type, value, true
         );

@@ -24,6 +24,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.LongBuffer;
+import java.util.Arrays;
 
 public final class LinLongArrayTag extends LinTag<long @NonNull []> {
     public static LinLongArrayTag readFrom(DataInput input) throws IOException {
@@ -37,7 +38,7 @@ public final class LinLongArrayTag extends LinTag<long @NonNull []> {
 
     private final long[] value;
 
-    public LinLongArrayTag(long[] value) {
+    public LinLongArrayTag(long... value) {
         this(value.clone(), true);
     }
 
@@ -72,5 +73,25 @@ public final class LinLongArrayTag extends LinTag<long @NonNull []> {
         for (long l : value) {
             output.writeLong(l);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LinLongArrayTag that = (LinLongArrayTag) o;
+        return Arrays.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + Arrays.hashCode(value);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return type().name() + "{" + Arrays.toString(value()) + '}';
     }
 }

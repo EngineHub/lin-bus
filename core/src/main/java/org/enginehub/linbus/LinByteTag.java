@@ -33,6 +33,10 @@ public final class LinByteTag extends LinTag<@NonNull Byte> {
 
     private final byte value;
 
+    public LinByteTag(int value) {
+        this((byte) value);
+    }
+
     public LinByteTag(byte value) {
         this.value = value;
     }

@@ -52,7 +52,7 @@ public abstract class LinTag<T> {
     public abstract void writeTo(DataOutput output) throws IOException;
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LinTag<?> that = (LinTag<?>) o;
@@ -60,10 +60,8 @@ public abstract class LinTag<T> {
     }
 
     @Override
-    public final int hashCode() {
-        // we only need four bits to represent all ids
-        // mix the value into the other 28, losing some high bits
-        return type().id() & 0xF | Objects.hashCode(value()) << 4;
+    public int hashCode() {
+        return value().hashCode();
     }
 
     @Override
