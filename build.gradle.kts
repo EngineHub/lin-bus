@@ -3,7 +3,7 @@ import org.cadixdev.gradle.licenser.LicenseExtension
 plugins {
     base
     jacoco
-    id("org.cadixdev.licenser") version "0.6.0" apply false
+    id("org.cadixdev.licenser") version "0.6.1" apply false
 }
 
 allprojects {
@@ -26,12 +26,6 @@ subprojects {
             }
         }
     }
-
-    plugins.withId("java") {
-        configure<JavaPluginExtension> {
-            toolchain.languageVersion.set(JavaLanguageVersion.of(8))
-        }
-    }
 }
 
 tasks.register<JacocoReport>("jacocoTotalReport") {
@@ -44,9 +38,11 @@ tasks.register<JacocoReport>("jacocoTotalReport") {
         proj.plugins.withId("java") {
             proj.plugins.withId("jacoco") {
                 executionData(
-                    fileTree(proj.buildDir.absolutePath).include("**/jacoco/*.exec")
+                    fileTree(proj.buildDir.absolutePath + "/jacoco").include("*.exec")
                 )
-                sourceSets(proj.the<JavaPluginConvention>().sourceSets["main"])
+                val src = proj.the<JavaPluginExtension>().sourceSets["main"]
+                additionalSourceDirs(src.allJava)
+                additionalClassDirs(src.output.classesDirs)
                 dependsOn(proj.tasks.named("test"))
             }
         }

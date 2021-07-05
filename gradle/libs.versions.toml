@@ -1,14 +1,65 @@
+[versions]
+javafx = "16"
+dagger = "2.37"
+polymerization = "0.1.0-SNAPSHOT"
+
 [libraries.jetbrains-annotations]
 module = "org.jetbrains:annotations"
-version = "20.1.0"
+version = "21.0.1"
 
 [libraries.checkerframework-qual]
 module = "org.checkerframework:checker-qual"
-version = "3.13.0"
+version = "3.15.0"
+
+[libraries.dagger-core]
+module = "com.google.dagger:dagger"
+version.ref = "dagger"
+
+[libraries.dagger-compiler]
+module = "com.google.dagger:dagger-compiler"
+version.ref = "dagger"
+
+[libraries.polymerization-annotations]
+module = "net.octyl.polymer:polymerization-annotations"
+version.ref = "polymerization"
+
+[libraries.polymerization-processor]
+module = "net.octyl.polymer:polymerization-processor"
+version.ref = "polymerization"
+
+[libraries.jakarta-injectApi]
+module = "jakarta.inject:jakarta.inject-api"
+version = "1.0.3"
+
+[libraries.guava]
+module = "com.google.guava:guava"
+version = "30.1.1-jre"
+
+[libraries.javafx-base]
+module = "org.openjfx:javafx-base"
+version.ref = "javafx"
+
+[libraries.javafx-controls]
+module = "org.openjfx:javafx-controls"
+version.ref = "javafx"
+
+[libraries.javafx-graphics]
+module = "org.openjfx:javafx-graphics"
+version.ref = "javafx"
+
+[libraries.ikonli-bom]
+module = "org.kordamp.ikonli:ikonli-bom"
+version = "12.2.0"
+
+[libraries.ikonli-javafx]
+module = "org.kordamp.ikonli:ikonli-javafx"
+
+[libraries.ikonli-fontawesome5]
+module = "org.kordamp.ikonli:ikonli-fontawesome5-pack"
 
 [libraries.junit-bom]
 module = "org.junit:junit-bom"
-version = "5.7.1"
+version = "5.7.2"
 
 [libraries.junit-jupiter-api]
 module = "org.junit.jupiter:junit-jupiter-api"
@@ -18,4 +69,4 @@ module = "org.junit.jupiter:junit-jupiter-engine"
 
 [libraries.truth]
 module = "com.google.truth:truth"
-version = "1.1.2"
+version = "1.1.3"
