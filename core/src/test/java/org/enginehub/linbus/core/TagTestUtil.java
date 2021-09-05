@@ -26,7 +26,7 @@ import java.io.IOException;
 import static com.google.common.truth.Truth.assertThat;
 
 class TagTestUtil {
-    static <T extends LinTag<?>> void assertRoundTrip(T input) throws IOException {
+    static <T extends LinTag<?, ?>> void assertRoundTrip(T input) throws IOException {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         input.writeTo(dataOutput);
         @SuppressWarnings("unchecked")

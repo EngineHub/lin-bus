@@ -30,52 +30,56 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-public final class LinCompoundTag extends LinTag<@NonNull Map<String, @NonNull LinTag<?>>> {
-    /**
-     * Read the implicit root tag from the given input. The root is either an empty compound tag,
-     * or a compound tag with a single entry, usually pointing to another compound tag.
-     *
-     * @param input the input
-     * @return the root tag
-     * @throws IOException if there is an I/O error
-     */
-    public static LinCompoundTag readRootFrom(DataInput input) throws IOException {
-        Map<String, @NonNull LinTag<?>> value = new LinkedHashMap<>(1);
-        readOnce(input, value);
-        return new LinCompoundTag(value, true);
-    }
-
+public final class LinCompoundTag extends LinTag<@NonNull Map<String, @NonNull LinTag<?, ?>>, LinCompoundTag> {
     public static LinCompoundTag readFrom(DataInput input) throws IOException {
-        Map<String, @NonNull LinTag<?>> value = new LinkedHashMap<>();
-        while (readOnce(input, value)) {
-            // continue reading
+        var builder = builder();
+        while (true) {
+            var entry = LinCompoundEntry.readFrom(input);
+            if (entry == null) {
+                break;
+            }
+            builder.put(entry.getKey(), entry.getValue());
         }
-        return new LinCompoundTag(value, true);
+        return builder.build();
     }
 
-    private static boolean readOnce(DataInput input, Map<String, @NonNull LinTag<?>> value) throws IOException {
-        int id = input.readByte();
-        LinTagType<?> type = LinTagType.getById(id);
-        if (type == LinTagType.endTag()) {
-            return false;
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private final LinkedHashMap<String, @NonNull LinTag<?, ?>> collector;
+
+        private Builder() {
+            this.collector = new LinkedHashMap<>();
         }
-        String name = input.readUTF();
-        LinTag<?> tag = type.readFrom(input);
-        value.put(name, tag);
-        return true;
+
+        private Builder(LinCompoundTag base) {
+            this.collector = new LinkedHashMap<>(base.value);
+        }
+
+        public Builder put(String name, LinTag<?, ?> value) {
+            this.collector.put(name, value);
+            return this;
+        }
+
+        public @NonNull LinCompoundTag build() {
+            // Let the constructor run a copy for us.
+            return new LinCompoundTag(this.collector);
+        }
     }
 
-    private final Map<String, @NonNull LinTag<?>> value;
+    private final Map<String, @NonNull LinTag<?, ?>> value;
 
-    public LinCompoundTag(@NonNull Map<String, @NonNull LinTag<?>> value) {
-        this(Map.copyOf(value), true);
+    public LinCompoundTag(@NonNull Map<String, @NonNull LinTag<?, ?>> value) {
+        this(Collections.unmodifiableMap(new LinkedHashMap<>(value)), true);
     }
 
-    private LinCompoundTag(@NonNull Map<String, @NonNull LinTag<?>> value, boolean iSwearToNotModifyValue) {
+    LinCompoundTag(@NonNull Map<String, @NonNull LinTag<?, ?>> value, boolean iSwearToNotModifyValue) {
         if (!iSwearToNotModifyValue) {
             throw new IllegalArgumentException("You think you're clever, huh?");
         }
-        this.value = Collections.unmodifiableMap(Objects.requireNonNull(value, "value is null"));
+        this.value = Objects.requireNonNull(value, "value is null");
     }
 
     @Override
@@ -84,17 +88,17 @@ public final class LinCompoundTag extends LinTag<@NonNull Map<String, @NonNull L
     }
 
     @Override
-    public @NonNull Map<String, @NonNull LinTag<?>> value() {
+    public @NonNull Map<String, @NonNull LinTag<?, ?>> value() {
         return value;
     }
 
-    public <T extends LinTag<?>> @Nullable T findTag(@NonNull String key, @NonNull LinTagType<T> type) {
-        LinTag<?> tag = value.get(key);
+    public <T extends LinTag<?, ?>> @Nullable T findTag(@NonNull String key, @NonNull LinTagType<T> type) {
+        LinTag<?, ?> tag = value.get(key);
         return type == tag.type() ? type.cast(tag) : null;
     }
 
-    public <T extends LinTag<?>> @NonNull T getTag(@NonNull String key, @NonNull LinTagType<T> type) {
-        LinTag<?> tag = value.get(key);
+    public <T extends LinTag<?, ?>> @NonNull T getTag(@NonNull String key, @NonNull LinTagType<T> type) {
+        LinTag<?, ?> tag = value.get(key);
 
         if (tag == null) {
             throw new NoSuchElementException("No tag under the key '" + key + "' exists");
@@ -108,15 +112,14 @@ public final class LinCompoundTag extends LinTag<@NonNull Map<String, @NonNull L
         return type.cast(tag);
     }
 
+    public Builder toBuilder() {
+        return new Builder(this);
+    }
+
     @Override
     public void writeTo(DataOutput output) throws IOException {
-        for (Map.Entry<String, LinTag<?>> entry : value.entrySet()) {
-            // id
-            output.writeByte(entry.getValue().type().id());
-            // name
-            output.writeUTF(entry.getKey());
-            // payload
-            entry.getValue().writeTo(output);
+        for (Map.Entry<String, LinTag<?, ?>> entry : value.entrySet()) {
+            LinCompoundEntry.writeTo(output, entry.getKey(), entry.getValue());
         }
         // finish with the end tag
         output.write(LinTagType.endTag().id());

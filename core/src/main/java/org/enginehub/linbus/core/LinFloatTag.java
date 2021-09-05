@@ -24,7 +24,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public final class LinFloatTag extends LinTag<@NonNull Float> {
+public final class LinFloatTag extends LinTag<@NonNull Float, LinFloatTag> {
     public static LinFloatTag readFrom(DataInput input) throws IOException {
         return new LinFloatTag(
             input.readFloat()

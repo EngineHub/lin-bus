@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-public final class LinByteArrayTag extends LinTag<byte @NonNull []> {
+public final class LinByteArrayTag extends LinTag<byte @NonNull [], LinByteArrayTag> {
     public static LinByteArrayTag readFrom(DataInput input) throws IOException {
         int length = input.readInt();
         byte[] value = new byte[length];

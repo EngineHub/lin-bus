@@ -28,7 +28,7 @@ public class LinCompoundTagTest {
     @Test
     void roundTrip() throws IOException {
         TagTestUtil.assertRoundTrip(new LinCompoundTag(Collections.emptyMap()));
-        TagTestUtil.assertRoundTrip(new LinCompoundTag(new LinkedHashMap<String, LinTag<?>>() {{
+        TagTestUtil.assertRoundTrip(new LinCompoundTag(new LinkedHashMap<String, LinTag<?, ?>>() {{
             put("Hello", new LinStringTag("World!"));
             put("Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE));
         }}));

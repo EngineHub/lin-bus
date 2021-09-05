@@ -24,7 +24,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public final class LinByteTag extends LinTag<@NonNull Byte> {
+public final class LinByteTag extends LinTag<@NonNull Byte, LinByteTag> {
     public static LinByteTag readFrom(DataInput input) throws IOException {
         return new LinByteTag(
             input.readByte()

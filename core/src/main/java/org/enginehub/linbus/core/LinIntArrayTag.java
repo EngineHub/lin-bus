@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 
-public final class LinIntArrayTag extends LinTag<int @NonNull []> {
+public final class LinIntArrayTag extends LinTag<int @NonNull [], LinIntArrayTag> {
     public static LinIntArrayTag readFrom(DataInput input) throws IOException {
         int length = input.readInt();
         int[] value = new int[length];

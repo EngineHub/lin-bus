@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    `maven-publish`
     jacoco
 }
 
@@ -24,4 +25,13 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifactId = "linbus-core"
+            from(components["java"])
+        }
+    }
 }

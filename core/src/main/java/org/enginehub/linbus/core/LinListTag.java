@@ -25,51 +25,80 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 
-public final class LinListTag<T extends @NonNull LinTag<?>> extends LinTag<@NonNull List<T>> {
-    public static <T extends @NonNull LinTag<?>> LinListTag<T> empty(LinTagType<T> elementType) {
-        return new LinListTag<>(elementType, Collections.emptyList(), true);
+public final class LinListTag<T extends @NonNull LinTag<?, ?>> extends LinTag<@NonNull List<T>, LinListTag<T>> {
+    public static <T extends @NonNull LinTag<?, ?>> LinListTag<T> empty(LinTagType<T> elementType) {
+        return builder(elementType).build();
     }
 
-    public static LinListTag<? extends @NonNull LinTag<?>> readFrom(DataInput input) throws IOException {
+    public static LinListTag<? extends @NonNull LinTag<?, ?>> readFrom(DataInput input) throws IOException {
         int id = input.readByte();
         @SuppressWarnings("unchecked")
-        LinTagType<LinTag<?>> type = (LinTagType<LinTag<?>>) LinTagType.getById(id);
+        LinTagType<LinTag<?, ?>> type = (LinTagType<LinTag<?, ?>>) LinTagType.getById(id);
         int size = input.readInt();
         if (size > 0 && LinTagType.endTag().equals(type)) {
             throw new IllegalStateException("Read a non-empty list with an element type of 'end', this is not legal");
         }
-        List<LinTag<?>> value = new ArrayList<>(size);
+        var builder = builder(type);
         for (int i = 0; i < size; i++) {
-            value.add(type.readFrom(input));
+            builder.add(type.readFrom(input));
         }
-        return new LinListTag<>(
-            type, value, true
-        );
+        return builder.build();
+    }
+
+    public static <T extends @NonNull LinTag<?, ?>> Builder<T> builder(LinTagType<T> elementType) {
+        return new Builder<>(elementType);
+    }
+
+    public static final class Builder<T extends @NonNull LinTag<?, ?>> {
+        private final LinTagType<T> elementType;
+        private final List<T> collector;
+
+        private Builder(LinTagType<T> elementType) {
+            this.elementType = elementType;
+            this.collector = new ArrayList<>();
+        }
+
+        private Builder(LinListTag<T> base) {
+            this.elementType = base.elementType;
+            this.collector = new ArrayList<>(base.value);
+        }
+
+        public Builder<T> add(T tag) {
+            if (tag.type() != elementType) {
+                throw new IllegalArgumentException("Element is not of type " + elementType.name() + " but "
+                    + tag.type().name());
+            }
+            this.collector.add(tag);
+            return this;
+        }
+
+        public LinListTag<T> build() {
+            return new LinListTag<>(this.elementType, List.copyOf(this.collector), false);
+        }
     }
 
     private final LinTagType<T> elementType;
     private final List<T> value;
 
     public LinListTag(LinTagType<T> elementType, List<T> value) {
-        this(elementType, new ArrayList<>(value), true);
+        this(elementType, List.copyOf(value), true);
     }
 
-    private LinListTag(LinTagType<T> elementType, List<T> value, boolean iSwearToNotModifyValue) {
-        if (!iSwearToNotModifyValue) {
-            throw new IllegalArgumentException("You think you're clever, huh?");
-        }
+    private LinListTag(LinTagType<T> elementType, List<T> value, boolean check) {
         Objects.requireNonNull(value, "value is null");
-        for (T t : value) {
-            if (t.type() != elementType) {
-                throw new IllegalArgumentException("Element is not of type " + elementType.name() + " but "
-                    + t.type().name());
+        if (check) {
+            for (T t : value) {
+                if (t.type() != elementType) {
+                    throw new IllegalArgumentException("Element is not of type " + elementType.name() + " but "
+                        + t.type().name());
+                }
             }
         }
         if (!value.isEmpty() && elementType == LinTagType.endTag()) {
             throw new IllegalArgumentException("A non-empty list cannot be of type 'end'");
         }
         this.elementType = elementType;
-        this.value = Collections.unmodifiableList(value);
+        this.value = value;
     }
 
     @Override

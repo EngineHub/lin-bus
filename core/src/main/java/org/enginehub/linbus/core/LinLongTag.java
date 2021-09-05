@@ -24,7 +24,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public final class LinLongTag extends LinTag<@NonNull Long> {
+public final class LinLongTag extends LinTag<@NonNull Long, LinLongTag> {
     public static LinLongTag readFrom(DataInput input) throws IOException {
         return new LinLongTag(
             input.readLong()

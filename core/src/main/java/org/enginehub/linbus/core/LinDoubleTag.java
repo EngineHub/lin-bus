@@ -24,7 +24,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public final class LinDoubleTag extends LinTag<@NonNull Double> {
+public final class LinDoubleTag extends LinTag<@NonNull Double, LinDoubleTag> {
     public static LinDoubleTag readFrom(DataInput input) throws IOException {
         return new LinDoubleTag(
             input.readDouble()

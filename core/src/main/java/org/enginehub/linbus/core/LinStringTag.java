@@ -25,7 +25,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Objects;
 
-public final class LinStringTag extends LinTag<@NonNull String> {
+public final class LinStringTag extends LinTag<@NonNull String, LinStringTag> {
     public static LinStringTag readFrom(DataInput input) throws IOException {
         return new LinStringTag(
             input.readUTF()

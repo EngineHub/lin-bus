@@ -22,7 +22,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public final class LinEndTag extends LinTag<Void> {
+public final class LinEndTag extends LinTag<Void, LinEndTag> {
     public static LinEndTag readFrom(DataInput input) throws IOException {
         return instance();
     }

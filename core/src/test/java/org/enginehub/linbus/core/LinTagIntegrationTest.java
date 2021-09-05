@@ -18,30 +18,41 @@
 
 package org.enginehub.linbus.core;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 
 import static com.google.common.truth.Truth.assertAbout;
+import static com.google.common.truth.Truth.assertThat;
 import static org.enginehub.linbus.core.truth.LinTagSubject.linTags;
 
 public class LinTagIntegrationTest {
-    private static LinCompoundTag load(String name) throws IOException {
+    private record TestTagData(
+        LinRootEntry root,
+        byte[] serializedForm
+    ) {
+    }
+
+    private static TestTagData load(String name) throws IOException {
         var resource = Resources.getResource(name);
+        byte[] data;
         try (var stream = Resources.asByteSource(resource).openStream();
-             var decompressed = name.endsWith(".gz") ? new GZIPInputStream(stream) : stream;
-             var dataInput = new DataInputStream(decompressed)) {
-            return LinCompoundTag.readRootFrom(dataInput);
+             var decompressed = name.endsWith(".gz") ? new GZIPInputStream(stream) : stream) {
+            data = decompressed.readAllBytes();
         }
+        return new TestTagData(
+            LinRootEntry.readFrom(ByteStreams.newDataInput(data)),
+            data
+        );
     }
 
     @Test
     void bigtest() throws IOException {
-        var tag = load("bigtest.nbt.gz");
-        var tagSubject = assertAbout(linTags()).that(tag);
+        TestTagData tagData = load("bigtest.nbt.gz");
+        var tagSubject = assertAbout(linTags()).that(tagData.root().toLinTag());
         var rootCompoundSubject = tagSubject.getTagByKey("Level");
         rootCompoundSubject.getTagByKey("nested compound test")
             .getTagByKey("egg")
@@ -89,5 +100,7 @@ public class LinTagIntegrationTest {
         rootCompoundSubject.getTagByKey("byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))").valueIfByteArray().asList()
             .containsExactlyElementsIn(expectedByteArray).inOrder();
         rootCompoundSubject.getTagByKey("shortTest").valueIfShort().isEqualTo(32767);
+
+        assertThat(tagData.root().writeToArray()).isEqualTo(tagData.serializedForm());
     }
 }

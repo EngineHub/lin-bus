@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * Tag types are naturally sorted by their {@link #id()}.
  * </p>
  */
-public final class LinTagType<T extends LinTag<?>> implements Comparable<LinTagType<?>> {
+public final class LinTagType<T extends LinTag<?, ?>> implements Comparable<LinTagType<?>> {
     private static final LinTagType<LinEndTag> END_TAG = new LinTagType<>(
         "end", 0, LinEndTag.class, LinEndTag::readFrom
     );
@@ -107,12 +107,12 @@ public final class LinTagType<T extends LinTag<?>> implements Comparable<LinTagT
     }
 
     @SuppressWarnings("unchecked")
-    private static final LinTagType<LinListTag<? extends @NonNull LinTag<?>>> LIST_TAG = new LinTagType<>(
-        "list", 9, (Class<LinListTag<? extends @NonNull LinTag<?>>>) (Object) LinListTag.class,
+    private static final LinTagType<LinListTag<? extends @NonNull LinTag<?, ?>>> LIST_TAG = new LinTagType<>(
+        "list", 9, (Class<LinListTag<? extends @NonNull LinTag<?, ?>>>) (Object) LinListTag.class,
         LinListTag::readFrom
     );
 
-    public static <T extends @NonNull LinTag<?>> LinTagType<LinListTag<T>> listTag() {
+    public static <T extends @NonNull LinTag<?, ?>> LinTagType<LinListTag<T>> listTag() {
         @SuppressWarnings("unchecked")
         LinTagType<LinListTag<T>> cast = (LinTagType<LinListTag<T>>) (Object) LIST_TAG;
         return cast;
@@ -192,7 +192,7 @@ public final class LinTagType<T extends LinTag<?>> implements Comparable<LinTagT
         return id;
     }
 
-    public final T cast(LinTag<?> tag) {
+    public final T cast(LinTag<?, ?> tag) {
         if (tag.type() != this) {
             throw new IllegalArgumentException("Tag is a " + tag.type().name() + ", not a " + name());
         }
