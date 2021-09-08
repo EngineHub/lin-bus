@@ -16,26 +16,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.gui.model;
+package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.tree.LinCompoundTag;
-
-import java.io.DataInputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
 
-public record NbtTreeModel(
-    NbtNode<?> root
-) {
-    public static NbtTreeModel loadTreeModel(Path file) throws IOException {
-        LinCompoundTag root;
-        try (var dataInput = new DataInputStream(new GZIPInputStream(Files.newInputStream(file)))) {
-            root = LinCompoundTag.readFrom(dataInput);
-        }
-        System.err.println(root);
-        return new NbtTreeModel(new NbtNode<>(new NbtNodeData.Value<>(root), List.of()));
+public final class LinEndTag extends LinTag<Void, LinEndTag> {
+    private static final LinEndTag INSTANCE = new LinEndTag();
+
+    public static LinEndTag instance() {
+        return INSTANCE;
     }
+
+    private LinEndTag() {
+    }
+
+    @Override
+    public LinTagType<LinEndTag> type() {
+        return LinTagType.endTag();
+    }
+
+    @Override
+    public Void value() {
+        return null;
+    }
+
 }

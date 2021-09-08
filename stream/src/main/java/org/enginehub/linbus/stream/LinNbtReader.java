@@ -18,6 +18,7 @@
 
 package org.enginehub.linbus.stream;
 
+import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.visitor.LinByteArrayTagVisitor;
 import org.enginehub.linbus.stream.visitor.LinCompoundTagVisitor;
 import org.enginehub.linbus.stream.visitor.LinContainerVisitor;
@@ -25,29 +26,15 @@ import org.enginehub.linbus.stream.visitor.LinIntArrayTagVisitor;
 import org.enginehub.linbus.stream.visitor.LinListTagVisitor;
 import org.enginehub.linbus.stream.visitor.LinLongArrayTagVisitor;
 import org.enginehub.linbus.stream.visitor.LinRootVisitor;
-import org.enginehub.linbus.stream.visitor.LinTagVisitorType;
 
 import java.io.DataInput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.BYTE_ARRAY_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.BYTE_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.COMPOUND_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.DOUBLE_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.FLOAT_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.INT_ARRAY_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.INT_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.LIST_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.LONG_ARRAY_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.LONG_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.SHORT_TAG_ID;
-import static org.enginehub.linbus.stream.visitor.LinTagVisitorType.STRING_TAG_ID;
-
 public class LinNbtReader {
     public static void accept(DataInput input, LinRootVisitor visitor) throws IOException {
-        if (input.readUnsignedByte() != LinTagVisitorType.compoundTag().id()) {
+        if (input.readUnsignedByte() != LinTagId.COMPOUND.id()) {
             throw new IllegalStateException("NBT stream does not start with a compound tag");
         }
 
@@ -142,48 +129,48 @@ public class LinNbtReader {
     }
 
     private static void acceptList(DataInput input, LinListTagVisitor visitor) throws IOException {
-        var type = LinTagVisitorType.getById(input.readUnsignedByte());
+        var id = LinTagId.fromId(input.readUnsignedByte());
         int size = input.readInt();
-        if (size > 0 && type == LinTagVisitorType.endTag()) {
+        if (size > 0 && id == LinTagId.END) {
             throw new IllegalStateException("Read a non-empty list with an element type of 'end', this is not legal");
         }
-        visitor.visitSize(size);
+        visitor.visitSizeAndType(size, id);
         for (int i = 0; i < size; i++) {
-            visitValue(input, visitor, type, i);
+            visitValue(input, visitor, id, i);
         }
         visitor.visitEnd();
     }
 
     private static void acceptCompound(DataInput input, LinCompoundTagVisitor visitor) throws IOException {
         while (true) {
-            var type = LinTagVisitorType.getById(input.readUnsignedByte());
-            if (type == LinTagVisitorType.endTag()) {
+            var id = LinTagId.fromId(input.readUnsignedByte());
+            if (id == LinTagId.END) {
                 break;
             }
 
-            var name = input.readUTF();
+            String name = input.readUTF();
 
-            visitValue(input, visitor, type, name);
+            visitValue(input, visitor, id, name);
         }
         visitor.visitEnd();
     }
 
-    private static <K> void visitValue(DataInput input, LinContainerVisitor<K> visitor, LinTagVisitorType<?> type, K key) throws IOException {
-        switch (type.id()) {
-            // END_TAG_ID omitted to use `default` case and throw
-            case BYTE_TAG_ID -> visitor.visitValueByte(key).visitByte(input.readByte());
-            case SHORT_TAG_ID -> visitor.visitValueShort(key).visitShort(input.readShort());
-            case INT_TAG_ID -> visitor.visitValueInt(key).visitInt(input.readInt());
-            case LONG_TAG_ID -> visitor.visitValueLong(key).visitLong(input.readLong());
-            case FLOAT_TAG_ID -> visitor.visitValueFloat(key).visitFloat(input.readFloat());
-            case DOUBLE_TAG_ID -> visitor.visitValueDouble(key).visitDouble(input.readDouble());
-            case BYTE_ARRAY_TAG_ID -> acceptByteArray(input, visitor.visitValueByteArray(key));
-            case STRING_TAG_ID -> visitor.visitValueString(key).visitString(input.readUTF());
-            case LIST_TAG_ID -> acceptList(input, visitor.visitValueList(key));
-            case COMPOUND_TAG_ID -> acceptCompound(input, visitor.visitValueCompound(key));
-            case INT_ARRAY_TAG_ID -> acceptIntArray(input, visitor.visitValueIntArray(key));
-            case LONG_ARRAY_TAG_ID -> acceptLongArray(input, visitor.visitValueLongArray(key));
-            default -> throw new IllegalStateException("Invalid id: " + type);
+    private static <K> void visitValue(DataInput input, LinContainerVisitor<K> visitor, LinTagId id, K key) throws IOException {
+        switch (id) {
+            // END omitted to use `default` case and throw
+            case BYTE -> visitor.visitValueByte(key).visitByte(input.readByte());
+            case SHORT -> visitor.visitValueShort(key).visitShort(input.readShort());
+            case INT -> visitor.visitValueInt(key).visitInt(input.readInt());
+            case LONG -> visitor.visitValueLong(key).visitLong(input.readLong());
+            case FLOAT -> visitor.visitValueFloat(key).visitFloat(input.readFloat());
+            case DOUBLE -> visitor.visitValueDouble(key).visitDouble(input.readDouble());
+            case BYTE_ARRAY -> acceptByteArray(input, visitor.visitValueByteArray(key));
+            case STRING -> visitor.visitValueString(key).visitString(input.readUTF());
+            case LIST -> acceptList(input, visitor.visitValueList(key));
+            case COMPOUND -> acceptCompound(input, visitor.visitValueCompound(key));
+            case INT_ARRAY -> acceptIntArray(input, visitor.visitValueIntArray(key));
+            case LONG_ARRAY -> acceptLongArray(input, visitor.visitValueLongArray(key));
+            default -> throw new IllegalStateException("Invalid id: " + id);
         }
     }
 }

@@ -16,26 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.gui.model;
+package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.tree.LinCompoundTag;
+import org.junit.jupiter.api.Test;
 
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
+import java.util.Arrays;
 
-public record NbtTreeModel(
-    NbtNode<?> root
-) {
-    public static NbtTreeModel loadTreeModel(Path file) throws IOException {
-        LinCompoundTag root;
-        try (var dataInput = new DataInputStream(new GZIPInputStream(Files.newInputStream(file)))) {
-            root = LinCompoundTag.readFrom(dataInput);
-        }
-        System.err.println(root);
-        return new NbtTreeModel(new NbtNode<>(new NbtNodeData.Value<>(root), List.of()));
+public class LinListTagTest {
+    @Test
+    void roundTrip() throws IOException {
+        TagTestUtil.assertRoundTrip(new LinListTag<>(LinTagType.stringTag(), Arrays.asList(
+            new LinStringTag("Hello"),
+            new LinStringTag("World!")
+        )));
+        TagTestUtil.assertRoundTrip(new LinListTag<>(LinTagType.doubleTag(), Arrays.asList(
+            new LinDoubleTag(Double.POSITIVE_INFINITY),
+            new LinDoubleTag(0.0),
+            new LinDoubleTag(-0.0)
+        )));
     }
 }

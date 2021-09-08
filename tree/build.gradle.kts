@@ -10,22 +10,16 @@ java {
     withSourcesJar()
 }
 
-tasks.withType<JavaCompile> {
-    options.compilerArgs.add("-parameters")
-}
-
 dependencies {
     compileOnlyApi(libs.jetbrains.annotations)
     compileOnlyApi(libs.checkerframework.qual)
 
     implementation(project(":common"))
+    implementation(project(":stream"))
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
-
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.junit.jupiter)
 
     testImplementation(libs.truth) {
         exclude(group = "junit")

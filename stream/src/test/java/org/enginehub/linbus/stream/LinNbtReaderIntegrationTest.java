@@ -19,6 +19,7 @@
 package org.enginehub.linbus.stream;
 
 import com.google.common.io.Resources;
+import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.visitor.LinRootVisitor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -131,7 +132,7 @@ public class LinNbtReaderIntegrationTest {
         inOrder.verify(nestedEggVisitor).visitEnd();
         inOrder.verify(nestedVisitor).visitEnd();
 
-        inOrder.verify(listLongVisitor).visitSize(5);
+        inOrder.verify(listLongVisitor).visitSizeAndType(5, LinTagId.LIST);
         long[] listLongValue = {11, 12, 13, 14, 15};
         for (int i = 0; i < listLongValue.length; i++) {
             inOrder.verify(listLongVisitor).visitValueLong(i);
@@ -139,7 +140,7 @@ public class LinNbtReaderIntegrationTest {
         }
         inOrder.verify(listLongVisitor).visitEnd();
 
-        inOrder.verify(listCompoundVisitor).visitSize(2);
+        inOrder.verify(listCompoundVisitor).visitSizeAndType(2, LinTagId.COMPOUND);
         record ListCompoundValue(String name, long createdOn) {
         }
         ListCompoundValue[] listCompoundValue = {

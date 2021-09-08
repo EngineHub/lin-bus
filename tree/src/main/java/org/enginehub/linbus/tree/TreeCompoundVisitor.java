@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) EngineHub <https://enginehub.org>
  * Copyright (c) contributors
@@ -16,26 +17,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.gui.model;
+package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.tree.LinCompoundTag;
+import org.enginehub.linbus.stream.visitor.LinCompoundTagVisitor;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
+import java.util.function.Consumer;
 
-public record NbtTreeModel(
-    NbtNode<?> root
-) {
-    public static NbtTreeModel loadTreeModel(Path file) throws IOException {
-        LinCompoundTag root;
-        try (var dataInput = new DataInputStream(new GZIPInputStream(Files.newInputStream(file)))) {
-            root = LinCompoundTag.readFrom(dataInput);
-        }
-        System.err.println(root);
-        return new NbtTreeModel(new NbtNode<>(new NbtNodeData.Value<>(root), List.of()));
+class TreeCompoundVisitor extends TreeContainerVisitor<String, LinCompoundTag> implements LinCompoundTagVisitor {
+    private final LinCompoundTag.Builder builder = LinCompoundTag.builder();
+
+    protected TreeCompoundVisitor(Consumer<LinCompoundTag> tagConsumer) {
+        super(tagConsumer);
+    }
+
+    protected void acceptChild(String name, LinTag<?, ?> tag) {
+        builder.put(name, tag);
+    }
+
+    @Override
+    public void visitEnd() {
+        tagFinished(builder.build());
     }
 }

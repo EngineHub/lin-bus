@@ -16,26 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.gui.model;
+package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.tree.LinCompoundTag;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.io.DataInputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
+import java.util.Objects;
 
-public record NbtTreeModel(
-    NbtNode<?> root
-) {
-    public static NbtTreeModel loadTreeModel(Path file) throws IOException {
-        LinCompoundTag root;
-        try (var dataInput = new DataInputStream(new GZIPInputStream(Files.newInputStream(file)))) {
-            root = LinCompoundTag.readFrom(dataInput);
-        }
-        System.err.println(root);
-        return new NbtTreeModel(new NbtNode<>(new NbtNodeData.Value<>(root), List.of()));
+public final class LinStringTag extends LinTag<@NonNull String, LinStringTag> {
+    private final String value;
+
+    public LinStringTag(String value) {
+        this.value = Objects.requireNonNull(value, "value is null");
+    }
+
+    @Override
+    public LinTagType<LinStringTag> type() {
+        return LinTagType.stringTag();
+    }
+
+    @Override
+    public @NonNull String value() {
+        return value;
     }
 }

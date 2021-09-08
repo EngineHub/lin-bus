@@ -18,9 +18,9 @@
 
 package org.enginehub.linbus.gui.model;
 
-import org.enginehub.linbus.core.LinCompoundTag;
-import org.enginehub.linbus.core.LinListTag;
-import org.enginehub.linbus.core.LinTag;
+import org.enginehub.linbus.tree.LinCompoundTag;
+import org.enginehub.linbus.tree.LinListTag;
+import org.enginehub.linbus.tree.LinTag;
 
 import java.io.IOException;
 import java.nio.file.Files;

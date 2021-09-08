@@ -16,26 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.gui.model;
+package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.tree.LinCompoundTag;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-
-public record NbtTreeModel(
-    NbtNode<?> root
-) {
-    public static NbtTreeModel loadTreeModel(Path file) throws IOException {
-        LinCompoundTag root;
-        try (var dataInput = new DataInputStream(new GZIPInputStream(Files.newInputStream(file)))) {
-            root = LinCompoundTag.readFrom(dataInput);
-        }
-        System.err.println(root);
-        return new NbtTreeModel(new NbtNode<>(new NbtNodeData.Value<>(root), List.of()));
-    }
+/**
+ * Interface for things that can be converted to a {@link LinTag}.
+ *
+ * @param <T> the specific type of {@link LinTag} that this converts to
+ */
+public interface ToLinTag<T extends LinTag<?, ?>> {
+    /**
+     * Convert this object to a {@link LinTag}.
+     *
+     * @return the {@link LinTag}
+     */
+    @NonNull T toLinTag();
 }

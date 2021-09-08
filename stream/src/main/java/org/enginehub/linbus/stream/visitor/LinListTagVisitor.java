@@ -18,11 +18,13 @@
 
 package org.enginehub.linbus.stream.visitor;
 
+import org.enginehub.linbus.common.LinTagId;
+
 public interface LinListTagVisitor extends LinTagVisitor, LinContainerVisitor<Integer> {
     static LinListTagVisitor defaultInstance() {
         return new LinListTagVisitor() {
             @Override
-            public void visitSize(int size) {
+            public void visitSizeAndType(int size, LinTagId type) {
             }
 
             @Override
@@ -31,5 +33,5 @@ public interface LinListTagVisitor extends LinTagVisitor, LinContainerVisitor<In
         };
     }
 
-    void visitSize(int size);
+    void visitSizeAndType(int size, LinTagId type);
 }

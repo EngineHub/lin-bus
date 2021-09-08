@@ -18,6 +18,7 @@
 
 package org.enginehub.linbus.stream.visitor.print;
 
+import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.visitor.LinByteArrayTagVisitor;
 import org.enginehub.linbus.stream.visitor.LinByteTagVisitor;
 import org.enginehub.linbus.stream.visitor.LinCompoundTagVisitor;
@@ -109,8 +110,8 @@ public class PrintingListTagVisitor extends PrintingVisitor implements LinListTa
     }
 
     @Override
-    public void visitSize(int size) {
-        print(size);
+    public void visitSizeAndType(int size, LinTagId type) {
+        print(size, type);
     }
 
     @Override
