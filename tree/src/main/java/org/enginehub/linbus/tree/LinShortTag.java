@@ -18,13 +18,9 @@
 
 package org.enginehub.linbus.tree;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-public final class LinShortTag extends LinTag<@NonNull Short, LinShortTag> {
+public final class LinShortTag extends LinTag<@NotNull Short, LinShortTag> {
     private final short value;
 
     public LinShortTag(short value) {
@@ -37,7 +33,7 @@ public final class LinShortTag extends LinTag<@NonNull Short, LinShortTag> {
     }
 
     @Override
-    public @NonNull Short value() {
+    public @NotNull Short value() {
         return value;
     }
 

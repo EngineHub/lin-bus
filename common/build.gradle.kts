@@ -16,7 +16,6 @@ tasks.withType<JavaCompile> {
 
 dependencies {
     compileOnlyApi(libs.jetbrains.annotations)
-    compileOnlyApi(libs.checkerframework.qual)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter.api)

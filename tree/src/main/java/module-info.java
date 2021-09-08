@@ -19,7 +19,6 @@
 module org.enginehub.linbus.tree {
     exports org.enginehub.linbus.tree;
     requires static org.jetbrains.annotations;
-    requires static org.checkerframework.checker.qual;
     requires org.enginehub.linbus.common;
     requires org.enginehub.linbus.stream;
 }

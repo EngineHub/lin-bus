@@ -12,7 +12,6 @@ java {
 
 dependencies {
     compileOnlyApi(libs.jetbrains.annotations)
-    compileOnlyApi(libs.checkerframework.qual)
 
     implementation(project(":common"))
     implementation(project(":stream"))

@@ -18,13 +18,9 @@
 
 package org.enginehub.linbus.tree;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-public final class LinFloatTag extends LinTag<@NonNull Float, LinFloatTag> {
+public final class LinFloatTag extends LinTag<@NotNull Float, LinFloatTag> {
     private final float value;
 
     public LinFloatTag(float value) {
@@ -37,7 +33,7 @@ public final class LinFloatTag extends LinTag<@NonNull Float, LinFloatTag> {
     }
 
     @Override
-    public @NonNull Float value() {
+    public @NotNull Float value() {
         return value;
     }
 

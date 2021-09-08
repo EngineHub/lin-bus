@@ -20,6 +20,5 @@ module org.enginehub.linbus.stream {
     exports org.enginehub.linbus.stream;
     exports org.enginehub.linbus.stream.visitor;
     requires static org.jetbrains.annotations;
-    requires static org.checkerframework.checker.qual;
     requires org.enginehub.linbus.common;
 }

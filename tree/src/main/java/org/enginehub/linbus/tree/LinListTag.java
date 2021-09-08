@@ -18,24 +18,22 @@
 
 package org.enginehub.linbus.tree;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public final class LinListTag<T extends @NonNull LinTag<?, ?>> extends LinTag<@NonNull List<T>, LinListTag<T>> {
-    public static <T extends @NonNull LinTag<?, ?>> LinListTag<T> empty(LinTagType<T> elementType) {
+public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@NotNull List<T>, LinListTag<T>> {
+    public static <T extends @NotNull LinTag<?, ?>> LinListTag<T> empty(LinTagType<T> elementType) {
         return builder(elementType).build();
     }
 
-    public static <T extends @NonNull LinTag<?, ?>> Builder<T> builder(LinTagType<T> elementType) {
+    public static <T extends @NotNull LinTag<?, ?>> Builder<T> builder(LinTagType<T> elementType) {
         return new Builder<>(elementType);
     }
 
-    public static final class Builder<T extends @NonNull LinTag<?, ?>> {
+    public static final class Builder<T extends @NotNull LinTag<?, ?>> {
         private final LinTagType<T> elementType;
         private final List<T> collector;
 
@@ -97,7 +95,7 @@ public final class LinListTag<T extends @NonNull LinTag<?, ?>> extends LinTag<@N
     }
 
     @Override
-    public @NonNull List<T> value() {
+    public @NotNull List<T> value() {
         return value;
     }
 

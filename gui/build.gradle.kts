@@ -32,7 +32,6 @@ configurations.all {
 
 dependencies {
     compileOnly(libs.jetbrains.annotations)
-    compileOnly(libs.checkerframework.qual)
     compileOnly(libs.polymerization.annotations)
 
     annotationProcessor(libs.dagger.compiler)

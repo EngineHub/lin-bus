@@ -18,15 +18,12 @@
 
 package org.enginehub.linbus.tree;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 
-public final class LinIntArrayTag extends LinTag<int @NonNull [], LinIntArrayTag> {
+public final class LinIntArrayTag extends LinTag<int @NotNull [], LinIntArrayTag> {
     private final int[] value;
 
     public LinIntArrayTag(int... value) {
@@ -46,7 +43,7 @@ public final class LinIntArrayTag extends LinTag<int @NonNull [], LinIntArrayTag
     }
 
     @Override
-    public int @NonNull [] value() {
+    public int @NotNull [] value() {
         return value.clone();
     }
 

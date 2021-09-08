@@ -18,7 +18,7 @@
 
 package org.enginehub.linbus.tree;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -51,7 +51,7 @@ public abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTa
     // all abiding implementations use SELF properly
     @SuppressWarnings("unchecked")
     @Override
-    public @NonNull SELF toLinTag() {
+    public @NotNull SELF toLinTag() {
         return (SELF) this;
     }
 

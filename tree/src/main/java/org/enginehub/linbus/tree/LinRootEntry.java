@@ -18,8 +18,8 @@
 
 package org.enginehub.linbus.tree;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.enginehub.linbus.stream.LinNbtReader;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInput;
 import java.io.IOException;
@@ -50,7 +50,7 @@ public record LinRootEntry(
      * Note that the tag returned is not the same as {@link #value()}.
      */
     @Override
-    public @NonNull LinCompoundTag toLinTag() {
+    public @NotNull LinCompoundTag toLinTag() {
         return new LinCompoundTag(Map.of(name, value), true);
     }
 }

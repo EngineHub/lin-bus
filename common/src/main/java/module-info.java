@@ -19,5 +19,4 @@
 module org.enginehub.linbus.common {
     exports org.enginehub.linbus.common;
     requires static org.jetbrains.annotations;
-    requires static org.checkerframework.checker.qual;
 }

@@ -18,7 +18,7 @@
 
 package org.enginehub.linbus.tree;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Interface for things that can be converted to a {@link LinTag}.
@@ -31,5 +31,5 @@ public interface ToLinTag<T extends LinTag<?, ?>> {
      *
      * @return the {@link LinTag}
      */
-    @NonNull T toLinTag();
+    @NotNull T toLinTag();
 }

@@ -18,15 +18,12 @@
 
 package org.enginehub.linbus.tree;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-public final class LinByteArrayTag extends LinTag<byte @NonNull [], LinByteArrayTag> {
+public final class LinByteArrayTag extends LinTag<byte @NotNull [], LinByteArrayTag> {
     private final byte[] value;
 
     public LinByteArrayTag(byte... value) {
@@ -46,7 +43,7 @@ public final class LinByteArrayTag extends LinTag<byte @NonNull [], LinByteArray
     }
 
     @Override
-    public byte @NonNull [] value() {
+    public byte @NotNull [] value() {
         return value.clone();
     }
 

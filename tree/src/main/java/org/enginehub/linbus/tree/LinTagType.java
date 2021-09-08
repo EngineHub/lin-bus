@@ -18,11 +18,9 @@
 
 package org.enginehub.linbus.tree;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.enginehub.linbus.common.LinTagId;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.DataInput;
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -104,11 +102,11 @@ public final class LinTagType<T extends LinTag<?, ?>> {
     }
 
     @SuppressWarnings("unchecked")
-    private static final LinTagType<LinListTag<? extends @NonNull LinTag<?, ?>>> LIST_TAG = new LinTagType<>(
-        LinTagId.LIST, (Class<LinListTag<? extends @NonNull LinTag<?, ?>>>) (Object) LinListTag.class
+    private static final LinTagType<LinListTag<? extends @NotNull LinTag<?, ?>>> LIST_TAG = new LinTagType<>(
+        LinTagId.LIST, (Class<LinListTag<? extends @NotNull LinTag<?, ?>>>) (Object) LinListTag.class
     );
 
-    public static <T extends @NonNull LinTag<?, ?>> LinTagType<LinListTag<T>> listTag() {
+    public static <T extends @NotNull LinTag<?, ?>> LinTagType<LinListTag<T>> listTag() {
         @SuppressWarnings("unchecked")
         LinTagType<LinListTag<T>> cast = (LinTagType<LinListTag<T>>) (Object) LIST_TAG;
         return cast;
@@ -138,7 +136,7 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         return LONG_ARRAY_TAG;
     }
 
-    private static final @NonNull LinTagType<?>[] LIN_TAG_TYPES =
+    private static final @NotNull LinTagType<?>[] LIN_TAG_TYPES =
         Stream.of(
             END_TAG,
             BYTE_TAG,

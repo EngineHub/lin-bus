@@ -18,10 +18,6 @@
 
 package org.enginehub.linbus.tree;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
 public final class LinEndTag extends LinTag<Void, LinEndTag> {
     private static final LinEndTag INSTANCE = new LinEndTag();
 

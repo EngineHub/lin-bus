@@ -18,25 +18,22 @@
 
 package org.enginehub.linbus.tree;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-public final class LinCompoundTag extends LinTag<@NonNull Map<String, @NonNull LinTag<?, ?>>, LinCompoundTag> {
+public final class LinCompoundTag extends LinTag<@NotNull Map<String, @NotNull LinTag<?, ?>>, LinCompoundTag> {
     public static Builder builder() {
         return new Builder();
     }
 
     public static final class Builder {
-        private final LinkedHashMap<String, @NonNull LinTag<?, ?>> collector;
+        private final LinkedHashMap<String, @NotNull LinTag<?, ?>> collector;
 
         private Builder() {
             this.collector = new LinkedHashMap<>();
@@ -51,19 +48,19 @@ public final class LinCompoundTag extends LinTag<@NonNull Map<String, @NonNull L
             return this;
         }
 
-        public @NonNull LinCompoundTag build() {
+        public @NotNull LinCompoundTag build() {
             // Let the constructor run a copy for us.
             return new LinCompoundTag(this.collector);
         }
     }
 
-    private final Map<String, @NonNull LinTag<?, ?>> value;
+    private final Map<String, @NotNull LinTag<?, ?>> value;
 
-    public LinCompoundTag(@NonNull Map<String, @NonNull LinTag<?, ?>> value) {
+    public LinCompoundTag(@NotNull Map<String, @NotNull LinTag<?, ?>> value) {
         this(Collections.unmodifiableMap(new LinkedHashMap<>(value)), true);
     }
 
-    LinCompoundTag(@NonNull Map<String, @NonNull LinTag<?, ?>> value, boolean iSwearToNotModifyValue) {
+    LinCompoundTag(@NotNull Map<String, @NotNull LinTag<?, ?>> value, boolean iSwearToNotModifyValue) {
         if (!iSwearToNotModifyValue) {
             throw new IllegalArgumentException("You think you're clever, huh?");
         }
@@ -76,16 +73,16 @@ public final class LinCompoundTag extends LinTag<@NonNull Map<String, @NonNull L
     }
 
     @Override
-    public @NonNull Map<String, @NonNull LinTag<?, ?>> value() {
+    public @NotNull Map<String, @NotNull LinTag<?, ?>> value() {
         return value;
     }
 
-    public <T extends LinTag<?, ?>> @Nullable T findTag(@NonNull String key, @NonNull LinTagType<T> type) {
+    public <T extends LinTag<?, ?>> @Nullable T findTag(@NotNull String key, @NotNull LinTagType<T> type) {
         LinTag<?, ?> tag = value.get(key);
         return type == tag.type() ? type.cast(tag) : null;
     }
 
-    public <T extends LinTag<?, ?>> @NonNull T getTag(@NonNull String key, @NonNull LinTagType<T> type) {
+    public <T extends LinTag<?, ?>> @NotNull T getTag(@NotNull String key, @NotNull LinTagType<T> type) {
         LinTag<?, ?> tag = value.get(key);
 
         if (tag == null) {
