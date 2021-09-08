@@ -16,7 +16,7 @@ import org.enginehub.linbus.stream.visitor.LinStringTagVisitor;
 
 import java.util.function.Consumer;
 
-public abstract class TreeContainerVisitor<K, T extends LinTag<?, T>> extends TreeVisitor<T> implements LinContainerVisitor<K> {
+abstract class TreeContainerVisitor<K, T extends LinTag<?, T>> extends TreeVisitor<T> implements LinContainerVisitor<K> {
 
     protected TreeContainerVisitor(Consumer<T> tagConsumer) {
         super(tagConsumer);
