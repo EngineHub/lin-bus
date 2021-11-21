@@ -20,7 +20,7 @@ package org.enginehub.linbus.stream.visitor;
 
 import java.nio.IntBuffer;
 
-public interface LinIntArrayTagVisitor extends LinTagVisitor {
+public non-sealed interface LinIntArrayTagVisitor extends LinTagVisitor {
     static LinIntArrayTagVisitor defaultInstance() {
         return new LinIntArrayTagVisitor() {
             @Override

@@ -20,7 +20,7 @@ package org.enginehub.linbus.stream.visitor;
 
 import java.nio.ByteBuffer;
 
-public interface LinByteArrayTagVisitor extends LinTagVisitor {
+public non-sealed interface LinByteArrayTagVisitor extends LinTagVisitor {
     static LinByteArrayTagVisitor defaultInstance() {
         return new LinByteArrayTagVisitor() {
             @Override

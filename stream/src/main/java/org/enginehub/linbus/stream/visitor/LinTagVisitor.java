@@ -18,5 +18,7 @@
 
 package org.enginehub.linbus.stream.visitor;
 
-public interface LinTagVisitor {
+public sealed interface LinTagVisitor permits LinByteArrayTagVisitor, LinByteTagVisitor, LinCompoundTagVisitor,
+    LinDoubleTagVisitor, LinEndTagVisitor, LinFloatTagVisitor, LinIntArrayTagVisitor, LinIntTagVisitor,
+    LinListTagVisitor, LinLongArrayTagVisitor, LinLongTagVisitor, LinShortTagVisitor, LinStringTagVisitor {
 }

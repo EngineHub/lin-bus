@@ -20,7 +20,7 @@ package org.enginehub.linbus.stream.visitor;
 
 import java.nio.LongBuffer;
 
-public interface LinLongArrayTagVisitor extends LinTagVisitor {
+public non-sealed interface LinLongArrayTagVisitor extends LinTagVisitor {
     static LinLongArrayTagVisitor defaultInstance() {
         return new LinLongArrayTagVisitor() {
             @Override

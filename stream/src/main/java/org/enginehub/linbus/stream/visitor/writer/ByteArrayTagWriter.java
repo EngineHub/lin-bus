@@ -18,23 +18,36 @@
 
 package org.enginehub.linbus.stream.visitor.writer;
 
-import org.enginehub.linbus.common.LinTagId;
-import org.enginehub.linbus.stream.visitor.LinCompoundTagVisitor;
+import org.enginehub.linbus.stream.visitor.LinByteArrayTagVisitor;
 
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.ByteBuffer;
 
-public class CompoundTagWriter extends ContainerWriter<String> implements LinCompoundTagVisitor {
-    public CompoundTagWriter(DataOutput output) {
-        super(output);
+public class ByteArrayTagWriter implements LinByteArrayTagVisitor {
+    private final byte[] copyBuffer = new byte[4096];
+    private final DataOutput output;
+
+    public ByteArrayTagWriter(DataOutput output) {
+        this.output = output;
     }
 
     @Override
-    protected void writeHeader(LinTagId id, String key) {
+    public void visitSize(int size) {
         try {
-            output.writeByte(id.id());
-            output.writeUTF(key);
+            output.writeInt(size);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void visitChunk(ByteBuffer buffer) {
+        int size = Math.min(copyBuffer.length, buffer.remaining());
+        buffer.get(copyBuffer, 0, size);
+        try {
+            output.write(copyBuffer, 0, size);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -27,7 +27,9 @@ import java.util.Objects;
  *
  * @param <T> the type of the canonical representation
  */
-public abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTag<SELF> {
+public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTag<SELF>
+    permits LinByteArrayTag, LinByteTag, LinCompoundTag, LinDoubleTag, LinEndTag, LinFloatTag, LinIntArrayTag,
+    LinIntTag, LinListTag, LinLongArrayTag, LinLongTag, LinShortTag, LinStringTag {
     /**
      * Gets the type of this tag.
      *

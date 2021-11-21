@@ -16,22 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.stream.visitor;
+package org.enginehub.linbus.stream.visitor.writer;
 
-import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.stream.visitor.LinByteTagVisitor;
 
-public non-sealed interface LinListTagVisitor extends LinTagVisitor, LinContainerVisitor<Integer> {
-    static LinListTagVisitor defaultInstance() {
-        return new LinListTagVisitor() {
-            @Override
-            public void visitSizeAndType(int size, LinTagId type) {
-            }
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
-            @Override
-            public void visitEnd() {
-            }
-        };
+public class ByteTagWriter implements LinByteTagVisitor {
+    private final DataOutput output;
+
+    public ByteTagWriter(DataOutput output) {
+        this.output = output;
     }
 
-    void visitSizeAndType(int size, LinTagId type);
+    @Override
+    public void visitByte(byte value) {
+        try {
+            output.writeByte(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }

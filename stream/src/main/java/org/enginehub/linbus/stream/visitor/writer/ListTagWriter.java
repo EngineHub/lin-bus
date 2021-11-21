@@ -16,34 +16,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.tree;
+package org.enginehub.linbus.stream.visitor.writer;
 
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.visitor.LinListTagVisitor;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Consumer;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
-class TreeListVisitor extends TreeContainerVisitor<Integer, LinListTag<@NotNull LinTag<?, ?>>> implements LinListTagVisitor {
-    private LinListTag.Builder<@NotNull LinTag<?, ?>> builder;
-
-    protected TreeListVisitor(Consumer<LinListTag<@NotNull LinTag<?, ?>>> tagConsumer) {
-        super(tagConsumer);
+public class ListTagWriter extends ContainerWriter<Integer> implements LinListTagVisitor {
+    public ListTagWriter(DataOutput output) {
+        super(output);
     }
 
     @Override
-    protected void acceptChild(Integer key, LinTag<?, ?> tag) {
-        builder.add(tag);
+    protected void writeHeader(LinTagId id, Integer key) {
+        // we already wrote all the header we need
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void visitSizeAndType(int size, LinTagId type) {
-        builder = LinListTag.builder((LinTagType<LinTag<?, ?>>) LinTagType.fromId(type));
+        try {
+            output.writeByte(type.id());
+            output.writeInt(size);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void visitEnd() {
-        tagFinished(builder.build());
     }
 }

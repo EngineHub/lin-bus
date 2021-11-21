@@ -18,7 +18,7 @@
 
 package org.enginehub.linbus.stream.visitor;
 
-public interface LinShortTagVisitor extends LinTagVisitor {
+public non-sealed interface LinShortTagVisitor extends LinTagVisitor {
     static LinShortTagVisitor defaultInstance() {
         return v -> {
         };

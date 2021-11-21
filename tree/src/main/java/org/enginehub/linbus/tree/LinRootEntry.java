@@ -19,10 +19,16 @@
 package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.stream.LinNbtReader;
+import org.enginehub.linbus.stream.LinNbtWriter;
+import org.enginehub.linbus.stream.visitor.LinRootVisitor;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,6 +48,36 @@ public record LinRootEntry(
     public LinRootEntry {
         Objects.requireNonNull(name);
         Objects.requireNonNull(value);
+    }
+
+    public byte[] writeToArray() {
+        var output = new ByteArrayOutputStream();
+        try (var dataOutputStream = new DataOutputStream(output)) {
+            writeTo(dataOutputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return output.toByteArray();
+    }
+
+    public void writeTo(DataOutput output) throws IOException {
+        try {
+            accept(LinNbtWriter.create(output));
+        } catch (UncheckedIOException e) {
+            IOException cause = e.getCause();
+
+            // Report the exception trace from the UncheckedIOException in the suppression
+            var suppressed = new Exception("Original UncheckedIOException trace");
+            suppressed.setStackTrace(e.getStackTrace());
+            cause.addSuppressed(suppressed);
+
+            throw cause;
+        }
+    }
+
+    public void accept(LinRootVisitor visitor) {
+        var valueVisitor = visitor.visitValue(name);
+        value.accept(valueVisitor);
     }
 
     /**

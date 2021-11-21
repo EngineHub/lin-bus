@@ -132,7 +132,7 @@ public class LinNbtReaderIntegrationTest {
         inOrder.verify(nestedEggVisitor).visitEnd();
         inOrder.verify(nestedVisitor).visitEnd();
 
-        inOrder.verify(listLongVisitor).visitSizeAndType(5, LinTagId.LIST);
+        inOrder.verify(listLongVisitor).visitSizeAndType(5, LinTagId.LONG);
         long[] listLongValue = {11, 12, 13, 14, 15};
         for (int i = 0; i < listLongValue.length; i++) {
             inOrder.verify(listLongVisitor).visitValueLong(i);

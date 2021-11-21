@@ -18,6 +18,8 @@
 
 package org.enginehub.linbus.tree;
 
+import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.stream.visitor.LinCompoundTagVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,6 +101,28 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<String, @NotNull L
 
     public Builder toBuilder() {
         return new Builder(this);
+    }
+
+    public void accept(LinCompoundTagVisitor visitor) {
+        value.forEach((key, tag) -> {
+            LinTagId id = tag.type().id();
+            switch (id) {
+                case BYTE -> visitor.visitValueByte(key);
+                case SHORT -> visitor.visitValueShort(key);
+                case INT -> visitor.visitValueInt(key);
+                case LONG -> visitor.visitValueLong(key);
+                case FLOAT -> visitor.visitValueFloat(key);
+                case DOUBLE -> visitor.visitValueDouble(key);
+                case BYTE_ARRAY -> visitor.visitValueByteArray(key);
+                case STRING -> visitor.visitValueString(key);
+                case LIST -> visitor.visitValueList(key);
+                case COMPOUND -> visitor.visitValueCompound(key);
+                case INT_ARRAY -> visitor.visitValueIntArray(key);
+                case LONG_ARRAY -> visitor.visitValueLongArray(key);
+                case END -> throw new IllegalStateException("Invalid id: " + id);
+            }
+        });
+        visitor.visitEnd();
     }
 
     @Override

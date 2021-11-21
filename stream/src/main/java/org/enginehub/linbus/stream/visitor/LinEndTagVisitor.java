@@ -18,6 +18,6 @@
 
 package org.enginehub.linbus.stream.visitor;
 
-public interface LinEndTagVisitor extends LinTagVisitor {
+public non-sealed interface LinEndTagVisitor extends LinTagVisitor {
     void visitEnd();
 }
