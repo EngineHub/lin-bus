@@ -18,13 +18,24 @@
 
 package org.enginehub.linbus.tree;
 
+import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
 import java.util.Objects;
 
+/**
+ * Represents a string tag.
+ */
 public final class LinStringTag extends LinTag<@NotNull String, LinStringTag> {
     private final String value;
 
+    /**
+     * Creates a new string tag.
+     *
+     * @param value the value
+     */
     public LinStringTag(String value) {
         this.value = Objects.requireNonNull(value, "value is null");
     }
@@ -37,5 +48,10 @@ public final class LinStringTag extends LinTag<@NotNull String, LinStringTag> {
     @Override
     public @NotNull String value() {
         return value;
+    }
+
+    @Override
+    public @NotNull Iterator<LinToken> iterator() {
+        return Iterators.of(new LinToken.String(value));
     }
 }

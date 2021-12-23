@@ -18,24 +18,38 @@
 
 package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.common.LinTagId;
-import org.enginehub.linbus.stream.visitor.LinCompoundTagVisitor;
+import org.enginehub.linbus.common.internal.AbstractIterator;
+import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-public final class LinCompoundTag extends LinTag<@NotNull Map<String, @NotNull LinTag<?, ?>>, LinCompoundTag> {
+/**
+ * Represents a compound tag.
+ */
+public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, @NotNull LinTag<?, ?>>, LinCompoundTag> {
+
+    /**
+     * Creates a new builder.
+     *
+     * @return a new builder
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * A builder for {@link LinCompoundTag LinCompoundTags}.
+     */
     public static final class Builder {
-        private final LinkedHashMap<String, @NotNull LinTag<?, ?>> collector;
+        private final LinkedHashMap<@NotNull String, @NotNull LinTag<?, ?>> collector;
 
         private Builder() {
             this.collector = new LinkedHashMap<>();
@@ -45,24 +59,57 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<String, @NotNull L
             this.collector = new LinkedHashMap<>(base.value);
         }
 
-        public Builder put(String name, LinTag<?, ?> value) {
+        /**
+         * Add a tag to the compound tag.
+         *
+         * @param name the name of the tag
+         * @param value the value of the tag
+         * @return this builder
+         */
+        public Builder put(@NotNull String name, @NotNull LinTag<?, ?> value) {
             this.collector.put(name, value);
             return this;
         }
 
+        /**
+         * Add multiple tags to the compound tag.
+         *
+         * @param map the tags to add
+         * @return this builder
+         */
+        public Builder putAll(@NotNull Map<String, ? extends LinTag<?, ?>> map) {
+            this.collector.putAll(map);
+            return this;
+        }
+
+        /**
+         * Finish building the compound tag.
+         *
+         * @return the built tag
+         */
         public @NotNull LinCompoundTag build() {
             // Let the constructor run a copy for us.
             return new LinCompoundTag(this.collector);
         }
     }
 
-    private final Map<String, @NotNull LinTag<?, ?>> value;
+    private final Map<@NotNull String, @NotNull LinTag<?, ?>> value;
 
-    public LinCompoundTag(@NotNull Map<String, @NotNull LinTag<?, ?>> value) {
+    /**
+     * Creates a new compound tag.
+     *
+     * <p>
+     * The map <em>will not</em> be copied using {@link Map#copyOf(Map)}, as that fails to preserve order. Instead, the
+     * map will be copied using {@link LinkedHashMap#LinkedHashMap(Map)}.
+     * </p>
+     *
+     * @param value the value
+     */
+    public LinCompoundTag(@NotNull Map<@NotNull String, @NotNull LinTag<?, ?>> value) {
         this(Collections.unmodifiableMap(new LinkedHashMap<>(value)), true);
     }
 
-    LinCompoundTag(@NotNull Map<String, @NotNull LinTag<?, ?>> value, boolean iSwearToNotModifyValue) {
+    LinCompoundTag(@NotNull Map<@NotNull String, @NotNull LinTag<?, ?>> value, boolean iSwearToNotModifyValue) {
         if (!iSwearToNotModifyValue) {
             throw new IllegalArgumentException("You think you're clever, huh?");
         }
@@ -75,58 +122,87 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<String, @NotNull L
     }
 
     @Override
-    public @NotNull Map<String, @NotNull LinTag<?, ?>> value() {
+    public @NotNull Map<@NotNull String, @NotNull LinTag<?, ?>> value() {
         return value;
     }
 
-    public <T extends LinTag<?, ?>> @Nullable T findTag(@NotNull String key, @NotNull LinTagType<T> type) {
-        LinTag<?, ?> tag = value.get(key);
+    @Override
+    public @NotNull Iterator<LinToken> iterator() {
+        return Iterators.combine(
+            Iterators.of(new LinToken.CompoundStart()),
+            Iterators.combine(new EntryTokenIterator()),
+            Iterators.of(new LinToken.CompoundEnd())
+        );
+    }
+
+    private class EntryTokenIterator extends AbstractIterator<Iterator<? extends LinToken>> {
+        private final Iterator<Map.Entry<String, LinTag<?, ?>>> entryIterator = value.entrySet().iterator();
+        private Map.Entry<String, LinTag<?, ?>> currentEntry;
+
+        @Override
+        protected Iterator<? extends LinToken> computeNext() {
+            if (currentEntry == null) {
+                if (!entryIterator.hasNext()) {
+                    return end();
+                }
+                currentEntry = entryIterator.next();
+                return Iterators.of(new LinToken.Name(currentEntry.getKey(), currentEntry.getValue().type().id()));
+            }
+            var next = currentEntry.getValue().iterator();
+            currentEntry = null;
+            return next;
+        }
+    }
+
+    /**
+     * Find the tag with the given type and name.
+     *
+     * @param name the name
+     * @param type the type
+     * @param <T> the type of the tag
+     * @return the tag, or {@code null} if not found
+     */
+    public <T extends LinTag<?, ?>> @Nullable T findTag(@NotNull String name, @NotNull LinTagType<T> type) {
+        LinTag<?, ?> tag = value.get(name);
         return type == tag.type() ? type.cast(tag) : null;
     }
 
-    public <T extends LinTag<?, ?>> @NotNull T getTag(@NotNull String key, @NotNull LinTagType<T> type) {
-        LinTag<?, ?> tag = value.get(key);
+    /**
+     * Get the tag with the given type and name.
+     *
+     * @param name the name
+     * @param type the type to require
+     * @param <T> the type of the tag
+     * @return the tag
+     * @throws NoSuchElementException if there is no tag under the given name
+     * @throws IllegalStateException if the tag exists but is of a different type
+     */
+    public <T extends LinTag<?, ?>> @NotNull T getTag(@NotNull String name, @NotNull LinTagType<T> type) {
+        LinTag<?, ?> tag = value.get(name);
 
         if (tag == null) {
-            throw new NoSuchElementException("No tag under the key '" + key + "' exists");
+            throw new NoSuchElementException("No tag under the name '" + name + "' exists");
         }
 
         if (type != tag.type()) {
-            throw new IllegalStateException("Tag under '" + key + "' exists, but is a " + tag.type().name()
+            throw new IllegalStateException("Tag under '" + name + "' exists, but is a " + tag.type().name()
                 + " instead of " + type.name());
         }
 
         return type.cast(tag);
     }
 
+    /**
+     * Converts this tag into a {@link Builder}.
+     *
+     * @return a new builder
+     */
     public Builder toBuilder() {
         return new Builder(this);
     }
 
-    public void accept(LinCompoundTagVisitor visitor) {
-        value.forEach((key, tag) -> {
-            LinTagId id = tag.type().id();
-            switch (id) {
-                case BYTE -> visitor.visitValueByte(key);
-                case SHORT -> visitor.visitValueShort(key);
-                case INT -> visitor.visitValueInt(key);
-                case LONG -> visitor.visitValueLong(key);
-                case FLOAT -> visitor.visitValueFloat(key);
-                case DOUBLE -> visitor.visitValueDouble(key);
-                case BYTE_ARRAY -> visitor.visitValueByteArray(key);
-                case STRING -> visitor.visitValueString(key);
-                case LIST -> visitor.visitValueList(key);
-                case COMPOUND -> visitor.visitValueCompound(key);
-                case INT_ARRAY -> visitor.visitValueIntArray(key);
-                case LONG_ARRAY -> visitor.visitValueLongArray(key);
-                case END -> throw new IllegalStateException("Invalid id: " + id);
-            }
-        });
-        visitor.visitEnd();
-    }
-
     @Override
     public String toString() {
-        return "compound" + value;
+        return type().name() + value;
     }
 }

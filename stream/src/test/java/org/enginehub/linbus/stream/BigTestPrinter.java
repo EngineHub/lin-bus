@@ -19,8 +19,8 @@
 package org.enginehub.linbus.stream;
 
 import com.google.common.io.Resources;
-import org.enginehub.linbus.stream.visitor.print.PrintingRootVisitor;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
@@ -29,8 +29,11 @@ public class BigTestPrinter {
     public static void main(String[] args) throws IOException {
         var resource = Resources.getResource("bigtest.nbt.gz");
         try (var stream = Resources.asByteSource(resource).openStream();
-             var decompressed = new GZIPInputStream(stream)) {
-            LinNbtReader.accept(new DataInputStream(decompressed), new PrintingRootVisitor());
+             var decompressed = new GZIPInputStream(stream);
+             var buffered = new BufferedInputStream(decompressed)) {
+            System.err.println("Here we go:");
+            LinNbtStreams.read(new DataInputStream(buffered)).forEachRemaining(System.err::println);
+            System.err.println("... that's all folks!");
         }
     }
 }

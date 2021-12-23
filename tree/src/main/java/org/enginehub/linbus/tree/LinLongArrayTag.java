@@ -19,14 +19,27 @@
 package org.enginehub.linbus.tree;
 
 
+import org.enginehub.linbus.common.internal.AbstractIterator;
+import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.Arrays;
+import java.util.Iterator;
 
+/**
+ * Represents a long array tag.
+ */
 public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArrayTag> {
     private final long[] value;
 
+    /**
+     * Creates a new long array tag from the given long array. The array will be {@linkplain  Object#clone() cloned}.
+     *
+     * @param value the value
+     */
     public LinLongArrayTag(long... value) {
         this(value.clone(), true);
     }
@@ -49,11 +62,36 @@ public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArray
     }
 
     /**
-     * Alternative no-copy byte access, returns a new {@link LongBuffer} that is read-only, and
-     * directly wraps the underlying array.
+     * Alternative no-copy byte access, returns a new {@link LongBuffer} that is read-only, and directly wraps the
+     * underlying array.
+     *
+     * @return a read-only {@link LongBuffer} providing view access to the contents of this tag
      */
     public LongBuffer view() {
         return LongBuffer.wrap(value).asReadOnlyBuffer();
+    }
+
+    @Override
+    public @NotNull Iterator<LinToken> iterator() {
+        return Iterators.combine(
+            Iterators.of(new LinToken.LongArrayStart(value.length)),
+            new AbstractIterator<>() {
+                private static final int BUFFER_SIZE = 4096;
+                private int i = 0;
+
+                @Override
+                protected LinToken computeNext() {
+                    if (i >= value.length) {
+                        return end();
+                    }
+                    var length = Math.min(BUFFER_SIZE, value.length - i);
+                    var buffer = LongBuffer.wrap(value, i, length);
+                    i += length;
+                    return new LinToken.LongArrayContent(buffer);
+                }
+            },
+            Iterators.of(new LinToken.LongArrayEnd())
+        );
     }
 
     @Override

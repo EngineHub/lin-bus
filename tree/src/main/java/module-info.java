@@ -16,6 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * The tree module of lin-bus. Presents a standard tree structure of NBT. Internally, everything is parsed using the
+ * streaming module.
+ */
 module org.enginehub.linbus.tree {
     exports org.enginehub.linbus.tree;
     requires static org.jetbrains.annotations;

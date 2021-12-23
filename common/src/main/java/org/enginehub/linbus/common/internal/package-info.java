@@ -17,11 +17,6 @@
  */
 
 /**
- * The streaming module of lin-bus. Features a Jackson-like API for decoding and encoding NBT.
+ * {@summary The internal package of the common module. THIS IS NOT API.}
  */
-module org.enginehub.linbus.stream {
-    exports org.enginehub.linbus.stream;
-    exports org.enginehub.linbus.stream.token;
-    requires static org.jetbrains.annotations;
-    requires org.enginehub.linbus.common;
-}
+package org.enginehub.linbus.common.internal;

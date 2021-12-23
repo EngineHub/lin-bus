@@ -18,6 +18,7 @@
 
 package org.enginehub.linbus.tree;
 
+import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -26,8 +27,9 @@ import java.util.Objects;
  * Represents an NBT tag, which has a canonical representation of type {@code T}.
  *
  * @param <T> the type of the canonical representation
+ * @param <SELF> the type of the tag
  */
-public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTag<SELF>
+public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTag<SELF>, Iterable<LinToken>
     permits LinByteArrayTag, LinByteTag, LinCompoundTag, LinDoubleTag, LinEndTag, LinFloatTag, LinIntArrayTag,
     LinIntTag, LinListTag, LinLongArrayTag, LinLongTag, LinShortTag, LinStringTag {
     /**
@@ -46,6 +48,16 @@ public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements 
      */
     public abstract T value();
 
+    /**
+     * Attempt to convert the value of this tag to an integer.
+     *
+     * <p>
+     * Specifically, if the {@link #value()} of this tag is a {@link Number}, then this method will return the {@link
+     * Number#intValue() intValue()} of that value. Otherwise, this method will return {@code 0}.
+     * </p>
+     *
+     * @return the value of this tag as an integer
+     */
     public final int coerceAsInt() {
         return value() instanceof Number number ? number.intValue() : 0;
     }
@@ -53,7 +65,7 @@ public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements 
     // all abiding implementations use SELF properly
     @SuppressWarnings("unchecked")
     @Override
-    public @NotNull SELF toLinTag() {
+    public final @NotNull SELF toLinTag() {
         return (SELF) this;
     }
 
@@ -72,6 +84,6 @@ public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements 
 
     @Override
     public String toString() {
-        return type().name() + "{" + value() + '}';
+        return type().name() + "[" + value() + ']';
     }
 }

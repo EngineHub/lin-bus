@@ -27,12 +27,19 @@ import java.util.stream.Stream;
 
 /**
  * Represents a tag type.
+ *
+ * <p>
+ * This is different from the plain {@link LinTagId}, because it offers generic methods for casting to tag types.
+ * </p>
  */
 public final class LinTagType<T extends LinTag<?, ?>> {
     private static final LinTagType<LinEndTag> END_TAG = new LinTagType<>(
         LinTagId.END, LinEndTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the end tag}
+     */
     public static LinTagType<LinEndTag> endTag() {
         return END_TAG;
     }
@@ -41,6 +48,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.BYTE, LinByteTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the byte tag}
+     */
     public static LinTagType<LinByteTag> byteTag() {
         return BYTE_TAG;
     }
@@ -49,6 +59,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.SHORT, LinShortTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the short tag}
+     */
     public static LinTagType<LinShortTag> shortTag() {
         return SHORT_TAG;
     }
@@ -57,6 +70,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.INT, LinIntTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the int tag}
+     */
     public static LinTagType<LinIntTag> intTag() {
         return INT_TAG;
     }
@@ -65,6 +81,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.LONG, LinLongTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the long tag}
+     */
     public static LinTagType<LinLongTag> longTag() {
         return LONG_TAG;
     }
@@ -73,6 +92,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.FLOAT, LinFloatTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the float tag}
+     */
     public static LinTagType<LinFloatTag> floatTag() {
         return FLOAT_TAG;
     }
@@ -81,6 +103,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.DOUBLE, LinDoubleTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the double tag}
+     */
     public static LinTagType<LinDoubleTag> doubleTag() {
         return DOUBLE_TAG;
     }
@@ -89,6 +114,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.BYTE_ARRAY, LinByteArrayTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the byte array tag}
+     */
     public static LinTagType<LinByteArrayTag> byteArrayTag() {
         return BYTE_ARRAY_TAG;
     }
@@ -97,6 +125,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.STRING, LinStringTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the string tag}
+     */
     public static LinTagType<LinStringTag> stringTag() {
         return STRING_TAG;
     }
@@ -106,6 +137,11 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.LIST, (Class<LinListTag<? extends @NotNull LinTag<?, ?>>>) (Object) LinListTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the list tag}
+     *
+     * @param <T> the type of the list elements
+     */
     public static <T extends @NotNull LinTag<?, ?>> LinTagType<LinListTag<T>> listTag() {
         @SuppressWarnings("unchecked")
         LinTagType<LinListTag<T>> cast = (LinTagType<LinListTag<T>>) (Object) LIST_TAG;
@@ -116,6 +152,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.COMPOUND, LinCompoundTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the compound tag}
+     */
     public static LinTagType<LinCompoundTag> compoundTag() {
         return COMPOUND_TAG;
     }
@@ -124,6 +163,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.INT_ARRAY, LinIntArrayTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the int array tag}
+     */
     public static LinTagType<LinIntArrayTag> intArrayTag() {
         return INT_ARRAY_TAG;
     }
@@ -132,29 +174,38 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         LinTagId.LONG_ARRAY, LinLongArrayTag.class
     );
 
+    /**
+     * {@return the {@link LinTagType} for the long array tag}
+     */
     public static LinTagType<LinLongArrayTag> longArrayTag() {
         return LONG_ARRAY_TAG;
     }
 
     private static final @NotNull LinTagType<?>[] LIN_TAG_TYPES =
         Stream.of(
-            END_TAG,
-            BYTE_TAG,
-            SHORT_TAG,
-            INT_TAG,
-            LONG_TAG,
-            FLOAT_TAG,
-            DOUBLE_TAG,
-            BYTE_ARRAY_TAG,
-            STRING_TAG,
-            LIST_TAG,
-            COMPOUND_TAG,
-            INT_ARRAY_TAG,
-            LONG_ARRAY_TAG
-        )
+                END_TAG,
+                BYTE_TAG,
+                SHORT_TAG,
+                INT_TAG,
+                LONG_TAG,
+                FLOAT_TAG,
+                DOUBLE_TAG,
+                BYTE_ARRAY_TAG,
+                STRING_TAG,
+                LIST_TAG,
+                COMPOUND_TAG,
+                INT_ARRAY_TAG,
+                LONG_ARRAY_TAG
+            )
             .sorted(Comparator.comparing(LinTagType::id))
             .toArray(LinTagType<?>[]::new);
 
+    /**
+     * Get the {@link LinTagType} for the given {@link LinTagId}.
+     *
+     * @param id The {@link LinTagId} to get the {@link LinTagType} for.
+     * @return The {@link LinTagType} for the given {@link LinTagId}.
+     */
     public static LinTagType<?> fromId(LinTagId id) {
         return LIN_TAG_TYPES[id.id()];
     }
@@ -167,14 +218,27 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         this.javaType = javaType;
     }
 
+    /**
+     * {@return the name of this tag type}
+     */
     public String name() {
         return id.name();
     }
 
+    /**
+     * {@return the id of this tag type}
+     */
     public LinTagId id() {
         return id;
     }
 
+    /**
+     * Cast the tag to the type of this tag type.
+     *
+     * @param tag the tag to cast
+     * @return the tag as {@code T}
+     * @throws IllegalArgumentException if the tag is not of type {@code T}
+     */
     public T cast(LinTag<?, ?> tag) {
         if (tag.type() != this) {
             throw new IllegalArgumentException("Tag is a " + tag.type().name() + ", not a " + name());

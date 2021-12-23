@@ -16,12 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+package org.enginehub.linbus.stream.token;
+
 /**
- * The streaming module of lin-bus. Features a Jackson-like API for decoding and encoding NBT.
+ * A superclass that acts like a record, but has no fields.
+ *
+ * <p>
+ * It provides a {@link #toString()}, {@link #hashCode()} and {@link #equals(Object)}. It should be treated as a
+ * singleton.
+ * </p>
  */
-module org.enginehub.linbus.stream {
-    exports org.enginehub.linbus.stream;
-    exports org.enginehub.linbus.stream.token;
-    requires static org.jetbrains.annotations;
-    requires org.enginehub.linbus.common;
+abstract class EmptyRecordShim {
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj != null && obj.getClass() == getClass();
+    }
 }

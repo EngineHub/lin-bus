@@ -18,9 +18,11 @@
 
 package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.stream.LinNbtReader;
-import org.enginehub.linbus.stream.LinNbtWriter;
-import org.enginehub.linbus.stream.visitor.LinRootVisitor;
+import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.LinNbtStreams;
+import org.enginehub.linbus.stream.token.LinToken;
+import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
@@ -29,6 +31,7 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -38,18 +41,43 @@ import java.util.Objects;
 public record LinRootEntry(
     String name,
     LinCompoundTag value
-) implements ToLinTag<LinCompoundTag> {
-    public static LinRootEntry readFrom(DataInput input) throws IOException {
-        var visitor = new TreeRootVisitor();
-        LinNbtReader.accept(input, visitor);
-        return visitor.result();
+) implements ToLinTag<LinCompoundTag>, Iterable<LinToken> {
+    /**
+     * Read a root entry from the given input.
+     *
+     * @param input the input to read from
+     * @return the root entry
+     */
+    public static LinRootEntry readFrom(@NotNull DataInput input) {
+        return readFrom(LinNbtStreams.read(input));
     }
 
+    /**
+     * Read a root entry from the given stream.
+     *
+     * @param tokens the stream to read from
+     * @return the root entry
+     */
+    public static LinRootEntry readFrom(@NotNull Iterator<? extends LinToken> tokens) {
+        return LinTagReader.readRoot(tokens);
+    }
+
+    /**
+     * Create a new root entry with the given name and value.
+     *
+     * @param name the name of the entry
+     * @param value the value of the entry
+     */
     public LinRootEntry {
         Objects.requireNonNull(name);
         Objects.requireNonNull(value);
     }
 
+    /**
+     * Write this entry to a byte array.
+     *
+     * @return the byte array
+     */
     public byte[] writeToArray() {
         var output = new ByteArrayOutputStream();
         try (var dataOutputStream = new DataOutputStream(output)) {
@@ -60,24 +88,14 @@ public record LinRootEntry(
         return output.toByteArray();
     }
 
+    /**
+     * Write this entry to the given output.
+     *
+     * @param output the output to write to
+     * @throws IOException if an I/O error occurs
+     */
     public void writeTo(DataOutput output) throws IOException {
-        try {
-            accept(LinNbtWriter.create(output));
-        } catch (UncheckedIOException e) {
-            IOException cause = e.getCause();
-
-            // Report the exception trace from the UncheckedIOException in the suppression
-            var suppressed = new Exception("Original UncheckedIOException trace");
-            suppressed.setStackTrace(e.getStackTrace());
-            cause.addSuppressed(suppressed);
-
-            throw cause;
-        }
-    }
-
-    public void accept(LinRootVisitor visitor) {
-        var valueVisitor = visitor.visitValue(name);
-        value.accept(valueVisitor);
+        LinNbtStreams.write(output, iterator());
     }
 
     /**
@@ -88,5 +106,13 @@ public record LinRootEntry(
     @Override
     public @NotNull LinCompoundTag toLinTag() {
         return new LinCompoundTag(Map.of(name, value), true);
+    }
+
+    @Override
+    public @NotNull Iterator<LinToken> iterator() {
+        return Iterators.combine(
+            Iterators.of(new LinToken.Name(name, LinTagId.COMPOUND)),
+            value.iterator()
+        );
     }
 }

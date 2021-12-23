@@ -18,11 +18,23 @@
 
 package org.enginehub.linbus.tree;
 
+import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
+
+/**
+ * Represents a double tag.
+ */
 public final class LinDoubleTag extends LinTag<@NotNull Double, LinDoubleTag> {
     private final double value;
 
+    /**
+     * Creates a new double tag.
+     *
+     * @param value the value
+     */
     public LinDoubleTag(double value) {
         this.value = value;
     }
@@ -37,7 +49,17 @@ public final class LinDoubleTag extends LinTag<@NotNull Double, LinDoubleTag> {
         return value;
     }
 
+    /**
+     * Get the value as a primitive double, to avoid boxing.
+     *
+     * @return the value
+     */
     public double valueAsDouble() {
         return value;
+    }
+
+    @Override
+    public @NotNull Iterator<LinToken> iterator() {
+        return Iterators.of(new LinToken.Double(value));
     }
 }

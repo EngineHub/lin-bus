@@ -18,15 +18,32 @@
 
 package org.enginehub.linbus.tree;
 
+import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
+
+/**
+ * Represents a byte tag.
+ */
 public final class LinByteTag extends LinTag<@NotNull Byte, LinByteTag> {
     private final byte value;
 
+    /**
+     * Creates a new byte tag from the given integer, which will be cast to a byte.
+     *
+     * @param value the value
+     */
     public LinByteTag(int value) {
         this((byte) value);
     }
 
+    /**
+     * Creates a new byte tag.
+     *
+     * @param value the value
+     */
     public LinByteTag(byte value) {
         this.value = value;
     }
@@ -41,7 +58,17 @@ public final class LinByteTag extends LinTag<@NotNull Byte, LinByteTag> {
         return value;
     }
 
+    /**
+     * Get the value as a primitive byte, to avoid boxing.
+     *
+     * @return the value
+     */
     public byte valueAsByte() {
         return value;
+    }
+
+    @Override
+    public @NotNull Iterator<LinToken> iterator() {
+        return Iterators.of(new LinToken.Byte(value));
     }
 }

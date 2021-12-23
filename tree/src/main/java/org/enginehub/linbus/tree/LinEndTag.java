@@ -18,9 +18,25 @@
 
 package org.enginehub.linbus.tree;
 
+import org.enginehub.linbus.stream.token.LinToken;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+
+/**
+ * Represents an end tag.
+ */
 public final class LinEndTag extends LinTag<Void, LinEndTag> {
     private static final LinEndTag INSTANCE = new LinEndTag();
 
+    /**
+     * The sole instance of the end tag.
+     *
+     * @return the end tag
+     */
     public static LinEndTag instance() {
         return INSTANCE;
     }
@@ -38,4 +54,23 @@ public final class LinEndTag extends LinTag<Void, LinEndTag> {
         return null;
     }
 
+    @Override
+    public @NotNull Iterator<LinToken> iterator() {
+        return Collections.emptyIterator();
+    }
+
+    @Override
+    public Spliterator<LinToken> spliterator() {
+        return Spliterators.emptySpliterator();
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public String toString() {
+        return type().name();
+    }
 }

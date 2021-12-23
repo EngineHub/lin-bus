@@ -18,11 +18,23 @@
 
 package org.enginehub.linbus.tree;
 
+import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
+
+/**
+ * Represents a long tag.
+ */
 public final class LinLongTag extends LinTag<@NotNull Long, LinLongTag> {
     private final long value;
 
+    /**
+     * Create a new long tag.
+     *
+     * @param value the value
+     */
     public LinLongTag(long value) {
         this.value = value;
     }
@@ -37,7 +49,17 @@ public final class LinLongTag extends LinTag<@NotNull Long, LinLongTag> {
         return value;
     }
 
+    /**
+     * Get the value as a primitive long, to avoid boxing.
+     *
+     * @return the value
+     */
     public long valueAsLong() {
         return value;
+    }
+
+    @Override
+    public @NotNull Iterator<LinToken> iterator() {
+        return Iterators.of(new LinToken.Long(value));
     }
 }

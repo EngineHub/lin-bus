@@ -2,12 +2,7 @@ plugins {
     `java-library`
     `maven-publish`
     jacoco
-}
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-    withJavadocJar()
-    withSourcesJar()
+    id("org.enginehub.lin-bus.jvm")
 }
 
 dependencies {
@@ -23,10 +18,6 @@ dependencies {
     testImplementation(libs.truth) {
         exclude(group = "junit")
     }
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 publishing {

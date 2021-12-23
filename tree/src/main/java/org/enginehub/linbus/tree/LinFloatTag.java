@@ -18,11 +18,23 @@
 
 package org.enginehub.linbus.tree;
 
+import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
+
+/**
+ * Represents a float tag.
+ */
 public final class LinFloatTag extends LinTag<@NotNull Float, LinFloatTag> {
     private final float value;
 
+    /**
+     * Create a new float tag.
+     *
+     * @param value the value
+     */
     public LinFloatTag(float value) {
         this.value = value;
     }
@@ -37,7 +49,17 @@ public final class LinFloatTag extends LinTag<@NotNull Float, LinFloatTag> {
         return value;
     }
 
+    /**
+     * Get the value as a primitive float, to avoid boxing.
+     *
+     * @return the value
+     */
     public float valueAsFloat() {
         return value;
+    }
+
+    @Override
+    public @NotNull Iterator<LinToken> iterator() {
+        return Iterators.of(new LinToken.Float(value));
     }
 }

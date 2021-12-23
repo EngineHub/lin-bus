@@ -2,11 +2,11 @@
 javafx = "16"
 dagger = "2.37"
 polymerization = "0.1.0-SNAPSHOT"
-mockito = "3.12.4"
+mockito = "4.2.0"
 
 [libraries.jetbrains-annotations]
 module = "org.jetbrains:annotations"
-version = "21.0.1"
+version = "23.0.0"
 
 [libraries.dagger]
 module = "com.google.dagger:dagger"
@@ -30,7 +30,7 @@ version = "1.0.3"
 
 [libraries.guava]
 module = "com.google.guava:guava"
-version = "30.1.1-jre"
+version = "31.0.1-jre"
 
 [libraries.javafx-base]
 module = "org.openjfx:javafx-base"
@@ -56,7 +56,7 @@ module = "org.kordamp.ikonli:ikonli-fontawesome5-pack"
 
 [libraries.junit-bom]
 module = "org.junit:junit-bom"
-version = "5.7.2"
+version = "5.8.2"
 
 [libraries.junit-jupiter-api]
 module = "org.junit.jupiter:junit-jupiter-api"

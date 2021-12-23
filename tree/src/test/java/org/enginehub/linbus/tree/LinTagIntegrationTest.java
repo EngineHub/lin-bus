@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 
 import static com.google.common.truth.Truth.assertAbout;
+import static com.google.common.truth.Truth.assertThat;
 import static org.enginehub.linbus.tree.truth.LinTagSubject.linTags;
 
 public class LinTagIntegrationTest {
@@ -100,6 +101,6 @@ public class LinTagIntegrationTest {
             .containsExactlyElementsIn(expectedByteArray).inOrder();
         rootCompoundSubject.getTagByKey("shortTest").valueIfShort().isEqualTo(32767);
 
-        // TODO assertThat(tagData.root().writeToArray()).isEqualTo(tagData.serializedForm());
+        assertThat(tagData.root().writeToArray()).isEqualTo(tagData.serializedForm());
     }
 }

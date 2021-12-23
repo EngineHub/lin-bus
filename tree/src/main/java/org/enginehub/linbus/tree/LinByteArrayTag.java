@@ -18,14 +18,26 @@
 
 package org.enginehub.linbus.tree;
 
+import org.enginehub.linbus.common.internal.AbstractIterator;
+import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Iterator;
 
+/**
+ * Represents a byte array tag.
+ */
 public final class LinByteArrayTag extends LinTag<byte @NotNull [], LinByteArrayTag> {
     private final byte[] value;
 
+    /**
+     * Creates a new byte array tag from the given byte array. The array will be {@linkplain  Object#clone() cloned}.
+     *
+     * @param value the value
+     */
     public LinByteArrayTag(byte... value) {
         this(value.clone(), true);
     }
@@ -48,11 +60,36 @@ public final class LinByteArrayTag extends LinTag<byte @NotNull [], LinByteArray
     }
 
     /**
-     * Alternative no-copy byte access, returns a new {@link ByteBuffer} that is read-only, and
-     * directly wraps the underlying array.
+     * Alternative no-copy byte access, returns a new {@link ByteBuffer} that is read-only, and directly wraps the
+     * underlying array.
+     *
+     * @return a read-only {@link ByteBuffer} providing view access to the contents of this tag
      */
     public ByteBuffer view() {
         return ByteBuffer.wrap(value).asReadOnlyBuffer();
+    }
+
+    @Override
+    public @NotNull Iterator<LinToken> iterator() {
+        return Iterators.combine(
+            Iterators.of(new LinToken.ByteArrayStart(value.length)),
+            new AbstractIterator<>() {
+                private static final int BUFFER_SIZE = 4096;
+                private int i = 0;
+
+                @Override
+                protected LinToken computeNext() {
+                    if (i >= value.length) {
+                        return end();
+                    }
+                    var length = Math.min(BUFFER_SIZE, value.length - i);
+                    var buffer = ByteBuffer.wrap(value, i, length).asReadOnlyBuffer();
+                    i += length;
+                    return new LinToken.ByteArrayContent(buffer);
+                }
+            },
+            Iterators.of(new LinToken.ByteArrayEnd())
+        );
     }
 
     @Override
