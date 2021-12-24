@@ -84,6 +84,6 @@ public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements 
 
     @Override
     public String toString() {
-        return type().name() + "[" + value() + ']';
+        return getClass().getSimpleName() + "[" + value() + ']';
     }
 }

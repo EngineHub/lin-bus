@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.api.tasks.testing.Test
@@ -20,6 +21,7 @@ class JvmPlugin : Plugin<Project> {
                 withJavadocJar()
                 withSourcesJar()
             }
+            the<SourceSetContainer>()["test"].resources.srcDir("../shared-test-resources")
             tasks.withType<JavaCompile> {
                 options.compilerArgs.add("-parameters")
             }

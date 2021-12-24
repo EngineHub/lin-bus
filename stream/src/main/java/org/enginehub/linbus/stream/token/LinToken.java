@@ -19,6 +19,7 @@
 package org.enginehub.linbus.stream.token;
 
 import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.common.internal.EmptyRecordShim;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;

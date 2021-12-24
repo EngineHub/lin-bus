@@ -23,6 +23,8 @@ import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import static com.google.common.truth.Truth.assertAbout;
@@ -100,6 +102,41 @@ public class LinTagIntegrationTest {
         rootCompoundSubject.getTagByKey("byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))").valueIfByteArray().asList()
             .containsExactlyElementsIn(expectedByteArray).inOrder();
         rootCompoundSubject.getTagByKey("shortTest").valueIfShort().isEqualTo(32767);
+
+        assertThat(tagData.root().writeToArray()).isEqualTo(tagData.serializedForm());
+    }
+
+    @Test
+    void allTypes() throws IOException {
+        TestTagData tagData = load("all-types.nbt.gz");
+        var tagSubject = assertAbout(linTags()).that(tagData.root().toLinTag());
+        var rootCompoundSubject = tagSubject.getTagByKey("root");
+        rootCompoundSubject.getTagByKey("byte").valueIfByte().isEqualTo((byte) 1);
+        rootCompoundSubject.getTagByKey("short").valueIfShort().isEqualTo((short) 127);
+        rootCompoundSubject.getTagByKey("int").valueIfInt().isEqualTo(127);
+        rootCompoundSubject.getTagByKey("long").valueIfLong().isEqualTo(127);
+        rootCompoundSubject.getTagByKey("float").valueIfFloat().isEqualTo(127);
+        rootCompoundSubject.getTagByKey("double").valueIfDouble().isEqualTo(127);
+        rootCompoundSubject.getTagByKey("string").valueIfString().isEqualTo("this is a string");
+        rootCompoundSubject.getTagByKey("byteArray").valueIfByteArray()
+            .asList().isEqualTo(List.of((byte) 1));
+        rootCompoundSubject.getTagByKey("intArray").valueIfIntArray()
+            .asList().isEqualTo(List.of(127));
+        rootCompoundSubject.getTagByKey("longArray").valueIfLongArray()
+            .asList().isEqualTo(List.of(127L));
+        rootCompoundSubject.getTagByKey("byteList").valueIfList().isEqualTo(List.of(new LinByteTag(1)));
+        rootCompoundSubject.getTagByKey("shortList").valueIfList().isEqualTo(List.of(new LinShortTag((short) 127)));
+        rootCompoundSubject.getTagByKey("intList").valueIfList().isEqualTo(List.of(new LinIntTag(127)));
+        rootCompoundSubject.getTagByKey("longList").valueIfList().isEqualTo(List.of(new LinLongTag(127L)));
+        rootCompoundSubject.getTagByKey("floatList").valueIfList().isEqualTo(List.of(new LinFloatTag(127F)));
+        rootCompoundSubject.getTagByKey("doubleList").valueIfList().isEqualTo(List.of(new LinDoubleTag(127D)));
+        var compound1Subject = rootCompoundSubject.getTagByKey("compound1");
+        var compound2Subject = compound1Subject.getTagByKey("compound2");
+        var compound3Subject = compound2Subject.getTagByKey("compound3");
+        var listSubject = compound3Subject.getTagByKey("list");
+        listSubject.valueIfList().hasSize(2);
+        listSubject.getTagByIndex(0).valueIfCompound().isEqualTo(Map.of("key", new LinStringTag("value")));
+        listSubject.getTagByIndex(1).valueIfCompound().isEqualTo(Map.of("key", new LinStringTag("value")));
 
         assertThat(tagData.root().writeToArray()).isEqualTo(tagData.serializedForm());
     }

@@ -16,39 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.tree;
+package org.enginehub.linbus.common.internal;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class LinEndTagTest {
+public class EmptyRecordShimTest {
     @Test
-    void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(LinEndTag.instance());
-    }
+    void simpleTest() {
+        class Shimmed extends EmptyRecordShim {
+        }
+        var shimmed = new Shimmed();
 
-    @Test
-    void iteratorImplementation() {
-        assertFalse(LinEndTag.instance().iterator().hasNext());
-    }
+        assertEquals(new Shimmed(), shimmed);
 
-    @Test
-    void spliteratorImplementation() {
-        assertFalse(LinEndTag.instance().spliterator().tryAdvance(x -> fail("Should not be called")));
-    }
+        assertEquals("Shimmed", shimmed.toString());
 
-    @Test
-    void hashCodeImplementation() {
-        assertEquals(LinEndTag.instance().hashCode(), LinEndTag.instance().hashCode());
-    }
+        assertEquals(new Shimmed().hashCode(), shimmed.hashCode());
 
-    @Test
-    void toStringImplementation() {
-        assertEquals("LinEndTag", LinEndTag.instance().toString());
+        // It doesn't actually give any record components, though
+        assertNull(Shimmed.class.getRecordComponents());
     }
 }

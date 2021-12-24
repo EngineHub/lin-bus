@@ -56,6 +56,9 @@ public class LinTagReader {
         if (!tokens.hasNext() || !(tokens.next() instanceof LinToken.Name name)) {
             throw new IllegalStateException("Expected root name");
         }
+        if (name.id() != LinTagId.COMPOUND) {
+            throw new IllegalStateException("Expected compound tag for root tag");
+        }
         var tag = readCompound(tokens);
         return new LinRootEntry(name.name(), tag);
     }
@@ -163,7 +166,7 @@ public class LinTagReader {
             case BYTE -> new LinByteTag(((LinToken.Byte) tokens.next()).value());
             case COMPOUND -> readCompound(tokens);
             case DOUBLE -> new LinDoubleTag(((LinToken.Double) tokens.next()).value());
-            case END -> throw new IllegalArgumentException("Unexpected END");
+            case END -> throw new IllegalStateException("Unexpected END id");
             case FLOAT -> new LinFloatTag(((LinToken.Float) tokens.next()).value());
             case INT_ARRAY -> readIntArray(tokens);
             case INT -> new LinIntTag(((LinToken.Int) tokens.next()).value());
@@ -173,5 +176,8 @@ public class LinTagReader {
             case SHORT -> new LinShortTag(((LinToken.Short) tokens.next()).value());
             case STRING -> new LinStringTag(((LinToken.String) tokens.next()).value());
         };
+    }
+
+    private LinTagReader() {
     }
 }

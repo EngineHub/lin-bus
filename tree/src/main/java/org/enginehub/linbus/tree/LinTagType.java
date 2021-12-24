@@ -251,12 +251,12 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LinTagType<?> that = (LinTagType<?>) o;
-        return id == that.id && javaType.equals(that.javaType);
+        return id == that.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, javaType);
+        return id.hashCode();
     }
 
     @Override

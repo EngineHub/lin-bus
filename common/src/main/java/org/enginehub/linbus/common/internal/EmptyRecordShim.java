@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.stream.token;
+package org.enginehub.linbus.common.internal;
 
 /**
  * A superclass that acts like a record, but has no fields.
@@ -26,7 +26,7 @@ package org.enginehub.linbus.stream.token;
  * singleton.
  * </p>
  */
-abstract class EmptyRecordShim {
+public abstract class EmptyRecordShim {
     @Override
     public String toString() {
         return getClass().getSimpleName();

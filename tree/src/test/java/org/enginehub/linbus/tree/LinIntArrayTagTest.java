@@ -21,6 +21,10 @@ package org.enginehub.linbus.tree;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.IntBuffer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LinIntArrayTagTest {
     @Test
@@ -28,5 +32,37 @@ public class LinIntArrayTagTest {
         TagTestUtil.assertRoundTrip(new LinIntArrayTag());
         TagTestUtil.assertRoundTrip(new LinIntArrayTag(0x01));
         TagTestUtil.assertRoundTrip(new LinIntArrayTag(0x01, 0x02, 0x03, 0x04));
+    }
+
+    @Test
+    void throwsIfImproperlyConstructed() {
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new LinIntArrayTag(new int[0], false)
+        );
+    }
+
+    @Test
+    void viewContentEqualsActualContent() {
+        var tag = new LinIntArrayTag(0x01, 0x02, 0x03, 0x04);
+        assertEquals(IntBuffer.wrap(tag.value()), tag.view());
+    }
+
+    @Test
+    void equalsAndHashCodeImplementation() {
+        SimpleObjectVerifier.assertEqualsHashCodeImplementation(
+            new LinIntArrayTag(0x01, 0x02, 0x03, 0x04),
+            new LinIntArrayTag(0x01, 0x02, 0x03, 0x04),
+            new LinIntArrayTag(0x01, 0x02, 0x03, 0x04),
+            new LinIntArrayTag(0x01, 0x02, 0x03, 0x05)
+        );
+    }
+
+    @Test
+    void toStringImplementation() {
+        assertEquals(
+            "LinIntArrayTag[1, 2, 3, 4]",
+            new LinIntArrayTag(0x01, 0x02, 0x03, 0x04).toString()
+        );
     }
 }

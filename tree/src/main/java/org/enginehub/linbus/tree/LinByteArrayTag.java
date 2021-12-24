@@ -102,13 +102,13 @@ public final class LinByteArrayTag extends LinTag<byte @NotNull [], LinByteArray
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = 1;
         result = 31 * result + Arrays.hashCode(value);
         return result;
     }
 
     @Override
     public String toString() {
-        return type().name() + "{" + Arrays.toString(value()) + '}';
+        return getClass().getSimpleName() + Arrays.toString(value());
     }
 }

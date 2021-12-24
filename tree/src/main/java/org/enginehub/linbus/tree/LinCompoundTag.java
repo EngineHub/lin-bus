@@ -164,7 +164,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, @
      */
     public <T extends LinTag<?, ?>> @Nullable T findTag(@NotNull String name, @NotNull LinTagType<T> type) {
         LinTag<?, ?> tag = value.get(name);
-        return type == tag.type() ? type.cast(tag) : null;
+        return tag != null && type == tag.type() ? type.cast(tag) : null;
     }
 
     /**
@@ -203,6 +203,6 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, @
 
     @Override
     public String toString() {
-        return type().name() + value;
+        return getClass().getSimpleName() + value;
     }
 }

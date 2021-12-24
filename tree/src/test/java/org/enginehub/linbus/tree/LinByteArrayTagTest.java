@@ -21,12 +21,48 @@ package org.enginehub.linbus.tree;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LinByteArrayTagTest {
     @Test
     void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(new LinByteArrayTag(new byte[]{}));
+        TagTestUtil.assertRoundTrip(new LinByteArrayTag());
         TagTestUtil.assertRoundTrip(new LinByteArrayTag(new byte[]{0x01}));
         TagTestUtil.assertRoundTrip(new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04}));
+    }
+
+    @Test
+    void throwsIfImproperlyConstructed() {
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new LinByteArrayTag(new byte[0], false)
+        );
+    }
+
+    @Test
+    void viewContentEqualsActualContent() {
+        var tag = new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04});
+        assertEquals(ByteBuffer.wrap(tag.value()), tag.view());
+    }
+
+    @Test
+    void equalsAndHashCodeImplementation() {
+        SimpleObjectVerifier.assertEqualsHashCodeImplementation(
+            new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04}),
+            new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04}),
+            new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04}),
+            new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x05})
+        );
+    }
+
+    @Test
+    void toStringImplementation() {
+        assertEquals(
+            "LinByteArrayTag[1, 2, 3, 4]",
+            new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04}).toString()
+        );
     }
 }

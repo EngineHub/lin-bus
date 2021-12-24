@@ -98,7 +98,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@N
          * @return this builder
          */
         public Builder<T> addAll(Collection<? extends T> tags) {
-            this.collector.addAll(tags);
+            tags.forEach(this::add);
             return this;
         }
 
@@ -140,7 +140,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@N
             }
         }
         if (!value.isEmpty() && elementType == LinTagType.endTag()) {
-            throw new IllegalArgumentException("A non-empty list cannot be of type 'end'");
+            throw new IllegalArgumentException("A non-empty list cannot be of type END");
         }
         this.elementType = elementType;
         this.value = value;
@@ -205,6 +205,6 @@ public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@N
 
     @Override
     public String toString() {
-        return type().name() + value;
+        return getClass().getSimpleName() + value;
     }
 }

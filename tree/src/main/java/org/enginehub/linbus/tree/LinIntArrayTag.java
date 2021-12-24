@@ -83,7 +83,7 @@ public final class LinIntArrayTag extends LinTag<int @NotNull [], LinIntArrayTag
                         return end();
                     }
                     var length = Math.min(BUFFER_SIZE, value.length - i);
-                    var buffer = IntBuffer.wrap(value, i, length);
+                    var buffer = IntBuffer.wrap(value, i, length).asReadOnlyBuffer();
                     i += length;
                     return new LinToken.IntArrayContent(buffer);
                 }
@@ -102,13 +102,13 @@ public final class LinIntArrayTag extends LinTag<int @NotNull [], LinIntArrayTag
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = 1;
         result = 31 * result + Arrays.hashCode(value);
         return result;
     }
 
     @Override
     public String toString() {
-        return type().name() + "{" + Arrays.toString(value()) + '}';
+        return getClass().getSimpleName() + Arrays.toString(value());
     }
 }

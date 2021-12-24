@@ -30,6 +30,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
@@ -125,6 +127,91 @@ public class LinNbtReaderIntegrationTest {
             new LinToken.ByteArrayEnd(),
             new LinToken.Name("doubleTest", LinTagId.DOUBLE),
             new LinToken.Double(0.4931287132182315),
+            new LinToken.CompoundEnd()
+        ).inOrder();
+
+        var byteCollector = ByteStreams.newDataOutput();
+        LinNbtStreams.write(byteCollector, tokens.iterator());
+        assertThat(byteCollector.toByteArray()).isEqualTo(bytes);
+    }
+
+    @Test
+    void allTypes() throws IOException {
+        var bytes = loadResource("all-types.nbt.gz", InputStream::readAllBytes);
+        var tokens = convertNbtStream("all-types.nbt.gz", ImmutableList::copyOf);
+        assertThat(tokens).containsExactly(
+            new LinToken.Name("root", LinTagId.COMPOUND),
+            new LinToken.CompoundStart(),
+            new LinToken.Name("byte", LinTagId.BYTE),
+            new LinToken.Byte((byte) 1),
+            new LinToken.Name("short", LinTagId.SHORT),
+            new LinToken.Short((short) 127),
+            new LinToken.Name("int", LinTagId.INT),
+            new LinToken.Int(127),
+            new LinToken.Name("long", LinTagId.LONG),
+            new LinToken.Long(127),
+            new LinToken.Name("float", LinTagId.FLOAT),
+            new LinToken.Float(127),
+            new LinToken.Name("double", LinTagId.DOUBLE),
+            new LinToken.Double(127),
+            new LinToken.Name("string", LinTagId.STRING),
+            new LinToken.String("this is a string"),
+            new LinToken.Name("byteArray", LinTagId.BYTE_ARRAY),
+            new LinToken.ByteArrayStart(1),
+            new LinToken.ByteArrayContent(ByteBuffer.wrap(new byte[]{(byte) 1}).asReadOnlyBuffer()),
+            new LinToken.ByteArrayEnd(),
+            new LinToken.Name("intArray", LinTagId.INT_ARRAY),
+            new LinToken.IntArrayStart(1),
+            new LinToken.IntArrayContent(IntBuffer.wrap(new int[]{127}).asReadOnlyBuffer()),
+            new LinToken.IntArrayEnd(),
+            new LinToken.Name("longArray", LinTagId.LONG_ARRAY),
+            new LinToken.LongArrayStart(1),
+            new LinToken.LongArrayContent(LongBuffer.wrap(new long[]{127}).asReadOnlyBuffer()),
+            new LinToken.LongArrayEnd(),
+            new LinToken.Name("byteList", LinTagId.LIST),
+            new LinToken.ListStart(1, LinTagId.BYTE),
+            new LinToken.Byte((byte) 1),
+            new LinToken.ListEnd(),
+            new LinToken.Name("shortList", LinTagId.LIST),
+            new LinToken.ListStart(1, LinTagId.SHORT),
+            new LinToken.Short((short) 127),
+            new LinToken.ListEnd(),
+            new LinToken.Name("intList", LinTagId.LIST),
+            new LinToken.ListStart(1, LinTagId.INT),
+            new LinToken.Int(127),
+            new LinToken.ListEnd(),
+            new LinToken.Name("longList", LinTagId.LIST),
+            new LinToken.ListStart(1, LinTagId.LONG),
+            new LinToken.Long(127),
+            new LinToken.ListEnd(),
+            new LinToken.Name("floatList", LinTagId.LIST),
+            new LinToken.ListStart(1, LinTagId.FLOAT),
+            new LinToken.Float(127),
+            new LinToken.ListEnd(),
+            new LinToken.Name("doubleList", LinTagId.LIST),
+            new LinToken.ListStart(1, LinTagId.DOUBLE),
+            new LinToken.Double(127),
+            new LinToken.ListEnd(),
+            new LinToken.Name("compound1", LinTagId.COMPOUND),
+            new LinToken.CompoundStart(),
+            new LinToken.Name("compound2", LinTagId.COMPOUND),
+            new LinToken.CompoundStart(),
+            new LinToken.Name("compound3", LinTagId.COMPOUND),
+            new LinToken.CompoundStart(),
+            new LinToken.Name("list", LinTagId.LIST),
+            new LinToken.ListStart(2, LinTagId.COMPOUND),
+            new LinToken.CompoundStart(),
+            new LinToken.Name("key", LinTagId.STRING),
+            new LinToken.String("value"),
+            new LinToken.CompoundEnd(),
+            new LinToken.CompoundStart(),
+            new LinToken.Name("key", LinTagId.STRING),
+            new LinToken.String("value"),
+            new LinToken.CompoundEnd(),
+            new LinToken.ListEnd(),
+            new LinToken.CompoundEnd(),
+            new LinToken.CompoundEnd(),
+            new LinToken.CompoundEnd(),
             new LinToken.CompoundEnd()
         ).inOrder();
 

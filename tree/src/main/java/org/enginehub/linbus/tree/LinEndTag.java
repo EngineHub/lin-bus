@@ -71,6 +71,6 @@ public final class LinEndTag extends LinTag<Void, LinEndTag> {
 
     @Override
     public String toString() {
-        return type().name();
+        return getClass().getSimpleName();
     }
 }

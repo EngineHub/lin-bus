@@ -20,6 +20,7 @@ package org.enginehub.linbus.stream.impl;
 
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.common.internal.AbstractIterator;
+import org.enginehub.linbus.common.internal.EmptyRecordShim;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,31 +41,19 @@ public class LinNbtReader extends AbstractIterator<LinToken> {
         /**
          * We need to initialize and return the root name.
          */
-        final class Initial implements State {
-            @Override
-            public String toString() {
-                return "Initial";
-            }
+        final class Initial extends EmptyRecordShim implements State {
         }
 
         /**
          * We need to return {@link LinToken.CompoundStart}.
          */
-        final class CompoundStart implements State {
-            @Override
-            public String toString() {
-                return "CompoundStart";
-            }
+        final class CompoundStart extends EmptyRecordShim implements State {
         }
 
         /**
          * We need to give the name of the next entry. We'll load the ID here too.
          */
-        final class CompoundEntryName implements State {
-            @Override
-            public String toString() {
-                return "CompoundEntryName";
-            }
+        final class CompoundEntryName extends EmptyRecordShim implements State {
         }
 
         /**
@@ -128,7 +117,6 @@ public class LinNbtReader extends AbstractIterator<LinToken> {
 
     @Nullable
     private LinToken computeNextIO() throws IOException {
-        System.err.println(stateStack);
         var state = stateStack.pollLast();
         if (state == null) {
             return end();
