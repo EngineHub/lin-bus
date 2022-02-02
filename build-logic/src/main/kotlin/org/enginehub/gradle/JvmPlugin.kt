@@ -23,7 +23,7 @@ class JvmPlugin : Plugin<Project> {
             }
             the<SourceSetContainer>()["test"].resources.srcDir("../shared-test-resources")
             tasks.withType<JavaCompile> {
-                options.compilerArgs.add("-parameters")
+                options.compilerArgs.addAll(listOf("-parameters", "-Xlint:unchecked"))
             }
             tasks.named<Test>("test") {
                 useJUnitPlatform()

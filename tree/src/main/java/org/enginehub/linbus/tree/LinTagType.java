@@ -131,8 +131,8 @@ public final class LinTagType<T extends LinTag<?, T>> {
         return STRING_TAG;
     }
 
-    @SuppressWarnings("rawtypes")
-    private static final LinTagType LIST_TAG = new LinTagType<>(
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static final LinTagType LIST_TAG = new LinTagType(
         LinTagId.LIST, LinListTag.class
     );
 

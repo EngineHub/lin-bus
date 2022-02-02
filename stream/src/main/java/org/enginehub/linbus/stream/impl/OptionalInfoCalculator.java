@@ -27,8 +27,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
-import java.util.Optional;
-import java.util.OptionalInt;
 
 public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
     private interface OptionalFill {
@@ -129,7 +127,9 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
                 return null;
             }
             if (elementId == null) {
-                elementId = LinTokenHelper.assignElementId(token);
+                elementId = token.tagId().orElseThrow(() ->
+                    new IllegalStateException("Token doesn't represent a tag directly")
+                );
             }
             // `assignElementId` never returns null
             assert elementId != null;
@@ -206,7 +206,9 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
 
         @Override
         public LinToken tryFill(LinToken token) {
-            return new LinToken.Name(name, LinTokenHelper.assignElementId(token));
+            return new LinToken.Name(name, token.tagId().orElseThrow(() ->
+                new IllegalStateException("Token doesn't represent a tag directly")
+            ));
         }
     }
 }

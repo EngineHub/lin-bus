@@ -28,11 +28,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class LinEndTagTest {
     @Test
-    void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(LinEndTag.instance());
-    }
-
-    @Test
     void iteratorImplementation() {
         assertFalse(LinEndTag.instance().iterator().hasNext());
     }

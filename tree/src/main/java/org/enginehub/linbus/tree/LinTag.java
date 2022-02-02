@@ -37,8 +37,7 @@ public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements 
      * @return the type of this tag
      */
     // This is to be overriden directly to save memory in the tag itself
-    // And also to provide the more specific return type
-    public abstract @NotNull LinTagType<?> type();
+    public abstract @NotNull LinTagType<SELF> type();
 
     /**
      * Gets the value of this tag.

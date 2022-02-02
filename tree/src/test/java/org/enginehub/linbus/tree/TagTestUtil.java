@@ -20,19 +20,28 @@ package org.enginehub.linbus.tree;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import org.enginehub.linbus.stream.LinNbtStreams;
 
 import java.io.IOException;
+import java.util.Map;
+
+import static org.enginehub.linbus.tree.truth.LinTagSubject.assertThat;
 
 class TagTestUtil {
+    private static final String NESTING_KEY = "inner";
+
     static <T extends LinTag<?, T>> void assertRoundTrip(T input) throws IOException {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
-        // TODO
-//        input.writeTo(dataOutput);
-//        @SuppressWarnings("unchecked")
-//        T recreated = (T) input.type().readFrom(
-//            ByteStreams.newDataInput(dataOutput.toByteArray())
-//        );
-        // assertThat(recreated).isEqualTo(input);
+        // It's not legal to use bare streams, so we wrap in a root entry and compound.
+        LinNbtStreams.write(
+            dataOutput,
+            new LinRootEntry("", new LinCompoundTag(Map.of(NESTING_KEY, input))).iterator()
+        );
+        T recreated = LinNbtStreams.readUsing(
+            ByteStreams.newDataInput(dataOutput.toByteArray()),
+            LinRootEntry::readFrom
+        ).value().getTag(NESTING_KEY, input.type());
+        assertThat(recreated).isEqualTo(input);
     }
 
     private TagTestUtil() {

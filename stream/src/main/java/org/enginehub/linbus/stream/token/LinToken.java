@@ -38,6 +38,20 @@ public sealed interface LinToken {
     boolean isSimpleValue();
 
     /**
+     * If possible, return the {@link LinTagId} that best represents this token.
+     *
+     * <p>
+     * For example, a name token will return nothing. Only the array start tokens will return {@link
+     * LinTagId#BYTE_ARRAY}.
+     * </p>
+     *
+     * @return the {@link LinTagId} that best represents this token, or nothing if this token cannot be represented
+     */
+    default Optional<LinTagId> tagId() {
+        return Optional.empty();
+    }
+
+    /**
      * Represents compound tag names.
      *
      * @param name the name of the next tag
@@ -75,6 +89,11 @@ public sealed interface LinToken {
         @Override
         public boolean isSimpleValue() {
             return false;
+        }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.BYTE_ARRAY);
         }
     }
 
@@ -125,6 +144,11 @@ public sealed interface LinToken {
         public boolean isSimpleValue() {
             return true;
         }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.BYTE);
+        }
     }
 
     /**
@@ -139,6 +163,11 @@ public sealed interface LinToken {
         @Override
         public boolean isSimpleValue() {
             return false;
+        }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.COMPOUND);
         }
     }
 
@@ -162,6 +191,11 @@ public sealed interface LinToken {
         public boolean isSimpleValue() {
             return true;
         }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.DOUBLE);
+        }
     }
 
     /**
@@ -173,6 +207,11 @@ public sealed interface LinToken {
         @Override
         public boolean isSimpleValue() {
             return true;
+        }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.FLOAT);
         }
     }
 
@@ -193,6 +232,11 @@ public sealed interface LinToken {
         @Override
         public boolean isSimpleValue() {
             return false;
+        }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.INT_ARRAY);
         }
     }
 
@@ -243,6 +287,11 @@ public sealed interface LinToken {
         public boolean isSimpleValue() {
             return true;
         }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.INT);
+        }
     }
 
     /**
@@ -268,6 +317,11 @@ public sealed interface LinToken {
         @Override
         public boolean isSimpleValue() {
             return false;
+        }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.LIST);
         }
     }
 
@@ -298,6 +352,11 @@ public sealed interface LinToken {
         @Override
         public boolean isSimpleValue() {
             return false;
+        }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.LONG_ARRAY);
         }
     }
 
@@ -348,6 +407,11 @@ public sealed interface LinToken {
         public boolean isSimpleValue() {
             return true;
         }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.LONG);
+        }
     }
 
     /**
@@ -360,6 +424,11 @@ public sealed interface LinToken {
         public boolean isSimpleValue() {
             return true;
         }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.SHORT);
+        }
     }
 
     /**
@@ -371,6 +440,11 @@ public sealed interface LinToken {
         @Override
         public boolean isSimpleValue() {
             return true;
+        }
+
+        @Override
+        public Optional<LinTagId> tagId() {
+            return Optional.of(LinTagId.STRING);
         }
     }
 }

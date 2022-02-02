@@ -89,10 +89,19 @@ public class LinNbtStreams {
     public static void write(@NotNull DataOutput output, @NotNull Iterator<? extends @NotNull LinToken> tokens) throws IOException {
         // This is essentially free if the info is already there, so we can just do it.
         tokens = calculateOptionalInfo(tokens);
+        boolean seenFirstName = false;
         // This also signals if we're in a compound tag or not.
         String nextName = null;
         while (tokens.hasNext()) {
             LinToken token = tokens.next();
+            if (!seenFirstName) {
+                if (token instanceof LinToken.Name) {
+                    seenFirstName = true;
+                } else {
+                    // It's not legal to write without a name.
+                    throw new IllegalStateException("Expected first token to be a name");
+                }
+            }
             if (token instanceof LinToken.Name name) {
                 // We need to hold this until we print the id
                 nextName = name.name();
