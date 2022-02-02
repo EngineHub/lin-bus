@@ -20,7 +20,6 @@ package org.enginehub.linbus.stream.impl;
 
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.common.internal.AbstractIterator;
-import org.enginehub.linbus.common.internal.EmptyRecordShim;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,24 +35,23 @@ import java.util.List;
  * Reads a stream of tokens from a {@link DataInput}.
  */
 public class LinNbtReader extends AbstractIterator<LinToken> {
-
     private sealed interface State {
         /**
          * We need to initialize and return the root name.
          */
-        final class Initial extends EmptyRecordShim implements State {
+        record Initial() implements State {
         }
 
         /**
          * We need to return {@link LinToken.CompoundStart}.
          */
-        final class CompoundStart extends EmptyRecordShim implements State {
+        record CompoundStart() implements State {
         }
 
         /**
          * We need to give the name of the next entry. We'll load the ID here too.
          */
-        final class CompoundEntryName extends EmptyRecordShim implements State {
+        record CompoundEntryName() implements State {
         }
 
         /**

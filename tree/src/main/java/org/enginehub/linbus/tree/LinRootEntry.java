@@ -26,7 +26,6 @@ import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -43,22 +42,12 @@ public record LinRootEntry(
     LinCompoundTag value
 ) implements ToLinTag<LinCompoundTag>, Iterable<LinToken> {
     /**
-     * Read a root entry from the given input.
-     *
-     * @param input the input to read from
-     * @return the root entry
-     */
-    public static LinRootEntry readFrom(@NotNull DataInput input) {
-        return readFrom(LinNbtStreams.read(input));
-    }
-
-    /**
      * Read a root entry from the given stream.
      *
      * @param tokens the stream to read from
      * @return the root entry
      */
-    public static LinRootEntry readFrom(@NotNull Iterator<? extends LinToken> tokens) {
+    public static LinRootEntry readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
         return LinTagReader.readRoot(tokens);
     }
 
@@ -109,7 +98,7 @@ public record LinRootEntry(
     }
 
     @Override
-    public @NotNull Iterator<LinToken> iterator() {
+    public @NotNull Iterator<@NotNull LinToken> iterator() {
         return Iterators.combine(
             Iterators.of(new LinToken.Name(name, LinTagId.COMPOUND)),
             value.iterator()

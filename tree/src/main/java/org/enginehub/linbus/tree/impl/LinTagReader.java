@@ -19,6 +19,7 @@
 package org.enginehub.linbus.tree.impl;
 
 import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.stream.LinNbtStreams;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.enginehub.linbus.tree.LinByteArrayTag;
 import org.enginehub.linbus.tree.LinByteTag;
@@ -49,21 +50,26 @@ public class LinTagReader {
     /**
      * Read the root entry.
      *
+     * <p>
+     * This will {@linkplain LinNbtStreams#calculateOptionalInfo(Iterator) calculate optional info} before reading.
+     * </p>
+     *
      * @param tokens the tokens to read from
      * @return the root entry
      */
-    public static LinRootEntry readRoot(@NotNull Iterator<? extends LinToken> tokens) {
+    public static LinRootEntry readRoot(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
+        tokens = LinNbtStreams.calculateOptionalInfo(tokens);
         if (!tokens.hasNext() || !(tokens.next() instanceof LinToken.Name name)) {
             throw new IllegalStateException("Expected root name");
         }
-        if (name.id() != LinTagId.COMPOUND) {
+        if (name.id().orElseThrow() != LinTagId.COMPOUND) {
             throw new IllegalStateException("Expected compound tag for root tag");
         }
         var tag = readCompound(tokens);
         return new LinRootEntry(name.name(), tag);
     }
 
-    private static LinCompoundTag readCompound(@NotNull Iterator<? extends LinToken> tokens) {
+    public static LinCompoundTag readCompound(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
         if (!tokens.hasNext() || !(tokens.next() instanceof LinToken.CompoundStart)) {
             throw new IllegalStateException("Expected compound start");
         }
@@ -76,17 +82,17 @@ public class LinTagReader {
             if (!(token instanceof LinToken.Name name)) {
                 throw new IllegalStateException("Expected name, got " + token);
             }
-            LinTag<?, ?> value = readValue(tokens, name.id());
+            var value = readValue(tokens, LinTagType.fromId(name.id().orElseThrow()));
             builder.put(name.name(), value);
         }
         throw new IllegalStateException("Expected compound end");
     }
 
-    private static LinByteArrayTag readByteArray(Iterator<? extends LinToken> tokens) {
+    private static LinByteArrayTag readByteArray(Iterator<? extends @NotNull LinToken> tokens) {
         if (!tokens.hasNext() || !(tokens.next() instanceof LinToken.ByteArrayStart start)) {
             throw new IllegalStateException("Expected byte array start");
         }
-        var buffer = ByteBuffer.allocate(start.size());
+        var buffer = ByteBuffer.allocate(start.size().orElseThrow());
         while (tokens.hasNext()) {
             var token = tokens.next();
             if (token instanceof LinToken.ByteArrayEnd) {
@@ -103,11 +109,11 @@ public class LinTagReader {
         throw new IllegalStateException("Expected byte array end");
     }
 
-    private static LinIntArrayTag readIntArray(Iterator<? extends LinToken> tokens) {
+    private static LinIntArrayTag readIntArray(Iterator<? extends @NotNull LinToken> tokens) {
         if (!tokens.hasNext() || !(tokens.next() instanceof LinToken.IntArrayStart start)) {
             throw new IllegalStateException("Expected int array start");
         }
-        var buffer = IntBuffer.allocate(start.size());
+        var buffer = IntBuffer.allocate(start.size().orElseThrow());
         while (tokens.hasNext()) {
             var token = tokens.next();
             if (token instanceof LinToken.IntArrayEnd) {
@@ -124,11 +130,11 @@ public class LinTagReader {
         throw new IllegalStateException("Expected int array end");
     }
 
-    private static LinLongArrayTag readLongArray(Iterator<? extends LinToken> tokens) {
+    private static LinLongArrayTag readLongArray(Iterator<? extends @NotNull LinToken> tokens) {
         if (!tokens.hasNext() || !(tokens.next() instanceof LinToken.LongArrayStart start)) {
             throw new IllegalStateException("Expected long array start");
         }
-        var buffer = LongBuffer.allocate(start.size());
+        var buffer = LongBuffer.allocate(start.size().orElseThrow());
         while (tokens.hasNext()) {
             var token = tokens.next();
             if (token instanceof LinToken.LongArrayEnd) {
@@ -145,14 +151,16 @@ public class LinTagReader {
         throw new IllegalStateException("Expected long array end");
     }
 
-    private static LinListTag<?> readList(Iterator<? extends LinToken> tokens) {
+    public static <T extends @NotNull LinTag<?, T>> LinListTag<T> readList(Iterator<? extends @NotNull LinToken> tokens) {
         if (!tokens.hasNext() || !(tokens.next() instanceof LinToken.ListStart start)) {
             throw new IllegalStateException("Expected list start");
         }
         @SuppressWarnings("unchecked")
-        var builder = LinListTag.builder((LinTagType<LinTag<?, ?>>) LinTagType.fromId(start.elementId()));
-        for (int i = 0; i < start.size(); i++) {
-            builder.add(readValue(tokens, start.elementId()));
+        LinTagType<T> elementType = (LinTagType<T>) LinTagType.fromId(start.elementId().orElseThrow());
+        var builder = LinListTag.builder(elementType);
+        for (int i = 0; i < start.size().orElseThrow(); i++) {
+            T tag = readValue(tokens, elementType);
+            builder.add(tag);
         }
         if (!tokens.hasNext() || !(tokens.next() instanceof LinToken.ListEnd)) {
             throw new IllegalStateException("Expected list end");
@@ -160,8 +168,8 @@ public class LinTagReader {
         return builder.build();
     }
 
-    private static LinTag<?, ?> readValue(@NotNull Iterator<? extends LinToken> tokens, LinTagId id) {
-        return switch (id) {
+    public static <T extends LinTag<?, T>> T readValue(@NotNull Iterator<? extends @NotNull LinToken> tokens, LinTagType<T> id) {
+        return id.cast(switch (id.id()) {
             case BYTE_ARRAY -> readByteArray(tokens);
             case BYTE -> new LinByteTag(((LinToken.Byte) tokens.next()).value());
             case COMPOUND -> readCompound(tokens);
@@ -175,7 +183,7 @@ public class LinTagReader {
             case LONG -> new LinLongTag(((LinToken.Long) tokens.next()).value());
             case SHORT -> new LinShortTag(((LinToken.Short) tokens.next()).value());
             case STRING -> new LinStringTag(((LinToken.String) tokens.next()).value());
-        };
+        });
     }
 
     private LinTagReader() {

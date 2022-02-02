@@ -20,6 +20,7 @@ package org.enginehub.linbus.tree;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
+import org.enginehub.linbus.stream.LinNbtStreams;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class LinTagIntegrationTest {
             data = decompressed.readAllBytes();
         }
         return new TestTagData(
-            LinRootEntry.readFrom(ByteStreams.newDataInput(data)),
+            LinNbtStreams.readUsing(ByteStreams.newDataInput(data), LinRootEntry::readFrom),
             data
         );
     }

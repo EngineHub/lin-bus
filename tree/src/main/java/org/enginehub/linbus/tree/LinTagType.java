@@ -22,7 +22,6 @@ import org.enginehub.linbus.common.LinTagId;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -32,7 +31,7 @@ import java.util.stream.Stream;
  * This is different from the plain {@link LinTagId}, because it offers generic methods for casting to tag types.
  * </p>
  */
-public final class LinTagType<T extends LinTag<?, ?>> {
+public final class LinTagType<T extends LinTag<?, T>> {
     private static final LinTagType<LinEndTag> END_TAG = new LinTagType<>(
         LinTagId.END, LinEndTag.class
     );
@@ -132,9 +131,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
         return STRING_TAG;
     }
 
-    @SuppressWarnings("unchecked")
-    private static final LinTagType<LinListTag<? extends @NotNull LinTag<?, ?>>> LIST_TAG = new LinTagType<>(
-        LinTagId.LIST, (Class<LinListTag<? extends @NotNull LinTag<?, ?>>>) (Object) LinListTag.class
+    @SuppressWarnings("rawtypes")
+    private static final LinTagType LIST_TAG = new LinTagType<>(
+        LinTagId.LIST, LinListTag.class
     );
 
     /**
@@ -142,9 +141,9 @@ public final class LinTagType<T extends LinTag<?, ?>> {
      *
      * @param <T> the type of the list elements
      */
-    public static <T extends @NotNull LinTag<?, ?>> LinTagType<LinListTag<T>> listTag() {
+    public static <T extends @NotNull LinTag<?, T>> LinTagType<LinListTag<T>> listTag() {
         @SuppressWarnings("unchecked")
-        LinTagType<LinListTag<T>> cast = (LinTagType<LinListTag<T>>) (Object) LIST_TAG;
+        LinTagType<LinListTag<T>> cast = (LinTagType<LinListTag<T>>) LIST_TAG;
         return cast;
     }
 

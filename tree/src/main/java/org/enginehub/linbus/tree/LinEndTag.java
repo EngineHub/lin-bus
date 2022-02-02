@@ -45,7 +45,7 @@ public final class LinEndTag extends LinTag<Void, LinEndTag> {
     }
 
     @Override
-    public LinTagType<LinEndTag> type() {
+    public @NotNull LinTagType<LinEndTag> type() {
         return LinTagType.endTag();
     }
 
@@ -55,7 +55,7 @@ public final class LinEndTag extends LinTag<Void, LinEndTag> {
     }
 
     @Override
-    public @NotNull Iterator<LinToken> iterator() {
+    public @NotNull Iterator<@NotNull LinToken> iterator() {
         return Collections.emptyIterator();
     }
 
@@ -70,7 +70,7 @@ public final class LinEndTag extends LinTag<Void, LinEndTag> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return getClass().getSimpleName();
     }
 }

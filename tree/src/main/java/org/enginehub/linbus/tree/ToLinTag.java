@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <T> the specific type of {@link LinTag} that this converts to
  */
-public interface ToLinTag<T extends LinTag<?, ?>> {
+public interface ToLinTag<T extends LinTag<?, T>> {
     /**
      * Convert this object to a {@link LinTag}.
      *

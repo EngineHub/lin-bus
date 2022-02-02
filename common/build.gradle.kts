@@ -20,7 +20,7 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "linbus-core"
+            artifactId = "lin-bus-common"
             from(components["java"])
         }
     }

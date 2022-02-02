@@ -20,6 +20,8 @@ package org.enginehub.linbus.common.internal;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Look-alike for Guava's abstract iterator.
@@ -49,7 +51,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     }
 
     @Override
-    public T next() {
+    public final T next() {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
@@ -60,11 +62,35 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     }
 
     @Override
-    public boolean hasNext() {
+    public final boolean hasNext() {
         if (needNext) {
             needNext = false;
             next = computeNext();
         }
         return !end;
+    }
+
+    @Override
+    public final void forEachRemaining(Consumer<? super T> action) {
+        Objects.requireNonNull(action);
+        // Ensure `next` is de-initialized.
+        if (!end && !needNext) {
+            action.accept(next);
+            next = null;
+        }
+        // Now we can skip using our fields, and just efficiently loop over `computeNext`.
+        while (true) {
+            T next = computeNext();
+            if (end) {
+                break;
+            }
+            action.accept(next);
+        }
+    }
+
+    // Overriding remove is not supported.
+    @Override
+    public final void remove() {
+        Iterator.super.remove();
     }
 }

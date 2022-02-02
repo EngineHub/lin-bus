@@ -21,6 +21,7 @@ package org.enginehub.linbus.tree;
 import org.enginehub.linbus.common.internal.AbstractIterator;
 import org.enginehub.linbus.common.internal.Iterators;
 import org.enginehub.linbus.stream.token.LinToken;
+import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.IntBuffer;
@@ -31,6 +32,16 @@ import java.util.Iterator;
  * Represents an int array tag.
  */
 public final class LinIntArrayTag extends LinTag<int @NotNull [], LinIntArrayTag> {
+    /**
+     * Read an int array tag from the given stream.
+     *
+     * @param tokens the stream to read from
+     * @return the int array tag
+     */
+    public static LinIntArrayTag readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
+        return LinTagReader.readValue(tokens, LinTagType.intArrayTag());
+    }
+
     private final int[] value;
 
     /**
@@ -38,11 +49,11 @@ public final class LinIntArrayTag extends LinTag<int @NotNull [], LinIntArrayTag
      *
      * @param value the value
      */
-    public LinIntArrayTag(int... value) {
+    public LinIntArrayTag(int @NotNull ... value) {
         this(value.clone(), true);
     }
 
-    LinIntArrayTag(int[] value, boolean iSwearToNotModifyValue) {
+    LinIntArrayTag(int @NotNull [] value, boolean iSwearToNotModifyValue) {
         if (!iSwearToNotModifyValue) {
             throw new IllegalArgumentException("You think you're clever, huh?");
         }
@@ -50,7 +61,7 @@ public final class LinIntArrayTag extends LinTag<int @NotNull [], LinIntArrayTag
     }
 
     @Override
-    public LinTagType<LinIntArrayTag> type() {
+    public @NotNull LinTagType<LinIntArrayTag> type() {
         return LinTagType.intArrayTag();
     }
 
@@ -70,7 +81,7 @@ public final class LinIntArrayTag extends LinTag<int @NotNull [], LinIntArrayTag
     }
 
     @Override
-    public @NotNull Iterator<LinToken> iterator() {
+    public @NotNull Iterator<@NotNull LinToken> iterator() {
         return Iterators.combine(
             Iterators.of(new LinToken.IntArrayStart(value.length)),
             new AbstractIterator<>() {
@@ -108,7 +119,7 @@ public final class LinIntArrayTag extends LinTag<int @NotNull [], LinIntArrayTag
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return getClass().getSimpleName() + Arrays.toString(value());
     }
 }

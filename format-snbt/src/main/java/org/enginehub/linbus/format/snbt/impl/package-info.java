@@ -16,27 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.common.internal;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class EmptyRecordShimTest {
-    @Test
-    void simpleTest() {
-        class Shimmed extends EmptyRecordShim {
-        }
-        var shimmed = new Shimmed();
-
-        assertEquals(new Shimmed(), shimmed);
-
-        assertEquals("Shimmed", shimmed.toString());
-
-        assertEquals(new Shimmed().hashCode(), shimmed.hashCode());
-
-        // It doesn't actually give any record components, though
-        assertNull(Shimmed.class.getRecordComponents());
-    }
-}
+/**
+ * {@summary The implementation package of the streaming module. THIS IS NOT API.}
+ */
+package org.enginehub.linbus.format.snbt.impl;

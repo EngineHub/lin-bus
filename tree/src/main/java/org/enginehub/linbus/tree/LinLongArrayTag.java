@@ -22,9 +22,9 @@ package org.enginehub.linbus.tree;
 import org.enginehub.linbus.common.internal.AbstractIterator;
 import org.enginehub.linbus.common.internal.Iterators;
 import org.enginehub.linbus.stream.token.LinToken;
+import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -33,6 +33,16 @@ import java.util.Iterator;
  * Represents a long array tag.
  */
 public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArrayTag> {
+    /**
+     * Read a long array tag from the given stream.
+     *
+     * @param tokens the stream to read from
+     * @return the long array tag
+     */
+    public static LinLongArrayTag readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
+        return LinTagReader.readValue(tokens, LinTagType.longArrayTag());
+    }
+
     private final long[] value;
 
     /**
@@ -40,11 +50,11 @@ public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArray
      *
      * @param value the value
      */
-    public LinLongArrayTag(long... value) {
+    public LinLongArrayTag(long @NotNull ... value) {
         this(value.clone(), true);
     }
 
-    LinLongArrayTag(long[] value, boolean iSwearToNotModifyValue) {
+    LinLongArrayTag(long @NotNull [] value, boolean iSwearToNotModifyValue) {
         if (!iSwearToNotModifyValue) {
             throw new IllegalArgumentException("You think you're clever, huh?");
         }
@@ -52,7 +62,7 @@ public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArray
     }
 
     @Override
-    public LinTagType<LinLongArrayTag> type() {
+    public @NotNull LinTagType<LinLongArrayTag> type() {
         return LinTagType.longArrayTag();
     }
 
@@ -72,7 +82,7 @@ public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArray
     }
 
     @Override
-    public @NotNull Iterator<LinToken> iterator() {
+    public @NotNull Iterator<@NotNull LinToken> iterator() {
         return Iterators.combine(
             Iterators.of(new LinToken.LongArrayStart(value.length)),
             new AbstractIterator<>() {
@@ -110,7 +120,7 @@ public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArray
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return getClass().getSimpleName() + Arrays.toString(value());
     }
 }

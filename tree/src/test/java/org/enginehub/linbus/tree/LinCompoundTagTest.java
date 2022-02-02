@@ -29,6 +29,7 @@ import java.util.NoSuchElementException;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.enginehub.linbus.tree.truth.LinTagSubject.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LinCompoundTagTest {
@@ -51,10 +52,18 @@ public class LinCompoundTagTest {
     }
 
     @Test
-    void throwsIfImproperlyConstructed() {
-        assertThrows(
+    void checksForEndTag() {
+        var ex = assertThrows(
             IllegalArgumentException.class,
-            () -> new LinCompoundTag(Map.of(), false)
+            () -> new LinCompoundTag(Map.of("this is the end", LinEndTag.instance()), true)
+        );
+        assertThat(ex).hasMessageThat().isEqualTo("Cannot add END tag to compound tag");
+    }
+
+    @Test
+    void canAvoidCheckForPerformance() {
+        assertDoesNotThrow(
+            () -> new LinCompoundTag(Map.of("this is the end", LinEndTag.instance()), false)
         );
     }
 

@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collector;
 
 /**
  * Internal iterator helper.
@@ -81,6 +82,28 @@ public class Iterators {
         // Currently, this doesn't hold any extra memory, unfortunately the
         // Collections.singletonIterator method is not exposed.
         return Collections.singletonList(value).iterator();
+    }
+
+    /**
+     * Apply the given {@link Collector} to the given iterator.
+     *
+     * @param iterator the iterator to collect
+     * @param collector the collector to apply
+     * @param <T> the type of the elements
+     * @param <A> the type of the accumulator
+     * @param <R> the type of the result
+     * @return the result of the collector
+     */
+    public static <T, A, R> @NotNull R collect(Iterator<? extends T> iterator, @NotNull Collector<? super T, A, R> collector) {
+        var container = collector.supplier().get();
+        iterator.forEachRemaining(t -> collector.accumulator().accept(container, t));
+        if (collector.characteristics().contains(Collector.Characteristics.IDENTITY_FINISH)) {
+            // Checked by IDENTITY_FINISH
+            @SuppressWarnings("unchecked")
+            R casted = (R) container;
+            return casted;
+        }
+        return collector.finisher().apply(container);
     }
 
     private Iterators() {

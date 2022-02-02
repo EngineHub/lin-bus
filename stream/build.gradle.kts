@@ -8,7 +8,7 @@ plugins {
 dependencies {
     compileOnlyApi(libs.jetbrains.annotations)
 
-    implementation(project(":common"))
+    api(project(":common"))
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter.api)
@@ -22,7 +22,7 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "linbus-core"
+            artifactId = "lin-bus-stream"
             from(components["java"])
         }
     }

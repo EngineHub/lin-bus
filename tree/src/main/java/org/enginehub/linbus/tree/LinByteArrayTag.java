@@ -21,6 +21,7 @@ package org.enginehub.linbus.tree;
 import org.enginehub.linbus.common.internal.AbstractIterator;
 import org.enginehub.linbus.common.internal.Iterators;
 import org.enginehub.linbus.stream.token.LinToken;
+import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
@@ -31,6 +32,16 @@ import java.util.Iterator;
  * Represents a byte array tag.
  */
 public final class LinByteArrayTag extends LinTag<byte @NotNull [], LinByteArrayTag> {
+    /**
+     * Read a byte array tag from the given stream.
+     *
+     * @param tokens the stream to read from
+     * @return the byte array tag
+     */
+    public static LinByteArrayTag readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
+        return LinTagReader.readValue(tokens, LinTagType.byteArrayTag());
+    }
+
     private final byte[] value;
 
     /**
@@ -38,11 +49,11 @@ public final class LinByteArrayTag extends LinTag<byte @NotNull [], LinByteArray
      *
      * @param value the value
      */
-    public LinByteArrayTag(byte... value) {
+    public LinByteArrayTag(byte @NotNull ... value) {
         this(value.clone(), true);
     }
 
-    LinByteArrayTag(byte[] value, boolean iSwearToNotModifyValue) {
+    LinByteArrayTag(byte @NotNull [] value, boolean iSwearToNotModifyValue) {
         if (!iSwearToNotModifyValue) {
             throw new IllegalArgumentException("You think you're clever, huh?");
         }
@@ -50,7 +61,7 @@ public final class LinByteArrayTag extends LinTag<byte @NotNull [], LinByteArray
     }
 
     @Override
-    public LinTagType<LinByteArrayTag> type() {
+    public @NotNull LinTagType<LinByteArrayTag> type() {
         return LinTagType.byteArrayTag();
     }
 
@@ -65,12 +76,12 @@ public final class LinByteArrayTag extends LinTag<byte @NotNull [], LinByteArray
      *
      * @return a read-only {@link ByteBuffer} providing view access to the contents of this tag
      */
-    public ByteBuffer view() {
+    public @NotNull ByteBuffer view() {
         return ByteBuffer.wrap(value).asReadOnlyBuffer();
     }
 
     @Override
-    public @NotNull Iterator<LinToken> iterator() {
+    public @NotNull Iterator<@NotNull LinToken> iterator() {
         return Iterators.combine(
             Iterators.of(new LinToken.ByteArrayStart(value.length)),
             new AbstractIterator<>() {
@@ -108,7 +119,7 @@ public final class LinByteArrayTag extends LinTag<byte @NotNull [], LinByteArray
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return getClass().getSimpleName() + Arrays.toString(value());
     }
 }

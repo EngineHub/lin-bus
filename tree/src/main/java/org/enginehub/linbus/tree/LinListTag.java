@@ -21,6 +21,7 @@ package org.enginehub.linbus.tree;
 import org.enginehub.linbus.common.internal.AbstractIterator;
 import org.enginehub.linbus.common.internal.Iterators;
 import org.enginehub.linbus.stream.token.LinToken;
+import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -34,7 +35,17 @@ import java.util.Objects;
  *
  * @param <T> the type of the elements in the list
  */
-public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@NotNull List<T>, LinListTag<T>> {
+public final class LinListTag<T extends @NotNull LinTag<?, T>> extends LinTag<@NotNull List<T>, LinListTag<T>> {
+    /**
+     * Read a list tag from the given stream.
+     *
+     * @param tokens the stream to read from
+     * @return the list tag
+     */
+    public static <T extends @NotNull LinTag<?, T>> LinListTag<T> readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
+        return LinTagReader.readList(tokens);
+    }
+
     /**
      * Get an empty list of the given element type.
      *
@@ -42,7 +53,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@N
      * @param <T> the type of the elements in the list
      * @return an empty list
      */
-    public static <T extends @NotNull LinTag<?, ?>> LinListTag<T> empty(LinTagType<T> elementType) {
+    public static <T extends @NotNull LinTag<?, T>> LinListTag<T> empty(LinTagType<T> elementType) {
         return builder(elementType).build();
     }
 
@@ -53,7 +64,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@N
      * @param <T> the type of the elements in the list
      * @return a new builder
      */
-    public static <T extends @NotNull LinTag<?, ?>> Builder<T> builder(LinTagType<T> elementType) {
+    public static <T extends @NotNull LinTag<?, T>> Builder<T> builder(LinTagType<T> elementType) {
         return new Builder<>(elementType);
     }
 
@@ -62,7 +73,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@N
      *
      * @param <T> the type of the elements in the list
      */
-    public static final class Builder<T extends @NotNull LinTag<?, ?>> {
+    public static final class Builder<T extends @NotNull LinTag<?, T>> {
         private final LinTagType<T> elementType;
         private final List<T> collector;
 
@@ -147,7 +158,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@N
     }
 
     @Override
-    public LinTagType<LinListTag<T>> type() {
+    public @NotNull LinTagType<LinListTag<T>> type() {
         return LinTagType.listTag();
     }
 
@@ -164,7 +175,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@N
     }
 
     @Override
-    public @NotNull Iterator<LinToken> iterator() {
+    public @NotNull Iterator<@NotNull LinToken> iterator() {
         return Iterators.combine(
             Iterators.of(new LinToken.ListStart(value.size(), elementType.id())),
             Iterators.combine(new EntryTokenIterator()),
@@ -172,11 +183,11 @@ public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@N
         );
     }
 
-    private class EntryTokenIterator extends AbstractIterator<Iterator<? extends LinToken>> {
+    private class EntryTokenIterator extends AbstractIterator<Iterator<? extends @NotNull LinToken>> {
         private final Iterator<T> entryIterator = value.iterator();
 
         @Override
-        protected Iterator<? extends LinToken> computeNext() {
+        protected Iterator<? extends @NotNull LinToken> computeNext() {
             if (!entryIterator.hasNext()) {
                 return end();
             }
@@ -204,7 +215,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, ?>> extends LinTag<@N
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return getClass().getSimpleName() + value;
     }
 }

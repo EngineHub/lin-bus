@@ -19,23 +19,43 @@
 package org.enginehub.linbus.stream.token;
 
 import org.enginehub.linbus.common.LinTagId;
-import org.enginehub.linbus.common.internal.EmptyRecordShim;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * A token from an NBT stream.
  */
 public sealed interface LinToken {
     /**
+     * Check if this token represents a whole value on its own, i.e. there are no following tokens.
+     *
+     * @return {@code true} if this token represents a whole value on its own
+     */
+    boolean isSimpleValue();
+
+    /**
      * Represents compound tag names.
      *
      * @param name the name of the next tag
      * @param id the id of the next tag
      */
-    record Name(java.lang.String name, LinTagId id) implements LinToken {
+    record Name(java.lang.String name, Optional<LinTagId> id) implements LinToken {
+        public Name(java.lang.String name) {
+            this(name, Optional.empty());
+        }
+
+        public Name(java.lang.String name, LinTagId id) {
+            this(name, Optional.of(id));
+        }
+
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
@@ -43,7 +63,19 @@ public sealed interface LinToken {
      *
      * @param size the size of the array
      */
-    record ByteArrayStart(int size) implements LinToken {
+    record ByteArrayStart(OptionalInt size) implements LinToken {
+        public ByteArrayStart() {
+            this(OptionalInt.empty());
+        }
+
+        public ByteArrayStart(int size) {
+            this(OptionalInt.of(size));
+        }
+
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
@@ -66,12 +98,21 @@ public sealed interface LinToken {
                 throw new IllegalArgumentException("buffer must be read-only");
             }
         }
+
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
-     * Represents the end of a byte array. This could be inferred from the content, but this is consistent.
+     * Represents the end of a byte array.
      */
-    final class ByteArrayEnd extends EmptyRecordShim implements LinToken {
+    record ByteArrayEnd() implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
@@ -80,6 +121,10 @@ public sealed interface LinToken {
      * @param value the value of the byte
      */
     record Byte(byte value) implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return true;
+        }
     }
 
     /**
@@ -90,13 +135,21 @@ public sealed interface LinToken {
      * more {@link LinToken LinTokens} representing the value.
      * </p>
      */
-    final class CompoundStart extends EmptyRecordShim implements LinToken {
+    record CompoundStart() implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
      * Represents the end of a compound tag.
      */
-    final class CompoundEnd extends EmptyRecordShim implements LinToken {
+    record CompoundEnd() implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
@@ -105,6 +158,10 @@ public sealed interface LinToken {
      * @param value the value of the double
      */
     record Double(double value) implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return true;
+        }
     }
 
     /**
@@ -113,6 +170,10 @@ public sealed interface LinToken {
      * @param value the value of the float
      */
     record Float(float value) implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return true;
+        }
     }
 
     /**
@@ -120,7 +181,19 @@ public sealed interface LinToken {
      *
      * @param size the size of the array
      */
-    record IntArrayStart(int size) implements LinToken {
+    record IntArrayStart(OptionalInt size) implements LinToken {
+        public IntArrayStart() {
+            this(OptionalInt.empty());
+        }
+
+        public IntArrayStart(int size) {
+            this(OptionalInt.of(size));
+        }
+
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
@@ -143,12 +216,21 @@ public sealed interface LinToken {
                 throw new IllegalArgumentException("buffer must be read-only");
             }
         }
+
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
-     * Represents the end of an int array. This could be inferred from the content, but this is consistent.
+     * Represents the end of an int array.
      */
-    final class IntArrayEnd extends EmptyRecordShim implements LinToken {
+    record IntArrayEnd() implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
@@ -157,6 +239,10 @@ public sealed interface LinToken {
      * @param value the value of the int
      */
     record Int(int value) implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return true;
+        }
     }
 
     /**
@@ -167,16 +253,32 @@ public sealed interface LinToken {
      * representing the values.
      * </p>
      *
-     * @param size the size of the list
-     * @param elementId the type of the elements in the list
+     * @param size the size of the list, if known
+     * @param elementId the type of the elements in the list, if known
      */
-    record ListStart(int size, LinTagId elementId) implements LinToken {
+    record ListStart(OptionalInt size, Optional<LinTagId> elementId) implements LinToken {
+        public ListStart() {
+            this(OptionalInt.empty(), Optional.empty());
+        }
+
+        public ListStart(int size, LinTagId elementId) {
+            this(OptionalInt.of(size), Optional.of(elementId));
+        }
+
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
-     * Represents the end of a list. This could be inferred from the size, but this is consistent.
+     * Represents the end of a list.
      */
-    final class ListEnd extends EmptyRecordShim implements LinToken {
+    record ListEnd() implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
@@ -184,7 +286,19 @@ public sealed interface LinToken {
      *
      * @param size the size of the array
      */
-    record LongArrayStart(int size) implements LinToken {
+    record LongArrayStart(OptionalInt size) implements LinToken {
+        public LongArrayStart() {
+            this(OptionalInt.empty());
+        }
+
+        public LongArrayStart(int size) {
+            this(OptionalInt.of(size));
+        }
+
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
@@ -207,12 +321,21 @@ public sealed interface LinToken {
                 throw new IllegalArgumentException("buffer must be read-only");
             }
         }
+
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
-     * Represents the end of a long array. This could be inferred from the content, but this is consistent.
+     * Represents the end of a long array.
      */
-    final class LongArrayEnd extends EmptyRecordShim implements LinToken {
+    record LongArrayEnd() implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return false;
+        }
     }
 
     /**
@@ -221,6 +344,10 @@ public sealed interface LinToken {
      * @param value the value of the long
      */
     record Long(long value) implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return true;
+        }
     }
 
     /**
@@ -229,6 +356,10 @@ public sealed interface LinToken {
      * @param value the value of the short
      */
     record Short(short value) implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return true;
+        }
     }
 
     /**
@@ -237,5 +368,9 @@ public sealed interface LinToken {
      * @param value the value of the string
      */
     record String(java.lang.String value) implements LinToken {
+        @Override
+        public boolean isSimpleValue() {
+            return true;
+        }
     }
 }

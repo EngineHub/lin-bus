@@ -38,27 +38,4 @@ public class LinTagTest {
         var tag = new LinIntTag(42);
         assertThat(tag.toLinTag()).isSameInstanceAs(tag);
     }
-
-    @Test
-    void coerceAsIntImplementation() {
-        assertThat(new LinByteTag((byte) 42).coerceAsInt()).isEqualTo(42);
-        assertThat(new LinShortTag((short) 42).coerceAsInt()).isEqualTo(42);
-        assertThat(new LinIntTag(42).coerceAsInt()).isEqualTo(42);
-        assertThat(new LinLongTag(42).coerceAsInt()).isEqualTo(42);
-        assertThat(new LinFloatTag(42).coerceAsInt()).isEqualTo(42);
-        assertThat(new LinDoubleTag(42).coerceAsInt()).isEqualTo(42);
-
-        assertThat(new LinByteTag((byte) 255).coerceAsInt()).isEqualTo(-1);
-        assertThat(new LinShortTag((short) 65535).coerceAsInt()).isEqualTo(-1);
-
-        // Truncating is used.
-        assertThat(new LinFloatTag(42.714F).coerceAsInt()).isEqualTo(42);
-        assertThat(new LinDoubleTag(42.714).coerceAsInt()).isEqualTo(42);
-        assertThat(new LinFloatTag(-42.714F).coerceAsInt()).isEqualTo(-42);
-        assertThat(new LinDoubleTag(-42.714).coerceAsInt()).isEqualTo(-42);
-
-        // Non-int values are zero.
-        assertThat(new LinStringTag("42").coerceAsInt()).isEqualTo(0);
-        assertThat(LinEndTag.instance().coerceAsInt()).isEqualTo(0);
-    }
 }

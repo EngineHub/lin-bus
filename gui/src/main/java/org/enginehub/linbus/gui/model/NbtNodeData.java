@@ -51,7 +51,7 @@ public sealed interface NbtNodeData {
         }
     }
 
-    record Value<T extends LinTag<?, ?>>(T tag) implements NbtNodeData {
+    record Value<T extends LinTag<?, T>>(T tag) implements NbtNodeData {
         @Override
         public boolean allowChildren() {
             return tag instanceof LinCompoundTag || tag instanceof LinListTag;

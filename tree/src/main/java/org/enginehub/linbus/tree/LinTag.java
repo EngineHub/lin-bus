@@ -29,9 +29,8 @@ import java.util.Objects;
  * @param <T> the type of the canonical representation
  * @param <SELF> the type of the tag
  */
-public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTag<SELF>, Iterable<LinToken>
-    permits LinByteArrayTag, LinByteTag, LinCompoundTag, LinDoubleTag, LinEndTag, LinFloatTag, LinIntArrayTag,
-    LinIntTag, LinListTag, LinLongArrayTag, LinLongTag, LinShortTag, LinStringTag {
+public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTag<SELF>, Iterable<@NotNull LinToken>
+    permits LinByteArrayTag, LinCompoundTag, LinEndTag, LinIntArrayTag, LinListTag, LinLongArrayTag, LinNumberTag, LinStringTag {
     /**
      * Gets the type of this tag.
      *
@@ -39,7 +38,7 @@ public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements 
      */
     // This is to be overriden directly to save memory in the tag itself
     // And also to provide the more specific return type
-    public abstract LinTagType<?> type();
+    public abstract @NotNull LinTagType<?> type();
 
     /**
      * Gets the value of this tag.
@@ -47,20 +46,6 @@ public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements 
      * @return the value of the tag
      */
     public abstract T value();
-
-    /**
-     * Attempt to convert the value of this tag to an integer.
-     *
-     * <p>
-     * Specifically, if the {@link #value()} of this tag is a {@link Number}, then this method will return the {@link
-     * Number#intValue() intValue()} of that value. Otherwise, this method will return {@code 0}.
-     * </p>
-     *
-     * @return the value of this tag as an integer
-     */
-    public final int coerceAsInt() {
-        return value() instanceof Number number ? number.intValue() : 0;
-    }
 
     // all abiding implementations use SELF properly
     @SuppressWarnings("unchecked")
@@ -83,7 +68,7 @@ public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements 
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return getClass().getSimpleName() + "[" + value() + ']';
     }
 }

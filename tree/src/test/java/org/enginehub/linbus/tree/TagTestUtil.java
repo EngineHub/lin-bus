@@ -24,7 +24,7 @@ import com.google.common.io.ByteStreams;
 import java.io.IOException;
 
 class TagTestUtil {
-    static <T extends LinTag<?, ?>> void assertRoundTrip(T input) throws IOException {
+    static <T extends LinTag<?, T>> void assertRoundTrip(T input) throws IOException {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         // TODO
 //        input.writeTo(dataOutput);

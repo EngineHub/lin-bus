@@ -20,6 +20,7 @@ package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.common.internal.Iterators;
 import org.enginehub.linbus.stream.token.LinToken;
+import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -27,7 +28,17 @@ import java.util.Iterator;
 /**
  * Represents a byte tag.
  */
-public final class LinByteTag extends LinTag<@NotNull Byte, LinByteTag> {
+public final class LinByteTag extends LinNumberTag<@NotNull Byte, LinByteTag> {
+    /**
+     * Read a byte tag from the given stream.
+     *
+     * @param tokens the stream to read from
+     * @return the byte tag
+     */
+    public static LinByteTag readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
+        return LinTagReader.readValue(tokens, LinTagType.byteTag());
+    }
+
     private final byte value;
 
     /**
@@ -49,7 +60,7 @@ public final class LinByteTag extends LinTag<@NotNull Byte, LinByteTag> {
     }
 
     @Override
-    public LinTagType<LinByteTag> type() {
+    public @NotNull LinTagType<LinByteTag> type() {
         return LinTagType.byteTag();
     }
 
@@ -68,7 +79,7 @@ public final class LinByteTag extends LinTag<@NotNull Byte, LinByteTag> {
     }
 
     @Override
-    public @NotNull Iterator<LinToken> iterator() {
+    public @NotNull Iterator<@NotNull LinToken> iterator() {
         return Iterators.of(new LinToken.Byte(value));
     }
 }

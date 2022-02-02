@@ -20,6 +20,7 @@ package org.enginehub.linbus.common.internal;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -53,5 +54,47 @@ public class AbstractIteratorTest {
         // And now it is done.
         assertFalse(iterator.hasNext());
         assertThrows(NoSuchElementException.class, iterator::next);
+    }
+
+    @Test
+    void forEachRemaining() {
+        var iterator = new AbstractIterator<String>() {
+            private int i = 0;
+            @Override
+            protected String computeNext() {
+                if (i >= 10) {
+                    return end();
+                }
+                i++;
+                return "A simple test!";
+            }
+        };
+
+        var collected = new ArrayList<String>();
+        iterator.forEachRemaining(collected::add);
+        assertFalse(iterator.hasNext());
+        assertEquals(10, collected.size());
+    }
+
+    @Test
+    void forEachRemainingAfterNext() {
+        var iterator = new AbstractIterator<String>() {
+            private int i = 0;
+            @Override
+            protected String computeNext() {
+                if (i >= 10) {
+                    return end();
+                }
+                i++;
+                return "A simple test!";
+            }
+        };
+
+        iterator.next();
+
+        var collected = new ArrayList<String>();
+        iterator.forEachRemaining(collected::add);
+        assertFalse(iterator.hasNext());
+        assertEquals(9, collected.size());
     }
 }

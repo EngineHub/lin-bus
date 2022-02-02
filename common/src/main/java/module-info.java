@@ -21,6 +21,7 @@
  */
 module org.enginehub.linbus.common {
     exports org.enginehub.linbus.common;
-    exports org.enginehub.linbus.common.internal to org.enginehub.linbus.stream, org.enginehub.linbus.tree;
+    exports org.enginehub.linbus.common.internal to org.enginehub.linbus.stream, org.enginehub.linbus.tree,
+        org.enginehub.linbus.format.snbt;
     requires static org.jetbrains.annotations;
 }

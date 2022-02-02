@@ -23,6 +23,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.token.LinToken;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedInputStream;
@@ -53,7 +54,7 @@ public class LinNbtReaderIntegrationTest {
         }
     }
 
-    private static <T> T convertNbtStream(String name, Function<Iterator<? extends LinToken>, T> converter) throws IOException {
+    private static <T> T convertNbtStream(String name, Function<Iterator<? extends @NotNull LinToken>, T> converter) throws IOException {
         return loadResource(name, stream -> converter.apply(LinNbtStreams.read(new DataInputStream(stream))));
     }
 

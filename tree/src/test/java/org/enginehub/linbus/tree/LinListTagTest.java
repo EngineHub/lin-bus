@@ -65,23 +65,23 @@ public class LinListTagTest {
         )).toString()).isEqualTo("LinListTag[LinStringTag[Hello], LinStringTag[World!]]");
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void throwsIfAddingBadTag() {
+        @SuppressWarnings({"unchecked", "rawtypes"})
         var thrown = assertThrows(
             IllegalArgumentException.class,
-            () -> LinListTag.builder((LinTagType<LinTag<?, ?>>) (Object) LinTagType.stringTag())
+            () -> LinListTag.builder((LinTagType) LinTagType.stringTag())
                 .add(new LinDoubleTag(0.0))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Element is not of type STRING but DOUBLE");
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void throwsIfConstructedWithBadTag() {
+        @SuppressWarnings({"unchecked", "rawtypes"})
         var thrown = assertThrows(
             IllegalArgumentException.class,
-            () -> new LinListTag<>((LinTagType<LinTag<?, ?>>) (Object) LinTagType.stringTag(), List.of(
+            () -> new LinListTag<>((LinTagType) LinTagType.stringTag(), List.of(
                 new LinDoubleTag(0.0)
             ))
         );
