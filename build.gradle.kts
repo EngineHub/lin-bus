@@ -1,31 +1,10 @@
-import org.cadixdev.gradle.licenser.LicenseExtension
-
 plugins {
     base
     jacoco
-    id("org.cadixdev.licenser") version "0.6.1" apply false
 }
 
-allprojects {
-    repositories {
-        mavenCentral()
-    }
-}
-
-subprojects {
-    apply(plugin = "org.cadixdev.licenser")
-
-    configure<LicenseExtension> {
-        exclude {
-            it.file.startsWith(project.buildDir)
-        }
-        header(rootProject.file("HEADER.txt"))
-        (this as ExtensionAware).extra.apply {
-            for (key in listOf("organization", "url")) {
-                set(key, rootProject.property(key))
-            }
-        }
-    }
+repositories {
+    mavenCentral()
 }
 
 val jacocoTotalReport = tasks.register<JacocoReport>("jacocoTotalReport") {

@@ -6,10 +6,12 @@ plugins {
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
     implementation(gradleApi())
+    implementation("gradle.plugin.org.cadixdev.gradle:licenser:0.6.1")
 }
 
 configure<JavaPluginExtension> {
@@ -21,6 +23,10 @@ gradlePlugin {
         create("jvm") {
             id = "org.enginehub.lin-bus.jvm"
             implementationClass = "org.enginehub.gradle.JvmPlugin"
+        }
+        create("license") {
+            id = "org.enginehub.lin-bus.license"
+            implementationClass = "org.enginehub.gradle.LicensePlugin"
         }
     }
 }
