@@ -10,6 +10,7 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.*
+import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 
 class JvmPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -44,6 +45,30 @@ class JvmPlugin : Plugin<Project> {
                 // Disable up-to-date check, it is wrong for javadoc with -Werror
                 outputs.upToDateWhen { false }
             }
+            configureJacoco()
+        }
+    }
+
+    private fun Project.configureJacoco() {
+        apply(plugin = "jacoco")
+        val jacocoTestCoverageVerification =
+            tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+                violationRules {
+                    rule {
+                        limit {
+                            minimum = "0.95".toBigDecimal()
+                        }
+                    }
+                }
+
+                val src = project.the<JavaPluginExtension>().sourceSets["main"]
+                val jacocoExecData = fileTree(project.layout.buildDirectory.dir("jacoco")).include("*.exec")
+                executionData(jacocoExecData)
+                sourceSets(src)
+                dependsOn(project.tasks.named("test"))
+            }
+        tasks.named("check") {
+            dependsOn(jacocoTestCoverageVerification)
         }
     }
 }
