@@ -77,69 +77,69 @@ public class LinTagSubject extends Subject {
         }
     }
 
-    public PrimitiveByteArraySubject valueIfByteArray() {
+    public PrimitiveByteArraySubject byteArrayValue() {
         isOfType(LinTagType.byteArrayTag());
-        return check("value()").that(((LinByteArrayTag) tag).value());
+        return check("byteArrayValue()").that(((LinByteArrayTag) tag).value());
     }
 
-    public ComparableSubject<Byte> valueIfByte() {
+    public ComparableSubject<Byte> byteValue() {
         isOfType(LinTagType.byteTag());
-        return check("value()").that(((LinByteTag) tag).value());
+        return check("byteValue()").that(((LinByteTag) tag).value());
     }
 
-    public MapSubject valueIfCompound() {
+    public MapSubject compoundValue() {
         isOfType(LinTagType.compoundTag());
-        return check("value()").that(((LinCompoundTag) tag).value());
+        return check("compoundValue()").that(((LinCompoundTag) tag).value());
     }
 
-    public DoubleSubject valueIfDouble() {
+    public DoubleSubject doubleValue() {
         isOfType(LinTagType.doubleTag());
-        return check("value()").that(((LinDoubleTag) tag).value());
+        return check("doubleValue()").that(((LinDoubleTag) tag).value());
     }
 
-    public Subject valueIfEnd() {
+    public Subject endValue() {
         isOfType(LinTagType.endTag());
-        return check("value()").that(((LinEndTag) tag).value());
+        return check("endValue()").that(((LinEndTag) tag).value());
     }
 
-    public FloatSubject valueIfFloat() {
+    public FloatSubject floatValue() {
         isOfType(LinTagType.floatTag());
-        return check("value()").that(((LinFloatTag) tag).value());
+        return check("floatValue()").that(((LinFloatTag) tag).value());
     }
 
-    public PrimitiveIntArraySubject valueIfIntArray() {
+    public PrimitiveIntArraySubject intArrayValue() {
         isOfType(LinTagType.intArrayTag());
-        return check("value()").that(((LinIntArrayTag) tag).value());
+        return check("intArrayValue()").that(((LinIntArrayTag) tag).value());
     }
 
-    public IntegerSubject valueIfInt() {
+    public IntegerSubject intValue() {
         isOfType(LinTagType.intTag());
-        return check("value()").that(((LinIntTag) tag).value());
+        return check("intValue()").that(((LinIntTag) tag).value());
     }
 
-    public IterableSubject valueIfList() {
+    public IterableSubject listValue() {
         isOfType(LinTagType.listTag());
-        return check("value()").that(((LinListTag<?>) tag).value());
+        return check("listValue()").that(((LinListTag<?>) tag).value());
     }
 
-    public PrimitiveLongArraySubject valueIfLongArray() {
+    public PrimitiveLongArraySubject longArrayValue() {
         isOfType(LinTagType.longArrayTag());
-        return check("value()").that(((LinLongArrayTag) tag).value());
+        return check("longArrayValue()").that(((LinLongArrayTag) tag).value());
     }
 
-    public LongSubject valueIfLong() {
+    public LongSubject longValue() {
         isOfType(LinTagType.longTag());
-        return check("value()").that(((LinLongTag) tag).value());
+        return check("longValue()").that(((LinLongTag) tag).value());
     }
 
-    public ComparableSubject<Short> valueIfShort() {
+    public ComparableSubject<Short> shortValue() {
         isOfType(LinTagType.shortTag());
-        return check("value()").that(((LinShortTag) tag).value());
+        return check("shortValue()").that(((LinShortTag) tag).value());
     }
 
-    public StringSubject valueIfString() {
+    public StringSubject stringValue() {
         isOfType(LinTagType.stringTag());
-        return check("value()").that(((LinStringTag) tag).value());
+        return check("stringValue()").that(((LinStringTag) tag).value());
     }
 
     public LinTagSubject getTagByKey(String key) {

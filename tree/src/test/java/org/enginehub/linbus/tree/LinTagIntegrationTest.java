@@ -60,49 +60,49 @@ public class LinTagIntegrationTest {
         rootCompoundSubject.getTagByKey("nested compound test")
             .getTagByKey("egg")
             .getTagByKey("name")
-            .valueIfString()
+            .stringValue()
             .isEqualTo("Eggbert");
         rootCompoundSubject.getTagByKey("nested compound test")
             .getTagByKey("egg")
             .getTagByKey("value")
-            .valueIfFloat()
+            .floatValue()
             .isEqualTo(0.5F);
         rootCompoundSubject.getTagByKey("nested compound test")
             .getTagByKey("ham")
             .getTagByKey("name")
-            .valueIfString()
+            .stringValue()
             .isEqualTo("Hampus");
         rootCompoundSubject.getTagByKey("nested compound test")
             .getTagByKey("ham")
             .getTagByKey("value")
-            .valueIfFloat()
+            .floatValue()
             .isEqualTo(0.75F);
-        rootCompoundSubject.getTagByKey("intTest").valueIfInt().isEqualTo(2147483647);
-        rootCompoundSubject.getTagByKey("byteTest").valueIfByte().isEqualTo(127);
-        rootCompoundSubject.getTagByKey("stringTest").valueIfString()
+        rootCompoundSubject.getTagByKey("intTest").intValue().isEqualTo(2147483647);
+        rootCompoundSubject.getTagByKey("byteTest").byteValue().isEqualTo(127);
+        rootCompoundSubject.getTagByKey("stringTest").stringValue()
             .isEqualTo("HELLO WORLD THIS IS A TEST STRING \u00c5\u00c4\u00d6!");
         for (int i = 0; i < 5; i++) {
             rootCompoundSubject.getTagByKey("listTest (long)")
-                .getTagByIndex(i).valueIfLong().isEqualTo(11 + i);
+                .getTagByIndex(i).longValue().isEqualTo(11 + i);
         }
-        rootCompoundSubject.getTagByKey("doubleTest").valueIfDouble().isEqualTo(0.49312871321823148);
-        rootCompoundSubject.getTagByKey("floatTest").valueIfFloat().isEqualTo(0.49823147058486938F);
-        rootCompoundSubject.getTagByKey("longTest").valueIfLong().isEqualTo(9223372036854775807L);
+        rootCompoundSubject.getTagByKey("doubleTest").doubleValue().isEqualTo(0.49312871321823148);
+        rootCompoundSubject.getTagByKey("floatTest").floatValue().isEqualTo(0.49823147058486938F);
+        rootCompoundSubject.getTagByKey("longTest").longValue().isEqualTo(9223372036854775807L);
         rootCompoundSubject.getTagByKey("listTest (compound)").getTagByIndex(0)
-            .getTagByKey("created-on").valueIfLong().isEqualTo(1264099775885L);
+            .getTagByKey("created-on").longValue().isEqualTo(1264099775885L);
         rootCompoundSubject.getTagByKey("listTest (compound)").getTagByIndex(0)
-            .getTagByKey("name").valueIfString().isEqualTo("Compound tag #0");
+            .getTagByKey("name").stringValue().isEqualTo("Compound tag #0");
         rootCompoundSubject.getTagByKey("listTest (compound)").getTagByIndex(1)
-            .getTagByKey("created-on").valueIfLong().isEqualTo(1264099775885L);
+            .getTagByKey("created-on").longValue().isEqualTo(1264099775885L);
         rootCompoundSubject.getTagByKey("listTest (compound)").getTagByIndex(1)
-            .getTagByKey("name").valueIfString().isEqualTo("Compound tag #1");
+            .getTagByKey("name").stringValue().isEqualTo("Compound tag #1");
         Byte[] expectedByteArray = new Byte[1000];
         for (int i = 0; i < expectedByteArray.length; i++) {
             expectedByteArray[i] = (byte) ((i * i * 255 + i * 7) % 100);
         }
-        rootCompoundSubject.getTagByKey("byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))").valueIfByteArray().asList()
+        rootCompoundSubject.getTagByKey("byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))").byteArrayValue().asList()
             .containsExactlyElementsIn(expectedByteArray).inOrder();
-        rootCompoundSubject.getTagByKey("shortTest").valueIfShort().isEqualTo(32767);
+        rootCompoundSubject.getTagByKey("shortTest").shortValue().isEqualTo(32767);
 
         assertThat(tagData.root().writeToArray()).isEqualTo(tagData.serializedForm());
     }
@@ -112,32 +112,32 @@ public class LinTagIntegrationTest {
         TestTagData tagData = load("all-types.nbt.gz");
         var tagSubject = assertAbout(linTags()).that(tagData.root().toLinTag());
         var rootCompoundSubject = tagSubject.getTagByKey("root");
-        rootCompoundSubject.getTagByKey("byte").valueIfByte().isEqualTo((byte) 1);
-        rootCompoundSubject.getTagByKey("short").valueIfShort().isEqualTo((short) 127);
-        rootCompoundSubject.getTagByKey("int").valueIfInt().isEqualTo(127);
-        rootCompoundSubject.getTagByKey("long").valueIfLong().isEqualTo(127);
-        rootCompoundSubject.getTagByKey("float").valueIfFloat().isEqualTo(127);
-        rootCompoundSubject.getTagByKey("double").valueIfDouble().isEqualTo(127);
-        rootCompoundSubject.getTagByKey("string").valueIfString().isEqualTo("this is a string");
-        rootCompoundSubject.getTagByKey("byteArray").valueIfByteArray()
+        rootCompoundSubject.getTagByKey("byte").byteValue().isEqualTo((byte) 1);
+        rootCompoundSubject.getTagByKey("short").shortValue().isEqualTo((short) 127);
+        rootCompoundSubject.getTagByKey("int").intValue().isEqualTo(127);
+        rootCompoundSubject.getTagByKey("long").longValue().isEqualTo(127);
+        rootCompoundSubject.getTagByKey("float").floatValue().isEqualTo(127);
+        rootCompoundSubject.getTagByKey("double").doubleValue().isEqualTo(127);
+        rootCompoundSubject.getTagByKey("string").stringValue().isEqualTo("this is a string");
+        rootCompoundSubject.getTagByKey("byteArray").byteArrayValue()
             .asList().isEqualTo(List.of((byte) 1));
-        rootCompoundSubject.getTagByKey("intArray").valueIfIntArray()
+        rootCompoundSubject.getTagByKey("intArray").intArrayValue()
             .asList().isEqualTo(List.of(127));
-        rootCompoundSubject.getTagByKey("longArray").valueIfLongArray()
+        rootCompoundSubject.getTagByKey("longArray").longArrayValue()
             .asList().isEqualTo(List.of(127L));
-        rootCompoundSubject.getTagByKey("byteList").valueIfList().isEqualTo(List.of(new LinByteTag(1)));
-        rootCompoundSubject.getTagByKey("shortList").valueIfList().isEqualTo(List.of(new LinShortTag((short) 127)));
-        rootCompoundSubject.getTagByKey("intList").valueIfList().isEqualTo(List.of(new LinIntTag(127)));
-        rootCompoundSubject.getTagByKey("longList").valueIfList().isEqualTo(List.of(new LinLongTag(127L)));
-        rootCompoundSubject.getTagByKey("floatList").valueIfList().isEqualTo(List.of(new LinFloatTag(127F)));
-        rootCompoundSubject.getTagByKey("doubleList").valueIfList().isEqualTo(List.of(new LinDoubleTag(127D)));
+        rootCompoundSubject.getTagByKey("byteList").listValue().isEqualTo(List.of(new LinByteTag(1)));
+        rootCompoundSubject.getTagByKey("shortList").listValue().isEqualTo(List.of(new LinShortTag((short) 127)));
+        rootCompoundSubject.getTagByKey("intList").listValue().isEqualTo(List.of(new LinIntTag(127)));
+        rootCompoundSubject.getTagByKey("longList").listValue().isEqualTo(List.of(new LinLongTag(127L)));
+        rootCompoundSubject.getTagByKey("floatList").listValue().isEqualTo(List.of(new LinFloatTag(127F)));
+        rootCompoundSubject.getTagByKey("doubleList").listValue().isEqualTo(List.of(new LinDoubleTag(127D)));
         var compound1Subject = rootCompoundSubject.getTagByKey("compound1");
         var compound2Subject = compound1Subject.getTagByKey("compound2");
         var compound3Subject = compound2Subject.getTagByKey("compound3");
         var listSubject = compound3Subject.getTagByKey("list");
-        listSubject.valueIfList().hasSize(2);
-        listSubject.getTagByIndex(0).valueIfCompound().isEqualTo(Map.of("key", new LinStringTag("value")));
-        listSubject.getTagByIndex(1).valueIfCompound().isEqualTo(Map.of("key", new LinStringTag("value")));
+        listSubject.listValue().hasSize(2);
+        listSubject.getTagByIndex(0).compoundValue().isEqualTo(Map.of("key", new LinStringTag("value")));
+        listSubject.getTagByIndex(1).compoundValue().isEqualTo(Map.of("key", new LinStringTag("value")));
 
         assertThat(tagData.root().writeToArray()).isEqualTo(tagData.serializedForm());
     }

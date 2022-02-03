@@ -53,7 +53,7 @@ public class LinListTagTest {
     @Test
     void emptyImplementation() {
         var empty = LinListTag.empty(LinTagType.stringTag());
-        assertThat(empty).valueIfList().isEmpty();
+        assertThat(empty).listValue().isEmpty();
         assertThat(empty.elementType()).isEqualTo(LinTagType.stringTag());
     }
 
@@ -114,7 +114,7 @@ public class LinListTagTest {
             .add(new LinStringTag("I'm first!"))
             .addAll(List.of(new LinStringTag("Hello"), new LinStringTag("World!")))
             .build();
-        assertThat(tag).valueIfList().containsExactly(
+        assertThat(tag).listValue().containsExactly(
             new LinStringTag("I'm first!"),
             new LinStringTag("Hello"),
             new LinStringTag("World!")

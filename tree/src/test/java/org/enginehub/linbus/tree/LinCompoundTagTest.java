@@ -52,10 +52,30 @@ public class LinCompoundTagTest {
     }
 
     @Test
+    void builderRemove() {
+        var initial = new LinCompoundTag(Map.of(
+            "Hello", new LinStringTag("World!"),
+            "Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE)
+        ));
+        var afterRemove = initial.toBuilder().remove("Hello").build();
+        assertThat(afterRemove).getTagByKey("Hello").isNull();
+        assertThat(afterRemove).getTagByKey("Goodbye").intArrayValue().isEqualTo(new int[]{0xCAFE, 0xBABE});
+    }
+
+    @Test
     void checksForEndTag() {
         var ex = assertThrows(
             IllegalArgumentException.class,
             () -> new LinCompoundTag(Map.of("this is the end", LinEndTag.instance()), true)
+        );
+        assertThat(ex).hasMessageThat().isEqualTo("Cannot add END tag to compound tag");
+    }
+
+    @Test
+    void builderChecksForEndTag() {
+        var ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> LinCompoundTag.builder().put("this is the end", LinEndTag.instance())
         );
         assertThat(ex).hasMessageThat().isEqualTo("Cannot add END tag to compound tag");
     }
@@ -85,7 +105,7 @@ public class LinCompoundTagTest {
                 "Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE)
             ))
             .build();
-        assertThat(tag).valueIfCompound().containsExactly(
+        assertThat(tag).compoundValue().containsExactly(
             "Initially here", new LinDoubleTag(1.0),
             "Hello", new LinStringTag("World!"),
             "Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE)
@@ -99,10 +119,10 @@ public class LinCompoundTagTest {
             put("Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE));
         }});
         assertThat(tag.getTag("Hello", LinTagType.stringTag()))
-            .valueIfString()
+            .stringValue()
             .isEqualTo("World!");
         assertThat(tag.getTag("Goodbye", LinTagType.intArrayTag()))
-            .valueIfIntArray()
+            .intArrayValue()
             .isEqualTo(new int[]{0xCAFE, 0xBABE});
         {
             var thrown = assertThrows(
@@ -132,15 +152,43 @@ public class LinCompoundTagTest {
             put("Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE));
         }});
         assertThat(tag.findTag("Hello", LinTagType.stringTag()))
-            .valueIfString()
+            .stringValue()
             .isEqualTo("World!");
         assertThat(tag.findTag("Goodbye", LinTagType.intArrayTag()))
-            .valueIfIntArray()
+            .intArrayValue()
             .isEqualTo(new int[]{0xCAFE, 0xBABE});
         assertThat(tag.findTag("Hello", LinTagType.longArrayTag()))
             .isNull();
 
         assertThat(tag.findTag("this key does not exist", LinTagType.stringTag()))
             .isNull();
+    }
+
+    @Test
+    void builderSpecialization() {
+        var tag = LinCompoundTag.builder()
+            .putByteArray("byteArray", new byte[]{(byte) 0xCA, (byte) 0xFE})
+            .putByte("byte", (byte) 0xBA)
+            .putCompound("compound", Map.of("inner", new LinStringTag("inner")))
+            .putDouble("double", 1.0)
+            .putFloat("float", 1.0f)
+            .putIntArray("intArray", new int[]{0xCAFE, 0xBABE})
+            .putInt("int", 0xCAFE)
+            .putLongArray("longArray", new long[]{0xCAFEBABE, 0xBAEB1ADE})
+            .putLong("long", 0xCAFEBABE)
+            .putShort("short", (short) 0xCAFE)
+            .putString("string", "Hello World!")
+            .build();
+        assertThat(tag).getTagByKey("byteArray").byteArrayValue().isEqualTo(new byte[]{(byte) 0xCA, (byte) 0xFE});
+        assertThat(tag).getTagByKey("byte").byteValue().isEqualTo((byte) 0xBA);
+        assertThat(tag).getTagByKey("compound").getTagByKey("inner").stringValue().isEqualTo("inner");
+        assertThat(tag).getTagByKey("double").doubleValue().isEqualTo(1.0);
+        assertThat(tag).getTagByKey("float").floatValue().isEqualTo(1.0f);
+        assertThat(tag).getTagByKey("intArray").intArrayValue().isEqualTo(new int[]{0xCAFE, 0xBABE});
+        assertThat(tag).getTagByKey("int").intValue().isEqualTo(0xCAFE);
+        assertThat(tag).getTagByKey("longArray").longArrayValue().isEqualTo(new long[]{0xCAFEBABE, 0xBAEB1ADE});
+        assertThat(tag).getTagByKey("long").longValue().isEqualTo(0xCAFEBABE);
+        assertThat(tag).getTagByKey("short").shortValue().isEqualTo((short) 0xCAFE);
+        assertThat(tag).getTagByKey("string").stringValue().isEqualTo("Hello World!");
     }
 }
