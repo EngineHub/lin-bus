@@ -63,7 +63,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
 
     @Override
     public final boolean hasNext() {
-        if (needNext) {
+        if (!end && needNext) {
             needNext = false;
             next = computeNext();
         }
@@ -73,8 +73,11 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     @Override
     public final void forEachRemaining(Consumer<? super T> action) {
         Objects.requireNonNull(action);
+        if (end) {
+            return;
+        }
         // Ensure `next` is de-initialized.
-        if (!end && !needNext) {
+        if (!needNext) {
             action.accept(next);
             next = null;
         }
@@ -91,6 +94,6 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     // Overriding remove is not supported.
     @Override
     public final void remove() {
-        Iterator.super.remove();
+        throw new UnsupportedOperationException("remove");
     }
 }

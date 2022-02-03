@@ -29,8 +29,8 @@ public class ValueCounter {
     private static final byte LONG_ARRAY = 3;
 
     private int count;
-    private int lists;
     private int compounds;
+    private int lists;
     private byte arrayType;
 
     public void add(LinToken token) {
@@ -38,22 +38,22 @@ public class ValueCounter {
             count++;
             return;
         }
-        if (token instanceof LinToken.ListStart) {
-            lists++;
-        } else if (token instanceof LinToken.ListEnd) {
-            lists--;
-            if (lists < 0) {
-                throw new IllegalStateException("List end without start");
-            }
-            if (!isNested()) {
-                count++;
-            }
-        } else if (token instanceof LinToken.CompoundStart) {
+        if (token instanceof LinToken.CompoundStart) {
             compounds++;
         } else if (token instanceof LinToken.CompoundEnd) {
             compounds--;
             if (compounds < 0) {
                 throw new IllegalStateException("Compound end without start");
+            }
+            if (!isNested()) {
+                count++;
+            }
+        } else if (token instanceof LinToken.ListStart) {
+            lists++;
+        } else if (token instanceof LinToken.ListEnd) {
+            lists--;
+            if (lists < 0) {
+                throw new IllegalStateException("List end without start");
             }
             if (!isNested()) {
                 count++;

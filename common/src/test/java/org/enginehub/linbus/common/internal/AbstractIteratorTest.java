@@ -58,17 +58,7 @@ public class AbstractIteratorTest {
 
     @Test
     void forEachRemaining() {
-        var iterator = new AbstractIterator<String>() {
-            private int i = 0;
-            @Override
-            protected String computeNext() {
-                if (i >= 10) {
-                    return end();
-                }
-                i++;
-                return "A simple test!";
-            }
-        };
+        var iterator = new CountToTen();
 
         var collected = new ArrayList<String>();
         iterator.forEachRemaining(collected::add);
@@ -78,17 +68,7 @@ public class AbstractIteratorTest {
 
     @Test
     void forEachRemainingAfterNext() {
-        var iterator = new AbstractIterator<String>() {
-            private int i = 0;
-            @Override
-            protected String computeNext() {
-                if (i >= 10) {
-                    return end();
-                }
-                i++;
-                return "A simple test!";
-            }
-        };
+        var iterator = new CountToTen();
 
         iterator.next();
 
@@ -96,5 +76,66 @@ public class AbstractIteratorTest {
         iterator.forEachRemaining(collected::add);
         assertFalse(iterator.hasNext());
         assertEquals(9, collected.size());
+    }
+
+    @Test
+    void forEachRemainingAfterHasNext() {
+        var iterator = new CountToTen();
+
+        iterator.hasNext();
+
+        var collected = new ArrayList<String>();
+        iterator.forEachRemaining(collected::add);
+        assertFalse(iterator.hasNext());
+        assertEquals(10, collected.size());
+    }
+
+    @Test
+    void forEachRemainingAfterForEachRemaining() {
+        var iterator = new CountToTen();
+
+        var collected = new ArrayList<String>();
+        iterator.forEachRemaining(collected::add);
+        assertFalse(iterator.hasNext());
+        assertEquals(10, collected.size());
+
+        collected.clear();
+
+        iterator.forEachRemaining(collected::add);
+        assertFalse(iterator.hasNext());
+        assertEquals(0, collected.size());
+    }
+
+    @Test
+    void cantRemove() {
+        var iterator = new AbstractIterator<String>() {
+            @Override
+            protected String computeNext() {
+                return end();
+            }
+        };
+
+        assertThrows(UnsupportedOperationException.class, iterator::remove);
+    }
+
+    private static final class CountToTen extends AbstractIterator<String> {
+        /**
+         * Ensures that computeNext is only called until it returns end().
+         */
+        private boolean tripwire = false;
+        private int i = 0;
+
+        @Override
+        protected String computeNext() {
+            if (i >= 10) {
+                if (tripwire) {
+                    throw new IllegalStateException("Should not have called this!");
+                }
+                tripwire = true;
+                return end();
+            }
+            i++;
+            return "A simple test!";
+        }
     }
 }

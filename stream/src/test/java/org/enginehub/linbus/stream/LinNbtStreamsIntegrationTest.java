@@ -20,44 +20,21 @@ package org.enginehub.linbus.stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Resources;
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
-import java.util.Iterator;
-import java.util.function.Function;
-import java.util.zip.GZIPInputStream;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.enginehub.linbus.stream.StreamTestUtil.convertNbtStream;
+import static org.enginehub.linbus.stream.StreamTestUtil.loadResource;
 
-public class LinNbtReaderIntegrationTest {
-
-    private interface ResourceLoader<T> {
-        T load(InputStream stream) throws IOException;
-    }
-
-    private static <T> T loadResource(String name, ResourceLoader<T> loader) throws IOException {
-        var resource = Resources.getResource(name);
-        try (var stream = Resources.asByteSource(resource).openStream();
-             var decompressed = name.endsWith(".gz") ? new GZIPInputStream(stream) : stream;
-             var buffered = new BufferedInputStream(decompressed)) {
-            return loader.load(buffered);
-        }
-    }
-
-    private static <T> T convertNbtStream(String name, Function<Iterator<? extends @NotNull LinToken>, T> converter) throws IOException {
-        return loadResource(name, stream -> converter.apply(LinNbtStreams.read(new DataInputStream(stream))));
-    }
-
+public class LinNbtStreamsIntegrationTest {
     @Test
     void bigtest() throws IOException {
         var theFirst1000Values = ByteBuffer.allocate(1000);

@@ -1,7 +1,13 @@
+[versions]
+truth = "1.1.3"
+
 [libraries]
 jetbrains-annotations = "org.jetbrains:annotations:23.0.0"
 guava = "com.google.guava:guava:31.0.1-jre"
 junit-bom = "org.junit:junit-bom:5.8.2"
 junit-jupiter-api.module = "org.junit.jupiter:junit-jupiter-api"
 junit-jupiter-engine.module = "org.junit.jupiter:junit-jupiter-engine"
-truth = "com.google.truth:truth:1.1.3"
+truth.module = "com.google.truth:truth"
+truth.version.ref = "truth"
+truth-extensions-java8.module = "com.google.truth.extensions:truth-java8-extension"
+truth-extensions-java8.version.ref = "truth"

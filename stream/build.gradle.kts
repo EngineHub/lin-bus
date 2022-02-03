@@ -14,7 +14,10 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
 
-    testImplementation(libs.truth) {
+    testImplementation(libs.truth.asProvider()) {
+        exclude(group = "junit")
+    }
+    testImplementation(libs.truth.extensions.java8) {
         exclude(group = "junit")
     }
 }

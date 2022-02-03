@@ -92,13 +92,23 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
 
     private TokenAndBuffer getFilled(OptionalFill fill) {
         var buffer = new ArrayDeque<LinToken>();
-        while (original.hasNext()) {
-            var next = fillIfNeeded(original.next());
-            buffer.addLast(next.token);
-            buffer.addAll(next.buffer);
-            var filled = fill.tryFill(next.token);
+        var consumedTokenStack = new ArrayDeque<LinToken>();
+        while (!buffer.isEmpty() || original.hasNext()) {
+            var next = buffer.pollFirst();
+            if (next == null) {
+                // Replenish our buffer by taking the next token (and filling if needed).
+                var tokenAndBuffer = fillIfNeeded(original.next());
+                buffer.add(tokenAndBuffer.token);
+                consumedTokenStack.add(tokenAndBuffer.token);
+                if (tokenAndBuffer.buffer != null) {
+                    buffer.addAll(tokenAndBuffer.buffer);
+                    consumedTokenStack.addAll(tokenAndBuffer.buffer);
+                }
+                continue;
+            }
+            var filled = fill.tryFill(next);
             if (filled != null) {
-                return new TokenAndBuffer(filled, buffer);
+                return new TokenAndBuffer(filled, consumedTokenStack);
             }
         }
         throw new IllegalStateException("Optional value not filled by the end of token stream");
@@ -122,23 +132,26 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
 
         @Override
         public @Nullable LinToken tryFill(LinToken token) {
-            if (counter.isNested()) {
-                counter.add(token);
-                return null;
+            if (counter == null || !counter.isNested()) {
+                var elementId = this.elementId;
+                if (elementId == null) {
+                    if (token instanceof LinToken.ListEnd) {
+                        elementId = LinTagId.END;
+                    } else {
+                        elementId = token.tagId().orElseThrow(() ->
+                            new IllegalStateException("Token doesn't represent a tag directly: " + token)
+                        );
+                    }
+                    this.elementId = elementId;
+                }
+                if (counter == null) {
+                    return new LinToken.ListStart(knownSize, elementId);
+                }
+                if (token instanceof LinToken.ListEnd) {
+                    return new LinToken.ListStart(counter.count(), elementId);
+                }
             }
-            if (elementId == null) {
-                elementId = token.tagId().orElseThrow(() ->
-                    new IllegalStateException("Token doesn't represent a tag directly")
-                );
-            }
-            // `assignElementId` never returns null
-            assert elementId != null;
-            if (knownSize >= 0) {
-                return new LinToken.ListStart(knownSize, elementId);
-            }
-            if (token instanceof LinToken.ListEnd) {
-                return new LinToken.ListStart(counter.count(), elementId);
-            }
+            counter.add(token);
             return null;
         }
     }
@@ -207,7 +220,7 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
         @Override
         public LinToken tryFill(LinToken token) {
             return new LinToken.Name(name, token.tagId().orElseThrow(() ->
-                new IllegalStateException("Token doesn't represent a tag directly")
+                new IllegalStateException("Token doesn't represent a tag directly: " + token)
             ));
         }
     }
