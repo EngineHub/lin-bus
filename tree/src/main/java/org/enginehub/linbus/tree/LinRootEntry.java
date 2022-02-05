@@ -20,7 +20,7 @@ package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.common.internal.Iterators;
-import org.enginehub.linbus.stream.LinNbtStreams;
+import org.enginehub.linbus.stream.LinBinaryIO;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
@@ -84,7 +84,7 @@ public record LinRootEntry(
      * @throws IOException if an I/O error occurs
      */
     public void writeTo(DataOutput output) throws IOException {
-        LinNbtStreams.write(output, iterator());
+        LinBinaryIO.write(output, iterator());
     }
 
     /**

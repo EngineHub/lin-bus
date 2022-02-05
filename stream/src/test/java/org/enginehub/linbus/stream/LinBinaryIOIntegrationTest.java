@@ -34,7 +34,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.enginehub.linbus.stream.StreamTestUtil.convertNbtStream;
 import static org.enginehub.linbus.stream.StreamTestUtil.loadResource;
 
-public class LinNbtStreamsIntegrationTest {
+public class LinBinaryIOIntegrationTest {
     @Test
     void bigtest() throws IOException {
         var theFirst1000Values = ByteBuffer.allocate(1000);
@@ -109,7 +109,7 @@ public class LinNbtStreamsIntegrationTest {
         ).inOrder();
 
         var byteCollector = ByteStreams.newDataOutput();
-        LinNbtStreams.write(byteCollector, tokens.iterator());
+        LinBinaryIO.write(byteCollector, tokens.iterator());
         assertThat(byteCollector.toByteArray()).isEqualTo(bytes);
     }
 
@@ -194,7 +194,7 @@ public class LinNbtStreamsIntegrationTest {
         ).inOrder();
 
         var byteCollector = ByteStreams.newDataOutput();
-        LinNbtStreams.write(byteCollector, tokens.iterator());
+        LinBinaryIO.write(byteCollector, tokens.iterator());
         assertThat(byteCollector.toByteArray()).isEqualTo(bytes);
     }
 }

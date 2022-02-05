@@ -18,7 +18,10 @@
 
 package org.enginehub.linbus.format.snbt;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
+import org.enginehub.linbus.stream.LinBinaryIO;
 import org.enginehub.linbus.stream.LinNbtStreams;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +35,9 @@ import java.util.Iterator;
 import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 
-public class LinSnbtStreamsTest {
+import static com.google.common.truth.Truth.assertThat;
+
+public class LinStringIOIntegrationTest {
     private interface ResourceLoader<T> {
         T load(InputStream stream) throws IOException;
     }
@@ -48,24 +53,31 @@ public class LinSnbtStreamsTest {
 
     private static <T> T convertNbtStream(String name, Function<Iterator<? extends @NotNull LinToken>, T> converter) throws IOException {
         return loadResource(name, stream -> {
-            Iterator<? extends @NotNull LinToken> iter = LinNbtStreams.read(new DataInputStream(stream));
+            Iterator<? extends @NotNull LinToken> iter = LinBinaryIO.read(new DataInputStream(stream));
             // Hack - SNBT can't print the RootEntry stuff, so we have to skip it
             iter.next();
             return converter.apply(iter);
         });
     }
 
-    @Test
-    void bigTestRoundTrip() throws IOException {
-        var output = convertNbtStream("bigtest.nbt.gz", LinSnbtStreams::writeToString);
+    private static void assertThroughSnbt(String name) throws IOException {
+        var bytes = loadResource(name, ByteStreams::toByteArray);
+        var original = convertNbtStream(name, ImmutableList::copyOf);
+        var throughSnbt = LinStringIO.readFromStringUsing(
+            convertNbtStream(name, LinStringIO::writeToString),
+            x -> ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(x))
+        );
 
-        System.err.println(output);
+        assertThat(throughSnbt).containsExactlyElementsIn(original).inOrder();
     }
 
     @Test
-    void allTypesRoundTrip() throws IOException {
-        var output = convertNbtStream("all-types.nbt.gz", LinSnbtStreams::writeToString);
+    void bigTestThroughSnbt() throws IOException {
+        assertThroughSnbt("bigtest.nbt.gz");
+    }
 
-        System.err.println(output);
+    @Test
+    void allTypesThroughSnbt() throws IOException {
+        assertThroughSnbt("all-types.nbt.gz");
     }
 }

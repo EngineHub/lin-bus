@@ -19,7 +19,9 @@
 package org.enginehub.linbus.format.snbt.impl;
 
 import org.enginehub.linbus.common.internal.AbstractIterator;
+import org.enginehub.linbus.common.internal.CharPredicate;
 import org.enginehub.linbus.stream.token.LinToken;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.DataInput;
@@ -109,7 +111,7 @@ public class LinSnbtReader extends AbstractIterator<LinToken> {
          * We need to read a value. Usually, we'll just return the value, and not push a new state, unless we need to
          * read a complex value such as a compound or list.
          */
-        record ReadValue() implements State {
+        record ReadValue(boolean mustBeCompound) implements State {
         }
     }
 
@@ -123,7 +125,8 @@ public class LinSnbtReader extends AbstractIterator<LinToken> {
     /**
      * The leftover token stack. Because there's no coroutines. We're currently on the one that's LAST.
      */
-    private final Deque<LinToken> tokenStack;
+    private final Deque<LinToken> tokenQueue;
+    private int charIndex;
 
     /**
      * Creates a new reader.
@@ -132,29 +135,54 @@ public class LinSnbtReader extends AbstractIterator<LinToken> {
      */
     public LinSnbtReader(Reader input) {
         this.input = input.markSupported() ? input : new BufferedReader(input);
-        this.stateStack = new ArrayDeque<>(List.of(new State.ReadValue()));
-        this.tokenStack = new ArrayDeque<>();
+        this.stateStack = new ArrayDeque<>(List.of(new State.ReadValue(true)));
+        this.tokenQueue = new ArrayDeque<>();
     }
 
     private char readChar() throws IOException {
         int cEof = input.read();
         if (cEof == -1) {
-            throw new EOFException("Unexpected end of input");
+            throw new EOFException(errorPrefix() + "Unexpected end of input");
         }
+        charIndex++;
         return (char) cEof;
     }
 
-    private char readCharSkipWhitespace() throws IOException {
+    private char readCharSkipWhitespace(int markBeforeReading) throws IOException {
         char c;
         do {
+            if (markBeforeReading > 0) {
+                input.mark(markBeforeReading);
+            }
             c = readChar();
         } while (Character.isWhitespace(c));
         return c;
     }
 
+    private void readWhitespaceUntil(CharPredicate c) throws IOException {
+        char read;
+        while (true) {
+            read = readChar();
+            if (c.test(read)) {
+                break;
+            }
+            if (!Character.isWhitespace(read)) {
+                throw new IllegalStateException(errorPrefix() + "Unexpected character " + c);
+            }
+        }
+    }
+
+    private String errorPrefix() {
+        return "At character index " + charIndex + ": ";
+    }
+
+    private @NotNull IllegalStateException unexpectedCharacterError(char c) {
+        return new IllegalStateException(errorPrefix() + "Unexpected character: " + c);
+    }
+
     @Override
     protected LinToken computeNext() {
-        var token = tokenStack.pollLast();
+        var token = tokenQueue.pollFirst();
         while (token == null) {
             try {
                 State state = stateStack.peekLast();
@@ -162,7 +190,7 @@ public class LinSnbtReader extends AbstractIterator<LinToken> {
                     return end();
                 }
                 fillTokenStack(state);
-                token = tokenStack.pollLast();
+                token = tokenQueue.pollFirst();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -172,8 +200,8 @@ public class LinSnbtReader extends AbstractIterator<LinToken> {
     }
 
     private void fillTokenStack(State state) throws IOException {
-        if (state instanceof State.ReadValue) {
-            readValue();
+        if (state instanceof State.ReadValue rv) {
+            readValue(rv.mustBeCompound);
         } else if (state instanceof State.InCompound) {
             advanceCompound();
         } else if (state instanceof State.CompoundEntryName) {
@@ -205,28 +233,31 @@ public class LinSnbtReader extends AbstractIterator<LinToken> {
                 LinToken.LongArrayEnd::new
             );
         } else {
-            throw new IllegalStateException("Unknown state: " + state);
+            throw new IllegalStateException(errorPrefix() + "Unknown state: " + state);
         }
     }
 
-    private void readValue() throws IOException {
+    private void readValue(boolean mustBeCompound) throws IOException {
         // Remove the ReadValue
         stateStack.removeLast();
-        char c = readCharSkipWhitespace();
-        // e.g. 'B;' is the longest thing we need to determine early typing
-        input.mark(2);
+        char c = readCharSkipWhitespace(1);
+        if (mustBeCompound && c != '{') {
+            throw new IllegalStateException(errorPrefix() + "Expected '{' but got '" + c + "'");
+        }
         switch (c) {
             case '{' -> {
                 stateStack.addLast(new State.InCompound());
-                stateStack.addLast(new State.ReadValue());
+                stateStack.addLast(new State.CompoundEntryName());
+                tokenQueue.addLast(new LinToken.CompoundStart());
             }
             case '[' -> prepareListLike();
-            case '"', '\'' -> tokenStack.addLast(new LinToken.String(parseString(c)));
+            case '"', '\'' -> tokenQueue.addLast(new LinToken.String(parseString(c)));
             default -> {
-                // Reset
+                // Reset before the char we read
                 input.reset();
+                charIndex -= 1;
                 LinToken token = readSimpleValue();
-                tokenStack.addLast(token);
+                tokenQueue.addLast(token);
             }
         }
     }
@@ -239,64 +270,83 @@ public class LinSnbtReader extends AbstractIterator<LinToken> {
             input.mark(1);
             c = readChar();
             if (c == ',' || c == '}' || c == ']') {
-                // Terminator reached.
-                input.reset();
+                break;
+            }
+            if (Character.isWhitespace(c)) {
+                readWhitespaceUntil(next -> next == ',' || next == '}' || next == ']');
                 break;
             }
             if (!Elusion.isSafeCharacter(c)) {
-                throw new IllegalStateException("Unexpected character " + c);
+                throw unexpectedCharacterError(c);
             }
             builder.append(c);
         }
+        input.reset();
+        charIndex -= 1;
+
         // Convert our collected value into the typed token it really is.
         return getTokenFor(builder.toString());
     }
 
     private void advanceCompound() throws IOException {
-        char c = readCharSkipWhitespace();
+        char c = readCharSkipWhitespace(-1);
         if (c == '}') {
             stateStack.removeLast();
-            tokenStack.addLast(new LinToken.CompoundEnd());
+            tokenQueue.addLast(new LinToken.CompoundEnd());
         } else if (c == ',') {
             stateStack.addLast(new State.CompoundEntryName());
         } else {
-            throw new IllegalStateException("Unexpected character " + c);
+            throw unexpectedCharacterError(c);
         }
     }
 
     private void readName() throws IOException {
-        char firstChar = readCharSkipWhitespace();
+        // Remove CompoundEntryName
+        stateStack.removeLast();
+        char firstChar = readCharSkipWhitespace(-1);
         var name = switch (firstChar) {
-            case '"', '\'' -> parseString(firstChar);
+            case '"', '\'' -> {
+                String string = parseString(firstChar);
+                char c = readCharSkipWhitespace(-1);
+                if (c != ':') {
+                    throw unexpectedCharacterError(c);
+                }
+                yield string;
+            }
             default -> {
                 var builder = new StringBuilder();
+                builder.append(firstChar);
                 while (true) {
                     char c = readChar();
                     if (c == ':') {
                         break;
                     }
+                    // If we hit whitespace, eat until we get the ':'
+                    if (Character.isWhitespace(c)) {
+                        readWhitespaceUntil(next -> next == ':');
+                        break;
+                    }
                     if (!Elusion.isSafeCharacter(c)) {
-                        throw new IllegalStateException("Unexpected character " + c);
+                        throw unexpectedCharacterError(c);
                     }
                     builder.append(c);
                 }
                 yield builder.toString();
             }
         };
-        stateStack.removeLast();
-        stateStack.addLast(new State.ReadValue());
-        tokenStack.addLast(new LinToken.Name(name));
+        stateStack.addLast(new State.ReadValue(false));
+        tokenQueue.addLast(new LinToken.Name(name));
     }
 
     private void advanceList() throws IOException {
-        char c = readCharSkipWhitespace();
+        char c = readCharSkipWhitespace(-1);
         if (c == ']') {
             stateStack.removeLast();
-            tokenStack.addLast(new LinToken.ListEnd());
+            tokenQueue.addLast(new LinToken.ListEnd());
         } else if (c == ',') {
-            stateStack.addLast(new State.ReadValue());
+            stateStack.addLast(new State.ReadValue(false));
         } else {
-            throw new IllegalStateException("Unexpected character " + c);
+            throw unexpectedCharacterError(c);
         }
     }
 
@@ -324,51 +374,54 @@ public class LinSnbtReader extends AbstractIterator<LinToken> {
         while (buffer.hasRemaining()) {
             LinToken nextValue = readSimpleValue();
             if (!tagType.isInstance(nextValue)) {
-                throw new IllegalStateException("Expected " + tagType.getSimpleName() + " token, got " + nextValue);
+                throw new IllegalStateException(errorPrefix() + "Expected " + tagType.getSimpleName() + " token, got " + nextValue);
             }
             putter.accept(buffer, tagType.cast(nextValue));
-            char c = readCharSkipWhitespace();
+            System.err.println("Read " + nextValue);
+            char c = readCharSkipWhitespace(-1);
+            System.err.println("Read " + c);
             if (c == ']') {
                 isEnd = true;
                 break;
             } else if (c != ',') {
-                throw new IllegalStateException("Unexpected character " + c);
+                throw unexpectedCharacterError(c);
             }
         }
-        tokenStack.addLast(contentProducer.apply(buffer));
+        tokenQueue.addLast(contentProducer.apply(buffer));
         if (isEnd) {
             stateStack.removeLast();
-            tokenStack.addLast(endProducer.get());
+            tokenQueue.addLast(endProducer.get());
         }
     }
 
     private void prepareListLike() throws IOException {
+        input.mark(2);
         char typing = readChar();
         char semicolonCheck = readChar();
-        if (semicolonCheck == ';') {
+        if (semicolonCheck == ';' && typing != '"' && typing != '\'') {
             switch (typing) {
                 case 'B' -> {
-                    tokenStack.addLast(new LinToken.ByteArrayStart());
                     stateStack.addLast(new State.InByteArray());
+                    tokenQueue.addLast(new LinToken.ByteArrayStart());
                 }
                 case 'I' -> {
-                    tokenStack.addLast(new LinToken.IntArrayStart());
                     stateStack.addLast(new State.InIntArray());
+                    tokenQueue.addLast(new LinToken.IntArrayStart());
                 }
                 case 'L' -> {
-                    tokenStack.addLast(new LinToken.LongArrayStart());
                     stateStack.addLast(new State.InLongArray());
+                    tokenQueue.addLast(new LinToken.LongArrayStart());
                 }
-                default -> throw new IllegalStateException("Invalid array type: " + typing);
+                default -> throw new IllegalStateException(errorPrefix() + "Invalid array type: " + typing);
             }
         } else {
-            // Not an array, reset, eat the '[' again
+            // Not an array, reset to the '['
             input.reset();
-            readChar();
+            charIndex -= 2;
 
-            tokenStack.addLast(new LinToken.ListStart());
             stateStack.addLast(new State.InList());
-            stateStack.addLast(new State.ReadValue());
+            stateStack.addLast(new State.ReadValue(false));
+            tokenQueue.addLast(new LinToken.ListStart());
         }
     }
 
@@ -385,7 +438,7 @@ public class LinSnbtReader extends AbstractIterator<LinToken> {
                     continue;
                 }
             } else if (c != quoteChar && c != '\\') {
-                throw new IllegalStateException("Invalid escape: \\" + c);
+                throw new IllegalStateException(errorPrefix() + "Invalid escape: \\" + c);
             } else {
                 escaped = false;
             }

@@ -70,6 +70,7 @@ public class LinTagReader {
     }
 
     public static LinCompoundTag readCompound(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
+        tokens = LinNbtStreams.calculateOptionalInfo(tokens);
         if (!tokens.hasNext() || !(tokens.next() instanceof LinToken.CompoundStart)) {
             throw new IllegalStateException("Expected compound start");
         }
@@ -152,6 +153,7 @@ public class LinTagReader {
     }
 
     public static <T extends @NotNull LinTag<?, T>> LinListTag<T> readList(Iterator<? extends @NotNull LinToken> tokens) {
+        tokens = LinNbtStreams.calculateOptionalInfo(tokens);
         if (!tokens.hasNext() || !(tokens.next() instanceof LinToken.ListStart start)) {
             throw new IllegalStateException("Expected list start");
         }
@@ -169,6 +171,7 @@ public class LinTagReader {
     }
 
     public static <T extends LinTag<?, T>> T readValue(@NotNull Iterator<? extends @NotNull LinToken> tokens, LinTagType<T> id) {
+        tokens = LinNbtStreams.calculateOptionalInfo(tokens);
         return id.cast(switch (id.id()) {
             case BYTE_ARRAY -> readByteArray(tokens);
             case BYTE -> new LinByteTag(((LinToken.Byte) tokens.next()).value());

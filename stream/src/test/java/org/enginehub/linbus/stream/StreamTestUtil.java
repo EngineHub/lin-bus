@@ -45,6 +45,6 @@ public class StreamTestUtil {
     }
 
     public static <T> T convertNbtStream(String name, Function<Iterator<? extends @NotNull LinToken>, T> converter) throws IOException {
-        return loadResource(name, stream -> converter.apply(LinNbtStreams.read(new DataInputStream(stream))));
+        return loadResource(name, stream -> converter.apply(LinBinaryIO.read(new DataInputStream(stream))));
     }
 }

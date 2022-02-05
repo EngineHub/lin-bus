@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class LinNbtStreamsTest {
+public class LinBinaryIOTest {
     @Test
     void mustStartWithCompoundId() {
-        var reader = LinNbtStreams.read(ByteStreams.newDataInput(new byte[]{(byte) LinTagId.BYTE.id()}));
+        var reader = LinBinaryIO.read(ByteStreams.newDataInput(new byte[]{(byte) LinTagId.BYTE.id()}));
         var ex = assertThrows(IllegalStateException.class, reader::next);
         assertThat(ex).hasMessageThat().isEqualTo("NBT stream does not start with a compound tag");
     }

@@ -32,7 +32,7 @@ public class BigTestPrinter {
              var decompressed = new GZIPInputStream(stream);
              var buffered = new BufferedInputStream(decompressed)) {
             System.err.println("Here we go:");
-            LinNbtStreams.read(new DataInputStream(buffered)).forEachRemaining(System.err::println);
+            LinBinaryIO.read(new DataInputStream(buffered)).forEachRemaining(System.err::println);
             System.err.println("... that's all folks!");
         }
     }

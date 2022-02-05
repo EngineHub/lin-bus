@@ -33,7 +33,7 @@ import java.util.function.Function;
 /**
  * Reads and writes NBT streams.
  */
-public class LinSnbtStreams {
+public class LinStringIO {
     /**
      * Read a stream of NBT tokens from a {@link Reader}.
      *

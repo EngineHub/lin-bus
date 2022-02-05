@@ -21,6 +21,7 @@ package org.enginehub.linbus.stream.impl;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.stream.LinBinaryIO;
 import org.enginehub.linbus.stream.LinNbtStreams;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
