@@ -18,8 +18,9 @@
 
 package org.enginehub.linbus.format.snbt;
 
-import org.enginehub.linbus.format.snbt.impl.LinSnbtReader;
 import org.enginehub.linbus.format.snbt.impl.LinSnbtWriter;
+import org.enginehub.linbus.format.snbt.impl.reader.LinSnbtReader;
+import org.enginehub.linbus.format.snbt.impl.reader.LinSnbtTokenizer;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,6 +33,10 @@ import java.util.function.Function;
 
 /**
  * Reads and writes NBT streams.
+ *
+ * <p>
+ * Currently, the writer does not perform complete validation of the stream it writes, to keep it simple.
+ * </p>
  */
 public class LinStringIO {
     /**
@@ -50,7 +55,7 @@ public class LinStringIO {
      * @return the stream of NBT tokens
      */
     public static Iterator<? extends @NotNull LinToken> read(@NotNull Reader input) {
-        return new LinSnbtReader(input);
+        return new LinSnbtReader(new LinSnbtTokenizer(input));
     }
 
     /**

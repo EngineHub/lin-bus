@@ -35,6 +35,9 @@ public class LinSnbtWriter {
 
         record Compound(boolean hasPrevious) implements WriteState {
         }
+
+        record WritingArray() implements WriteState {
+        }
     }
 
     private final ArrayDeque<WriteState> stateStack = new ArrayDeque<>();
@@ -44,13 +47,10 @@ public class LinSnbtWriter {
             var state = stateStack.peekLast();
             LinToken token = tokens.next();
             if (token instanceof LinToken.Name name) {
-                if (state == null) {
-                    throw new IllegalStateException("Should've gotten CompoundStart first!");
+                if (!(state instanceof WriteState.Compound compound)) {
+                    throw new IllegalStateException("Names can only appear inside compounds");
                 }
-                if (state instanceof WriteState.List) {
-                    throw new IllegalStateException("Not in a compound!");
-                }
-                if (((WriteState.Compound) state).hasPrevious) {
+                if (compound.hasPrevious) {
                     output.append(',');
                     // Kill the previous flag
                     replaceLast(new WriteState.Compound(false));
@@ -59,6 +59,11 @@ public class LinSnbtWriter {
             } else if (token instanceof LinToken.ByteArrayStart byteArrayStart) {
                 output.append("[B;");
             } else if (token instanceof LinToken.ByteArrayContent byteArrayContent) {
+                if (state instanceof WriteState.WritingArray) {
+                    output.append(',');
+                } else {
+                    stateStack.addLast(new WriteState.WritingArray());
+                }
                 ByteBuffer buffer = byteArrayContent.buffer();
                 while (buffer.hasRemaining()) {
                     output.append(String.valueOf(buffer.get())).append('B');
@@ -67,6 +72,9 @@ public class LinSnbtWriter {
                     }
                 }
             } else if (token instanceof LinToken.ByteArrayEnd) {
+                if (state instanceof WriteState.WritingArray) {
+                    stateStack.removeLast();
+                }
                 output.append(']');
 
                 handleValueEnd(output);
@@ -94,6 +102,11 @@ public class LinSnbtWriter {
             } else if (token instanceof LinToken.IntArrayStart intArrayStart) {
                 output.append("[I;");
             } else if (token instanceof LinToken.IntArrayContent intArrayContent) {
+                if (state instanceof WriteState.WritingArray) {
+                    output.append(',');
+                } else {
+                    stateStack.addLast(new WriteState.WritingArray());
+                }
                 IntBuffer buffer = intArrayContent.buffer();
                 while (buffer.hasRemaining()) {
                     output.append(String.valueOf(buffer.get()));
@@ -102,6 +115,9 @@ public class LinSnbtWriter {
                     }
                 }
             } else if (token instanceof LinToken.IntArrayEnd) {
+                if (state instanceof WriteState.WritingArray) {
+                    stateStack.removeLast();
+                }
                 output.append(']');
 
                 handleValueEnd(output);
@@ -121,6 +137,11 @@ public class LinSnbtWriter {
             } else if (token instanceof LinToken.LongArrayStart longArrayStart) {
                 output.append("[L;");
             } else if (token instanceof LinToken.LongArrayContent longArrayContent) {
+                if (state instanceof WriteState.WritingArray) {
+                    output.append(',');
+                } else {
+                    stateStack.addLast(new WriteState.WritingArray());
+                }
                 LongBuffer buffer = longArrayContent.buffer();
                 while (buffer.hasRemaining()) {
                     output.append(String.valueOf(buffer.get())).append('L');
@@ -129,6 +150,9 @@ public class LinSnbtWriter {
                     }
                 }
             } else if (token instanceof LinToken.LongArrayEnd) {
+                if (state instanceof WriteState.WritingArray) {
+                    stateStack.removeLast();
+                }
                 output.append(']');
 
                 handleValueEnd(output);

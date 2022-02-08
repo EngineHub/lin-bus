@@ -20,7 +20,6 @@ package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.common.internal.Iterators;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -29,16 +28,6 @@ import java.util.Iterator;
  * Represents a long tag.
  */
 public final class LinLongTag extends LinNumberTag<@NotNull Long, LinLongTag> {
-    /**
-     * Read a long tag from the given stream.
-     *
-     * @param tokens the stream to read from
-     * @return the long tag
-     */
-    public static LinLongTag readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
-        return LinTagReader.readValue(tokens, LinTagType.longTag());
-    }
-
     private final long value;
 
     /**

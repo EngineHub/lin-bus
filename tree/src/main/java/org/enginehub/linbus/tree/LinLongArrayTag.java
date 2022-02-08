@@ -22,7 +22,6 @@ package org.enginehub.linbus.tree;
 import org.enginehub.linbus.common.internal.AbstractIterator;
 import org.enginehub.linbus.common.internal.Iterators;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.LongBuffer;
@@ -33,16 +32,6 @@ import java.util.Iterator;
  * Represents a long array tag.
  */
 public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArrayTag> {
-    /**
-     * Read a long array tag from the given stream.
-     *
-     * @param tokens the stream to read from
-     * @return the long array tag
-     */
-    public static LinLongArrayTag readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
-        return LinTagReader.readValue(tokens, LinTagType.longArrayTag());
-    }
-
     private final long[] value;
 
     /**

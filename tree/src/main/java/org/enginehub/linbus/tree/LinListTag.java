@@ -21,7 +21,6 @@ package org.enginehub.linbus.tree;
 import org.enginehub.linbus.common.internal.AbstractIterator;
 import org.enginehub.linbus.common.internal.Iterators;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -36,16 +35,6 @@ import java.util.Objects;
  * @param <T> the type of the elements in the list
  */
 public final class LinListTag<T extends @NotNull LinTag<?, T>> extends LinTag<@NotNull List<T>, LinListTag<T>> {
-    /**
-     * Read a list tag from the given stream.
-     *
-     * @param tokens the stream to read from
-     * @return the list tag
-     */
-    public static <T extends @NotNull LinTag<?, T>> LinListTag<T> readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
-        return LinTagReader.readList(tokens);
-    }
-
     /**
      * Get an empty list of the given element type.
      *

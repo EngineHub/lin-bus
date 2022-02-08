@@ -18,6 +18,8 @@
 
 package org.enginehub.linbus.common.internal;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -38,14 +40,14 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
      *
      * @return the next item, or the return value of {@link #end()} if there are no more items
      */
-    protected abstract T computeNext();
+    protected abstract @Nullable T computeNext();
 
     /**
      * Signal the end of the iteration.
      *
      * @return {@code null}
      */
-    protected final T end() {
+    protected final @Nullable T end() {
         this.end = true;
         return null;
     }

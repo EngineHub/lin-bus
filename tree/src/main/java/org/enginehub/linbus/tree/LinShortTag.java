@@ -20,7 +20,6 @@ package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.common.internal.Iterators;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -29,16 +28,6 @@ import java.util.Iterator;
  * Represents a short tag.
  */
 public final class LinShortTag extends LinNumberTag<@NotNull Short, LinShortTag> {
-    /**
-     * Read a short tag from the given stream.
-     *
-     * @param tokens the stream to read from
-     * @return the short tag
-     */
-    public static LinShortTag readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
-        return LinTagReader.readValue(tokens, LinTagType.shortTag());
-    }
-
     private final short value;
 
     /**
