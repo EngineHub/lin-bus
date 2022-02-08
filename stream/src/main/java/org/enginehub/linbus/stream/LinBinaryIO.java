@@ -53,13 +53,15 @@ public class LinBinaryIO {
     }
 
     /**
-     * Read a result based on a stream of NBT tokens from a {@link DataInput}.
+     * Read a result using a stream of NBT tokens from a {@link DataInput}.
      *
      * <p>
      * The input will not be closed by this method. The caller is responsible for managing the lifetime of the input.
      * </p>
      *
      * @param input the input to read from
+     * @param transform the function to transform the stream of NBT tokens into the result
+     * @param <R> the type of the result
      * @return the result
      * @throws IOException if an I/O error occurs ({@link UncheckedIOException} is unwrapped)
      */
@@ -219,6 +221,7 @@ public class LinBinaryIO {
      * @param tokens the stream of NBT tokens
      * @param outputSupplier the output to write to
      * @param finisher the function to call after writing the stream
+     * @param <A> the type of the output
      * @param <R> the type of the result
      * @return the finished object
      * @throws IOException if an I/O error occurs

@@ -18,6 +18,12 @@
 
 package org.enginehub.linbus.format.snbt.impl.reader;
 
+/**
+ * A token with metadata.
+ *
+ * @param token the token
+ * @param charIndex the index of the first character of the token
+ */
 public record SnbtTokenWithMetadata(
     SnbtToken token,
     int charIndex

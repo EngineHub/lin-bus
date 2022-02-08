@@ -28,6 +28,9 @@ public sealed interface SnbtToken {
      * '{'.
      */
     enum CompoundStart implements SnbtToken {
+        /**
+         * The instance.
+         */
         INSTANCE;
 
         @Override
@@ -40,6 +43,9 @@ public sealed interface SnbtToken {
      * '}'.
      */
     enum CompoundEnd implements SnbtToken {
+        /**
+         * The instance.
+         */
         INSTANCE;
 
         @Override
@@ -52,6 +58,9 @@ public sealed interface SnbtToken {
      * '['
      */
     enum ListLikeStart implements SnbtToken {
+        /**
+         * The instance.
+         */
         INSTANCE;
 
         @Override
@@ -64,6 +73,9 @@ public sealed interface SnbtToken {
      * ']'
      */
     enum ListLikeEnd implements SnbtToken {
+        /**
+         * The instance.
+         */
         INSTANCE;
 
         @Override
@@ -76,6 +88,9 @@ public sealed interface SnbtToken {
      * ':'
      */
     enum EntrySeparator implements SnbtToken {
+        /**
+         * The instance.
+         */
         INSTANCE;
 
         @Override
@@ -88,6 +103,9 @@ public sealed interface SnbtToken {
      * ';'
      */
     enum ListTypeSeparator implements SnbtToken {
+        /**
+         * The instance.
+         */
         INSTANCE;
 
         @Override
@@ -100,6 +118,9 @@ public sealed interface SnbtToken {
      * ','
      */
     enum Separator implements SnbtToken {
+        /**
+         * The instance.
+         */
         INSTANCE;
 
         @Override

@@ -18,7 +18,16 @@
 
 package org.enginehub.linbus.format.snbt.impl;
 
+/**
+ * Escape helpers.
+ */
 public class Elusion {
+    /**
+     * Is {@code c} a character than can be emitted without quotes?
+     *
+     * @param c character to check
+     * @return {@code true} if {@code c} is a safe character
+     */
     public static boolean isSafeCharacter(char c) {
         return ('A' <= c && c <= 'Z')
             || ('a' <= c && c <= 'z')
@@ -26,6 +35,12 @@ public class Elusion {
             || c == '_' || c == '.' || c == '+' || c == '-';
     }
 
+    /**
+     * Escape (and quote) the given string if needed.
+     *
+     * @param s the string to escape
+     * @return escaped string, or the original string if it was safe
+     */
     public static CharSequence escapeIfNeeded(String s) {
         boolean totallySafe = true;
         int singleCharCount = 0;

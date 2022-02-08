@@ -69,7 +69,7 @@ public class LinStringIO {
     }
 
     /**
-     * Read a stream of NBT tokens from a {@link Reader}.
+     * Read a result using a stream of NBT tokens from a {@link Reader}.
      *
      * <p>
      * If you wish to use the input afterwards, you must provide a reader that {@linkplain Reader#markSupported()
@@ -81,7 +81,9 @@ public class LinStringIO {
      * </p>
      *
      * @param input the input to read from
-     * @return the stream of NBT tokens
+     * @param transform the function to apply to the stream of NBT tokens
+     * @param <R> the type of the result
+     * @return the result
      * @throws IOException if an I/O error occurs ({@link UncheckedIOException} is unwrapped)
      */
     public static <R> R readUsing(@NotNull Reader input, @NotNull Function<? super @NotNull Iterator<? extends @NotNull LinToken>, R> transform) throws IOException {
@@ -93,9 +95,11 @@ public class LinStringIO {
     }
 
     /**
-     * Read a stream of NBT tokens from a string.
+     * Read a result using a stream of NBT tokens from a string.
      *
      * @param input the input to read from
+     * @param transform the function to apply to the stream of NBT tokens
+     * @param <R> the type of the result
      * @return the stream of NBT tokens
      */
     public static <R> R readFromStringUsing(@NotNull String input, @NotNull Function<? super @NotNull Iterator<? extends @NotNull LinToken>, R> transform) {
@@ -125,6 +129,7 @@ public class LinStringIO {
      * </p>
      *
      * @param tokens the stream of NBT tokens
+     * @return the string
      */
     public static String writeToString(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
         var builder = new StringBuilder();

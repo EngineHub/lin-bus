@@ -18,6 +18,7 @@
 
 package org.enginehub.linbus.format.snbt.impl;
 
+import org.enginehub.linbus.format.snbt.LinStringIO;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +29,9 @@ import java.nio.LongBuffer;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 
+/**
+ * Implementation of {@link LinStringIO#write(Appendable, Iterator)}.
+ */
 public class LinSnbtWriter {
     private sealed interface WriteState {
         record List(int remainingValues) implements WriteState {
@@ -42,6 +46,13 @@ public class LinSnbtWriter {
 
     private final ArrayDeque<WriteState> stateStack = new ArrayDeque<>();
 
+    /**
+     * Write the tokens to the output.
+     *
+     * @param output the output
+     * @param tokens the tokens
+     * @throws IOException if an I/O error occurs
+     */
     public void write(@NotNull Appendable output, @NotNull Iterator<? extends @NotNull LinToken> tokens) throws IOException {
         while (tokens.hasNext()) {
             var state = stateStack.peekLast();

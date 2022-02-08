@@ -33,6 +33,11 @@ public class ValueCounter {
     private int lists;
     private byte arrayType;
 
+    /**
+     * Add a token to this counter.
+     *
+     * @param token the token to add
+     */
     public void add(LinToken token) {
         if (token.isSimpleValue() && !isNested()) {
             count++;
@@ -91,6 +96,9 @@ public class ValueCounter {
         }
     }
 
+    /**
+     * {@return the current count}
+     */
     public int count() {
         return count;
     }

@@ -58,10 +58,21 @@ public sealed interface LinToken {
      * @param id the id of the next tag
      */
     record Name(java.lang.String name, Optional<LinTagId> id) implements LinToken {
+        /**
+         * Alternative constructor that uses {@link Optional#empty()} for the tag id.
+         *
+         * @param name the name of the next tag
+         */
         public Name(java.lang.String name) {
             this(name, Optional.empty());
         }
 
+        /**
+         * Alternative constructor that wraps the id in an {@link Optional}.
+         *
+         * @param name the name of the next tag
+         * @param id the id of the next tag
+         */
         public Name(java.lang.String name, LinTagId id) {
             this(name, Optional.of(id));
         }
@@ -78,10 +89,18 @@ public sealed interface LinToken {
      * @param size the size of the array
      */
     record ByteArrayStart(OptionalInt size) implements LinToken {
+        /**
+         * Alternative constructor that uses {@link OptionalInt#empty()} for the size.
+         */
         public ByteArrayStart() {
             this(OptionalInt.empty());
         }
 
+        /**
+         * Alternative constructor that wraps the size in an {@link OptionalInt}.
+         *
+         * @param size the size of the array
+         */
         public ByteArrayStart(int size) {
             this(OptionalInt.of(size));
         }
@@ -221,10 +240,18 @@ public sealed interface LinToken {
      * @param size the size of the array
      */
     record IntArrayStart(OptionalInt size) implements LinToken {
+        /**
+         * Alternative constructor that uses {@link OptionalInt#empty()} for the size.
+         */
         public IntArrayStart() {
             this(OptionalInt.empty());
         }
 
+        /**
+         * Alternative constructor that wraps the size in an {@link OptionalInt}.
+         *
+         * @param size the size of the array
+         */
         public IntArrayStart(int size) {
             this(OptionalInt.of(size));
         }
@@ -306,10 +333,21 @@ public sealed interface LinToken {
      * @param elementId the type of the elements in the list, if known
      */
     record ListStart(OptionalInt size, Optional<LinTagId> elementId) implements LinToken {
+        /**
+         * Alternative constructor that uses {@link OptionalInt#empty()} for the size and {@link Optional#empty()} for
+         * the element id.
+         */
         public ListStart() {
             this(OptionalInt.empty(), Optional.empty());
         }
 
+        /**
+         * Alternative constructor that wraps the size in an {@link OptionalInt} and the element id in an {@link
+         * Optional}.
+         *
+         * @param size the size of the list
+         * @param elementId the type of the elements in the list
+         */
         public ListStart(int size, LinTagId elementId) {
             this(OptionalInt.of(size), Optional.of(elementId));
         }
@@ -341,10 +379,18 @@ public sealed interface LinToken {
      * @param size the size of the array
      */
     record LongArrayStart(OptionalInt size) implements LinToken {
+        /**
+         * Alternative constructor that uses {@link OptionalInt#empty()} for the size.
+         */
         public LongArrayStart() {
             this(OptionalInt.empty());
         }
 
+        /**
+         * Alternative constructor that wraps the size in an {@link OptionalInt}.
+         *
+         * @param size the size of the array
+         */
         public LongArrayStart(int size) {
             this(OptionalInt.of(size));
         }

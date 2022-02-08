@@ -36,6 +36,11 @@ public class LinSnbtTokenizer extends AbstractIterator<@NotNull SnbtTokenWithMet
     private int charIndex = -1;
     private boolean eatAllWhitespaceAfter;
 
+    /**
+     * Create a new tokenizer.
+     *
+     * @param input the input to read from
+     */
     public LinSnbtTokenizer(@NotNull Reader input) {
         this.input = input.markSupported() ? input : new BufferedReader(input);
     }

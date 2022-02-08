@@ -20,6 +20,7 @@ package org.enginehub.linbus.stream.impl;
 
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.common.internal.AbstractIterator;
+import org.enginehub.linbus.stream.LinNbtStreams;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +29,9 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 
+/**
+ * Implementation of {@link LinNbtStreams#calculateOptionalInfo(Iterator)}.
+ */
 public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
     private interface OptionalFill {
         /**
@@ -41,6 +45,11 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
     private final Iterator<? extends @NotNull LinToken> original;
     private Deque<LinToken> tokenBuffer;
 
+    /**
+     * Create a new {@link OptionalInfoCalculator}.
+     *
+     * @param original the original stream
+     */
     public OptionalInfoCalculator(Iterator<? extends @NotNull LinToken> original) {
         this.original = original;
     }
