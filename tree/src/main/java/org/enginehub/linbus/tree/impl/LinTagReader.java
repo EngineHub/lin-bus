@@ -56,6 +56,7 @@ public class LinTagReader {
      *
      * @param tokens the tokens to read from
      * @return the root entry
+     * @throws IOException if an I/O error occurs
      */
     public static LinRootEntry readRoot(@NotNull LinStream tokens) throws IOException {
         tokens = tokens.calculateOptionalInfo();
@@ -78,6 +79,7 @@ public class LinTagReader {
      *
      * @param tokens the tokens to read from
      * @return the compound tag
+     * @throws IOException if an I/O error occurs
      */
     public static LinCompoundTag readCompound(@NotNull LinStream tokens) throws IOException {
         tokens = tokens.linStream();

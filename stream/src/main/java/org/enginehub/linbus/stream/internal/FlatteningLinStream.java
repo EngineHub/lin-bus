@@ -26,10 +26,18 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.Iterator;
 
+/**
+ * Flattening stream.
+ */
 public class FlatteningLinStream implements LinStream {
     private final Iterator<? extends LinStreamable> streamables;
     private LinStream current;
 
+    /**
+     * Create a new flattening stream.
+     *
+     * @param streamables the streamables to flatten
+     */
     public FlatteningLinStream(Iterator<? extends LinStreamable> streamables) {
         this.streamables = streamables;
     }

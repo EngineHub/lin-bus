@@ -24,11 +24,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
+/**
+ * A {@link LinStream} that wraps another {@link LinStream} and adds a token to the beginning and end of the stream.
+ */
 public class SurroundingLinStream implements LinStream {
     private LinToken prefix;
     private LinStream stream;
     private LinToken suffix;
 
+    /**
+     * Creates a new {@link SurroundingLinStream} with the given prefix and suffix.
+     *
+     * @param prefix the prefix token, may be null
+     * @param stream the stream to wrap
+     * @param suffix the suffix token, may be null
+     */
     public SurroundingLinStream(LinToken prefix, LinStream stream, LinToken suffix) {
         this.prefix = prefix;
         this.stream = stream;

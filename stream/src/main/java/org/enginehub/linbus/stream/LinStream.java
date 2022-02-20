@@ -82,12 +82,16 @@ public interface LinStream extends LinStreamable {
     /**
      * {@return the next token in the stream if any} If this returns {@code null}, the stream is exhausted. Once a
      * stream is exhausted, it will always return {@code null}.
+     *
+     * @throws IOException if an I/O error occurs
      */
     @Nullable LinToken nextOrNull() throws IOException;
 
     /**
      * {@return the next token in the stream if any} This API is awarded the shorter name in expectation of Project
      * Valhalla, where it will become just as efficient as the {@link #nextOrNull()} method.
+     *
+     * @throws IOException if an I/O error occurs
      */
     default Optional<LinToken> next() throws IOException {
         return Optional.ofNullable(nextOrNull());

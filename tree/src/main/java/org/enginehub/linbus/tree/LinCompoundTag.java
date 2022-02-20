@@ -237,6 +237,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      *
      * @param tokens the stream to read from
      * @return the compound tag
+     * @throws IOException if an I/O error occurs
      */
     public static LinCompoundTag readFrom(@NotNull LinStream tokens) throws IOException {
         return LinTagReader.readCompound(tokens);

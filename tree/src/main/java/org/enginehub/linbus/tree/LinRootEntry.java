@@ -47,6 +47,7 @@ public record LinRootEntry(
      *
      * @param tokens the stream to read from
      * @return the root entry
+     * @throws IOException if an I/O error occurs
      */
     public static LinRootEntry readFrom(@NotNull LinStream tokens) throws IOException {
         return LinTagReader.readRoot(tokens);
