@@ -19,6 +19,8 @@
 package org.enginehub.linbus.format.snbt.impl;
 
 import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.LinStreamable;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
 
@@ -33,10 +35,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LinSnbtWriterTest {
-    private static String ezToString(Iterable<? extends LinToken> tokens) {
+    private static String ezToString(LinStreamable tokens) {
         var builder = new StringBuilder();
         try {
-            new LinSnbtWriter().write(builder, tokens.iterator());
+            new LinSnbtWriter().write(builder, tokens.linStream());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -45,13 +47,13 @@ public class LinSnbtWriterTest {
 
     @Test
     void writeWithoutPrefixedCompound() {
-        var ex = assertThrows(IllegalStateException.class, () -> ezToString(List.of(new LinToken.Name("foo"))));
+        var ex = assertThrows(IllegalStateException.class, () -> ezToString(LinStream.of(new LinToken.Name("foo"))));
         assertThat(ex).hasMessageThat().isEqualTo("Names can only appear inside compounds");
     }
 
     @Test
     void writeNameInList() {
-        var ex = assertThrows(IllegalStateException.class, () -> ezToString(List.of(
+        var ex = assertThrows(IllegalStateException.class, () -> ezToString(LinStream.of(
             new LinToken.ListStart(1, LinTagId.STRING),
             new LinToken.Name("foo")
         )));
@@ -60,7 +62,7 @@ public class LinSnbtWriterTest {
 
     @Test
     void emptyByteArrayOutput() {
-        var output = ezToString(List.of(
+        var output = ezToString(LinStream.of(
             new LinToken.CompoundStart(),
             new LinToken.Name("foo"),
             new LinToken.ByteArrayStart(),
@@ -72,7 +74,7 @@ public class LinSnbtWriterTest {
 
     @Test
     void byteArrayOutput() {
-        var output = ezToString(List.of(
+        var output = ezToString(LinStream.of(
             new LinToken.CompoundStart(),
             new LinToken.Name("foo"),
             new LinToken.ByteArrayStart(),
@@ -85,7 +87,7 @@ public class LinSnbtWriterTest {
 
     @Test
     void byteArrayOutputSplit() {
-        var output = ezToString(List.of(
+        var output = ezToString(LinStream.of(
             new LinToken.CompoundStart(),
             new LinToken.Name("foo"),
             new LinToken.ByteArrayStart(),
@@ -99,7 +101,7 @@ public class LinSnbtWriterTest {
 
     @Test
     void emptyIntArrayOutput() {
-        var output = ezToString(List.of(
+        var output = ezToString(LinStream.of(
             new LinToken.CompoundStart(),
             new LinToken.Name("foo"),
             new LinToken.IntArrayStart(),
@@ -111,7 +113,7 @@ public class LinSnbtWriterTest {
 
     @Test
     void intArrayOutput() {
-        var output = ezToString(List.of(
+        var output = ezToString(LinStream.of(
             new LinToken.CompoundStart(),
             new LinToken.Name("foo"),
             new LinToken.IntArrayStart(),
@@ -124,7 +126,7 @@ public class LinSnbtWriterTest {
 
     @Test
     void intArrayOutputSplit() {
-        var output = ezToString(List.of(
+        var output = ezToString(LinStream.of(
             new LinToken.CompoundStart(),
             new LinToken.Name("foo"),
             new LinToken.IntArrayStart(),
@@ -138,7 +140,7 @@ public class LinSnbtWriterTest {
 
     @Test
     void emptyLongArrayOutput() {
-        var output = ezToString(List.of(
+        var output = ezToString(LinStream.of(
             new LinToken.CompoundStart(),
             new LinToken.Name("foo"),
             new LinToken.LongArrayStart(),
@@ -150,7 +152,7 @@ public class LinSnbtWriterTest {
 
     @Test
     void longArrayOutput() {
-        var output = ezToString(List.of(
+        var output = ezToString(LinStream.of(
             new LinToken.CompoundStart(),
             new LinToken.Name("foo"),
             new LinToken.LongArrayStart(),
@@ -163,7 +165,7 @@ public class LinSnbtWriterTest {
 
     @Test
     void longArrayOutputSplit() {
-        var output = ezToString(List.of(
+        var output = ezToString(LinStream.of(
             new LinToken.CompoundStart(),
             new LinToken.Name("foo"),
             new LinToken.LongArrayStart(),

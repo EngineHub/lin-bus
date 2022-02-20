@@ -18,7 +18,7 @@
 
 package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.stream.token.LinToken;
+import org.enginehub.linbus.stream.LinStreamable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -29,7 +29,7 @@ import java.util.Objects;
  * @param <T> the type of the canonical representation
  * @param <SELF> the type of the tag
  */
-public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTag<SELF>, Iterable<@NotNull LinToken>
+public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTag<SELF>, LinStreamable
     permits LinByteArrayTag, LinCompoundTag, LinEndTag, LinIntArrayTag, LinListTag, LinLongArrayTag, LinNumberTag, LinStringTag {
     /**
      * Gets the type of this tag.

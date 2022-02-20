@@ -27,7 +27,6 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -51,7 +50,7 @@ public class LinBinaryIOTest {
             0,
             1, // value
             0 // end tag
-        }), ImmutableList::copyOf);
+        }), s -> ImmutableList.copyOf(s.asIterator()));
         assertThat(tokens).isNotNull();
         assertThat(tokens).isNotEmpty();
     }
@@ -59,7 +58,7 @@ public class LinBinaryIOTest {
     @Test
     void readUsingUnwrapsIoExceptions() {
         assertThrows(EOFException.class, () ->
-            LinBinaryIO.readUsing(new DataInputStream(InputStream.nullInputStream()), Iterator::next)
+            LinBinaryIO.readUsing(new DataInputStream(InputStream.nullInputStream()), LinStream::nextOrNull)
         );
     }
 }

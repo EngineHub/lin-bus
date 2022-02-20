@@ -18,13 +18,13 @@
 
 package org.enginehub.linbus.format.snbt.impl.reader;
 
-import org.enginehub.linbus.common.internal.AbstractIterator;
+import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInput;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -41,7 +41,7 @@ import java.util.function.Supplier;
 /**
  * Reads a stream of tokens from a {@link DataInput}.
  */
-public class LinSnbtReader extends AbstractIterator<LinToken> {
+public class LinSnbtReader implements LinStream {
 
     private sealed interface State {
         /**
@@ -167,19 +167,15 @@ public class LinSnbtReader extends AbstractIterator<LinToken> {
     }
 
     @Override
-    protected LinToken computeNext() {
+    public @Nullable LinToken nextOrNull() throws IOException {
         var token = tokenQueue.pollFirst();
         while (token == null) {
-            try {
-                State state = stateStack.peekLast();
-                if (state == null) {
-                    return end();
-                }
-                fillTokenStack(state);
-                token = tokenQueue.pollFirst();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+            State state = stateStack.peekLast();
+            if (state == null) {
+                return null;
             }
+            fillTokenStack(state);
+            token = tokenQueue.pollFirst();
         }
 
         return token;

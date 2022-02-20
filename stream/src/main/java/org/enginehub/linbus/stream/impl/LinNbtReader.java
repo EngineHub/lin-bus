@@ -19,13 +19,12 @@
 package org.enginehub.linbus.stream.impl;
 
 import org.enginehub.linbus.common.LinTagId;
-import org.enginehub.linbus.common.internal.AbstractIterator;
+import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInput;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -34,7 +33,7 @@ import java.util.List;
 /**
  * Reads a stream of tokens from a {@link DataInput}.
  */
-public class LinNbtReader extends AbstractIterator<LinToken> {
+public class LinNbtReader implements LinStream {
     private sealed interface State {
         /**
          * We need to initialize and return the root name.
@@ -105,19 +104,10 @@ public class LinNbtReader extends AbstractIterator<LinToken> {
     }
 
     @Override
-    protected LinToken computeNext() {
-        try {
-            return computeNextIO();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Nullable
-    private LinToken computeNextIO() throws IOException {
+    public @Nullable LinToken nextOrNull() throws IOException {
         var state = stateStack.pollLast();
         if (state == null) {
-            return end();
+            return null;
         }
         if (state instanceof State.ListEntry entry) {
             if (entry.remaining == 0) {

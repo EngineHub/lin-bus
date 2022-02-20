@@ -21,14 +21,14 @@ package org.enginehub.linbus.format.snbt;
 import org.enginehub.linbus.format.snbt.impl.LinSnbtWriter;
 import org.enginehub.linbus.format.snbt.impl.reader.LinSnbtReader;
 import org.enginehub.linbus.format.snbt.impl.reader.LinSnbtTokenizer;
-import org.enginehub.linbus.stream.token.LinToken;
+import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.LinStreamable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
-import java.util.Iterator;
 import java.util.function.Function;
 
 /**
@@ -54,7 +54,7 @@ public class LinStringIO {
      * @param input the input to read from
      * @return the stream of NBT tokens
      */
-    public static Iterator<? extends @NotNull LinToken> read(@NotNull Reader input) {
+    public static @NotNull LinStream read(@NotNull Reader input) {
         return new LinSnbtReader(new LinSnbtTokenizer(input));
     }
 
@@ -64,7 +64,7 @@ public class LinStringIO {
      * @param input the input to read from
      * @return the stream of NBT tokens
      */
-    public static Iterator<? extends @NotNull LinToken> readFromString(@NotNull String input) {
+    public static @NotNull LinStream readFromString(@NotNull String input) {
         return read(new StringReader(input));
     }
 
@@ -86,7 +86,7 @@ public class LinStringIO {
      * @return the result
      * @throws IOException if an I/O error occurs ({@link UncheckedIOException} is unwrapped)
      */
-    public static <R> R readUsing(@NotNull Reader input, @NotNull Function<? super @NotNull Iterator<? extends @NotNull LinToken>, R> transform) throws IOException {
+    public static <R> R readUsing(@NotNull Reader input, @NotNull Function<? super @NotNull LinStream, R> transform) throws IOException {
         try {
             return transform.apply(read(input));
         } catch (UncheckedIOException e) {
@@ -102,7 +102,7 @@ public class LinStringIO {
      * @param <R> the type of the result
      * @return the stream of NBT tokens
      */
-    public static <R> R readFromStringUsing(@NotNull String input, @NotNull Function<? super @NotNull Iterator<? extends @NotNull LinToken>, R> transform) {
+    public static <R> R readFromStringUsing(@NotNull String input, @NotNull Function<? super @NotNull LinStream, R> transform) {
         return transform.apply(readFromString(input));
     }
 
@@ -117,8 +117,8 @@ public class LinStringIO {
      * @param tokens the stream of NBT tokens
      * @throws IOException if an I/O error occurs
      */
-    public static void write(@NotNull Appendable output, @NotNull Iterator<? extends @NotNull LinToken> tokens) throws IOException {
-        new LinSnbtWriter().write(output, tokens);
+    public static void write(@NotNull Appendable output, @NotNull LinStreamable tokens) throws IOException {
+        new LinSnbtWriter().write(output, tokens.linStream());
     }
 
     /**
@@ -131,7 +131,7 @@ public class LinStringIO {
      * @param tokens the stream of NBT tokens
      * @return the string
      */
-    public static String writeToString(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
+    public static String writeToString(@NotNull LinStreamable tokens) {
         var builder = new StringBuilder();
         try {
             write(builder, tokens);

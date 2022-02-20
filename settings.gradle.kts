@@ -1,5 +1,3 @@
-enableFeaturePreview("VERSION_CATALOGS")
-
 includeBuild("./build-logic")
 
 rootProject.name = "lin-bus"

@@ -19,13 +19,16 @@
 package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.common.LinTagId;
-import org.enginehub.linbus.common.internal.AbstractIterator;
-import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.LinStreamable;
+import org.enginehub.linbus.stream.internal.FlatteningLinStream;
+import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -235,7 +238,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * @param tokens the stream to read from
      * @return the compound tag
      */
-    public static LinCompoundTag readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
+    public static LinCompoundTag readFrom(@NotNull LinStream tokens) throws IOException {
         return LinTagReader.readCompound(tokens);
     }
 
@@ -282,30 +285,30 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
     }
 
     @Override
-    public @NotNull Iterator<@NotNull LinToken> iterator() {
-        return Iterators.combine(
-            Iterators.of(new LinToken.CompoundStart()),
-            Iterators.combine(new EntryTokenIterator()),
-            Iterators.of(new LinToken.CompoundEnd())
+    public @NotNull LinStream linStream() {
+        return new SurroundingLinStream(
+            new LinToken.CompoundStart(),
+            new FlatteningLinStream(new EntryTokenIterator()),
+            new LinToken.CompoundEnd()
         );
     }
 
-    private class EntryTokenIterator extends AbstractIterator<Iterator<? extends @NotNull LinToken>> {
+    private class EntryTokenIterator implements Iterator<LinStreamable> {
         private final Iterator<Map.Entry<String, LinTag<?, ?>>> entryIterator = value.entrySet().iterator();
-        private Map.Entry<String, LinTag<?, ?>> currentEntry;
 
         @Override
-        protected Iterator<? extends @NotNull LinToken> computeNext() {
-            if (currentEntry == null) {
-                if (!entryIterator.hasNext()) {
-                    return end();
-                }
-                currentEntry = entryIterator.next();
-                return Iterators.of(new LinToken.Name(currentEntry.getKey(), currentEntry.getValue().type().id()));
-            }
-            var next = currentEntry.getValue().iterator();
-            currentEntry = null;
-            return next;
+        public boolean hasNext() {
+            return entryIterator.hasNext();
+        }
+
+        @Override
+        public LinStreamable next() {
+            var entry = entryIterator.next();
+            return new SurroundingLinStream(
+                new LinToken.Name(entry.getKey(), entry.getValue().type().id()),
+                entry.getValue().linStream(),
+                null
+            );
         }
     }
 

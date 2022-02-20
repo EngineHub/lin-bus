@@ -35,7 +35,7 @@ class TagTestUtil {
         // It's not legal to use bare streams, so we wrap in a root entry and compound.
         LinBinaryIO.write(
             dataOutput,
-            new LinRootEntry("", new LinCompoundTag(Map.of(NESTING_KEY, input))).iterator()
+            new LinRootEntry("", new LinCompoundTag(Map.of(NESTING_KEY, input)))
         );
         T recreated = LinBinaryIO.readUsing(
             ByteStreams.newDataInput(dataOutput.toByteArray()),

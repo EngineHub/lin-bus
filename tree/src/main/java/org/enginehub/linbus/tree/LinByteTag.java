@@ -18,11 +18,9 @@
 
 package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Iterator;
 
 /**
  * Represents a byte tag.
@@ -68,7 +66,7 @@ public final class LinByteTag extends LinNumberTag<@NotNull Byte, LinByteTag> {
     }
 
     @Override
-    public @NotNull Iterator<@NotNull LinToken> iterator() {
-        return Iterators.of(new LinToken.Byte(value));
+    public @NotNull LinStream linStream() {
+        return LinStream.of(new LinToken.Byte(value));
     }
 }

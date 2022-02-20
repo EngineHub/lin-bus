@@ -16,28 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.tree;
+package org.enginehub.linbus.stream;
 
-import org.junit.jupiter.api.Test;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class LinEndTagTest {
-    @Test
-    void iteratorImplementation() throws IOException {
-        assertNull(LinEndTag.instance().linStream().nextOrNull());
-    }
-
-    @Test
-    void hashCodeImplementation() {
-        assertEquals(LinEndTag.instance().hashCode(), LinEndTag.instance().hashCode());
-    }
-
-    @Test
-    void toStringImplementation() {
-        assertEquals("LinEndTag", LinEndTag.instance().toString());
-    }
+/**
+ * Represents something that can provide a {@link LinStream}.
+ */
+public interface LinStreamable {
+    /**
+     * {@return a {@link LinStream} for this object}
+     */
+    @NotNull LinStream linStream();
 }

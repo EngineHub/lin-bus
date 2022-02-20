@@ -19,14 +19,14 @@
 package org.enginehub.linbus.tree;
 
 
-import org.enginehub.linbus.common.internal.AbstractIterator;
-import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.LongBuffer;
 import java.util.Arrays;
-import java.util.Iterator;
 
 /**
  * Represents a long array tag.
@@ -71,17 +71,17 @@ public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArray
     }
 
     @Override
-    public @NotNull Iterator<@NotNull LinToken> iterator() {
-        return Iterators.combine(
-            Iterators.of(new LinToken.LongArrayStart(value.length)),
-            new AbstractIterator<>() {
+    public @NotNull LinStream linStream() {
+        return new SurroundingLinStream(
+            new LinToken.LongArrayStart(value.length),
+            new LinStream() {
                 private static final int BUFFER_SIZE = 4096;
                 private int i = 0;
 
                 @Override
-                protected LinToken computeNext() {
+                public @Nullable LinToken nextOrNull() {
                     if (i >= value.length) {
-                        return end();
+                        return null;
                     }
                     var length = Math.min(BUFFER_SIZE, value.length - i);
                     var buffer = LongBuffer.wrap(value, i, length).asReadOnlyBuffer();
@@ -89,7 +89,7 @@ public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArray
                     return new LinToken.LongArrayContent(buffer);
                 }
             },
-            Iterators.of(new LinToken.LongArrayEnd())
+            new LinToken.LongArrayEnd()
         );
     }
 

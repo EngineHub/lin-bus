@@ -16,48 +16,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.tree;
+package org.enginehub.linbus.stream.internal;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Test;
 
-/**
- * Represents an int tag.
- */
-public final class LinIntTag extends LinNumberTag<@NotNull Integer, LinIntTag> {
-    private final int value;
+import static com.google.common.truth.Truth.assertThat;
 
-    /**
-     * Create a new int tag.
-     *
-     * @param value the value
-     */
-    public LinIntTag(int value) {
-        this.value = value;
-    }
-
-    @Override
-    public @NotNull LinTagType<LinIntTag> type() {
-        return LinTagType.intTag();
-    }
-
-    @Override
-    public @NotNull Integer value() {
-        return value;
-    }
-
-    /**
-     * Get the value as a primitive int, to avoid boxing.
-     *
-     * @return the value
-     */
-    public int valueAsInt() {
-        return value;
-    }
-
-    @Override
-    public @NotNull LinStream linStream() {
-        return LinStream.of(new LinToken.Int(value));
+public class FlatteningLinStreamTest {
+    @Test
+    void flattens() {
+        var tokens = ImmutableList.copyOf(
+            new FlatteningLinStream(Iterators.forArray(
+                LinStream.of(new LinToken.String("a"), new LinToken.String("b")),
+                LinStream.of(new LinToken.String("c"), new LinToken.String("d"))
+            )).asIterator()
+        );
+        assertThat(tokens).containsExactly(
+            new LinToken.String("a"),
+            new LinToken.String("b"),
+            new LinToken.String("c"),
+            new LinToken.String("d")
+        ).inOrder();
     }
 }

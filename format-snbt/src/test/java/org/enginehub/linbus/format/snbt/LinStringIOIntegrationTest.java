@@ -22,16 +22,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import org.enginehub.linbus.stream.LinBinaryIO;
-import org.enginehub.linbus.stream.LinNbtStreams;
-import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
+import org.enginehub.linbus.stream.LinStream;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 
@@ -51,21 +48,21 @@ public class LinStringIOIntegrationTest {
         }
     }
 
-    private static <T> T convertNbtStream(String name, Function<Iterator<? extends @NotNull LinToken>, T> converter) throws IOException {
+    private static <T> T convertNbtStream(String name, Function<LinStream, T> converter) throws IOException {
         return loadResource(name, stream -> {
-            Iterator<? extends @NotNull LinToken> iter = LinBinaryIO.read(new DataInputStream(stream));
+            LinStream iter = LinBinaryIO.read(new DataInputStream(stream));
             // Hack - SNBT can't print the RootEntry stuff, so we have to skip it
-            iter.next();
+            iter.nextOrNull();
             return converter.apply(iter);
         });
     }
 
     private static void assertThroughSnbt(String name) throws IOException {
         var bytes = loadResource(name, ByteStreams::toByteArray);
-        var original = convertNbtStream(name, ImmutableList::copyOf);
+        var original = convertNbtStream(name, s -> ImmutableList.copyOf(s.asIterator()));
         var throughSnbt = LinStringIO.readFromStringUsing(
             convertNbtStream(name, LinStringIO::writeToString),
-            x -> ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(x))
+            x -> ImmutableList.copyOf(x.calculateOptionalInfo().asIterator())
         );
 
         assertThat(throughSnbt).containsExactlyElementsIn(original).inOrder();

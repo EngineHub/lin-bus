@@ -19,8 +19,10 @@
 package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.common.LinTagId;
-import org.enginehub.linbus.common.internal.Iterators;
 import org.enginehub.linbus.stream.LinBinaryIO;
+import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.LinStreamable;
+import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +32,6 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,14 +41,14 @@ import java.util.Objects;
 public record LinRootEntry(
     String name,
     LinCompoundTag value
-) implements ToLinTag<LinCompoundTag>, Iterable<LinToken> {
+) implements ToLinTag<LinCompoundTag>, LinStreamable {
     /**
      * Read a root entry from the given stream.
      *
      * @param tokens the stream to read from
      * @return the root entry
      */
-    public static LinRootEntry readFrom(@NotNull Iterator<? extends @NotNull LinToken> tokens) {
+    public static LinRootEntry readFrom(@NotNull LinStream tokens) throws IOException {
         return LinTagReader.readRoot(tokens);
     }
 
@@ -84,7 +85,7 @@ public record LinRootEntry(
      * @throws IOException if an I/O error occurs
      */
     public void writeTo(DataOutput output) throws IOException {
-        LinBinaryIO.write(output, iterator());
+        LinBinaryIO.write(output, this);
     }
 
     /**
@@ -98,10 +99,11 @@ public record LinRootEntry(
     }
 
     @Override
-    public @NotNull Iterator<@NotNull LinToken> iterator() {
-        return Iterators.combine(
-            Iterators.of(new LinToken.Name(name, LinTagId.COMPOUND)),
-            value.iterator()
+    public @NotNull LinStream linStream() {
+        return new SurroundingLinStream(
+            new LinToken.Name(name, LinTagId.COMPOUND),
+            value.linStream(),
+            null
         );
     }
 }

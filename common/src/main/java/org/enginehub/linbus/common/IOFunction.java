@@ -16,28 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.tree;
-
-import org.junit.jupiter.api.Test;
+package org.enginehub.linbus.common;
 
 import java.io.IOException;
+import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class LinEndTagTest {
-    @Test
-    void iteratorImplementation() throws IOException {
-        assertNull(LinEndTag.instance().linStream().nextOrNull());
-    }
-
-    @Test
-    void hashCodeImplementation() {
-        assertEquals(LinEndTag.instance().hashCode(), LinEndTag.instance().hashCode());
-    }
-
-    @Test
-    void toStringImplementation() {
-        assertEquals("LinEndTag", LinEndTag.instance().toString());
-    }
+/**
+ * Exactly like {@link Function}, but may throw {@link IOException}.
+ *
+ * @param <T> the input type
+ * @param <R> the output type
+ */
+public interface IOFunction<T, R> {
+    /**
+     * Applies this function to the given argument.
+     *
+     * @param t the function argument
+     * @return the function result
+     * @throws IOException if an I/O error occurs
+     */
+    R apply(T t) throws IOException;
 }

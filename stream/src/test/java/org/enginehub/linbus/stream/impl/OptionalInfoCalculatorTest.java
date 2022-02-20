@@ -19,10 +19,8 @@
 package org.enginehub.linbus.stream.impl;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
 import org.enginehub.linbus.common.LinTagId;
-import org.enginehub.linbus.stream.LinBinaryIO;
-import org.enginehub.linbus.stream.LinNbtStreams;
+import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
 
@@ -35,55 +33,50 @@ import java.util.OptionalInt;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.enginehub.linbus.stream.StreamTestUtil.convertNbtStream;
+import static org.enginehub.linbus.stream.StreamTestUtil.streamFromIterator;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class OptionalInfoCalculatorTest {
     @Test
     void passthrough() throws IOException {
-        var originalTokens = convertNbtStream("bigtest.nbt.gz", ImmutableList::copyOf);
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(originalTokens.iterator()));
+        var originalTokens = convertNbtStream("bigtest.nbt.gz", s -> ImmutableList.copyOf(s.asIterator()));
+        var result = ImmutableList.copyOf(streamFromIterator(originalTokens.iterator()).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactlyElementsIn(originalTokens).inOrder();
     }
 
     @Test
     void failToFill() {
         var ex = assertThrows(IllegalStateException.class, () ->
-            ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-                Iterators.forArray(new LinToken.Name("foo"))
-            ))
+            LinStream.of(new LinToken.Name("foo")).calculateOptionalInfo().nextOrNull()
         );
         assertThat(ex).hasMessageThat().isEqualTo("Optional value not filled by the end of token stream");
     }
 
     @Test
     void fillName() {
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(new LinToken.Name("foo"), new LinToken.Int(1))
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.Name("foo"), new LinToken.Int(1)
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(new LinToken.Name("foo", LinTagId.INT), new LinToken.Int(1)).inOrder();
     }
 
     @Test
     void fillNameInvalidFollowingValue() {
-        var iterator = LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.Name("foo"),
-                new LinToken.ByteArrayEnd()
-            )
-        );
-        var ex = assertThrows(IllegalStateException.class, iterator::next);
+        var iterator = LinStream.of(
+            new LinToken.Name("foo"),
+            new LinToken.ByteArrayEnd()
+        ).calculateOptionalInfo();
+        var ex = assertThrows(IllegalStateException.class, iterator::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("Token doesn't represent a tag directly: " + new LinToken.ByteArrayEnd());
     }
 
     @Test
     void fillListStart() {
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.ListStart(),
-                new LinToken.Int(1),
-                new LinToken.ListEnd()
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.ListStart(),
+            new LinToken.Int(1),
+            new LinToken.ListEnd()
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.ListStart(1, LinTagId.INT),
             new LinToken.Int(1),
@@ -93,12 +86,10 @@ public class OptionalInfoCalculatorTest {
 
     @Test
     void fillListStartEmpty() {
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.ListStart(),
-                new LinToken.ListEnd()
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.ListStart(),
+            new LinToken.ListEnd()
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.ListStart(0, LinTagId.END),
             new LinToken.ListEnd()
@@ -107,12 +98,10 @@ public class OptionalInfoCalculatorTest {
 
     @Test
     void fillListStartSizeGiven() {
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.ListStart(OptionalInt.of(1), Optional.empty()),
-                new LinToken.Int(1)
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.ListStart(OptionalInt.of(1), Optional.empty()),
+            new LinToken.Int(1)
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.ListStart(1, LinTagId.INT),
             new LinToken.Int(1)
@@ -121,13 +110,11 @@ public class OptionalInfoCalculatorTest {
 
     @Test
     void fillListStartElementIdGiven() {
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.ListStart(OptionalInt.empty(), Optional.of(LinTagId.INT)),
-                new LinToken.Int(1),
-                new LinToken.ListEnd()
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.ListStart(OptionalInt.empty(), Optional.of(LinTagId.INT)),
+            new LinToken.Int(1),
+            new LinToken.ListEnd()
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.ListStart(1, LinTagId.INT),
             new LinToken.Int(1),
@@ -137,26 +124,22 @@ public class OptionalInfoCalculatorTest {
 
     @Test
     void fillListStartInvalidFollowingValue() {
-        var iterator = LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.ListStart(OptionalInt.of(1), Optional.empty()),
-                new LinToken.ByteArrayEnd()
-            )
-        );
-        var ex = assertThrows(IllegalStateException.class, iterator::next);
+        var iterator = LinStream.of(
+            new LinToken.ListStart(OptionalInt.of(1), Optional.empty()),
+            new LinToken.ByteArrayEnd()
+        ).calculateOptionalInfo();
+        var ex = assertThrows(IllegalStateException.class, iterator::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("Token doesn't represent a tag directly: " + new LinToken.ByteArrayEnd());
     }
 
     @Test
     void fillByteArrayStart() {
         var buffer = ByteBuffer.allocate(1024).asReadOnlyBuffer();
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.ByteArrayStart(),
-                new LinToken.ByteArrayContent(buffer),
-                new LinToken.ByteArrayEnd()
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.ByteArrayStart(),
+            new LinToken.ByteArrayContent(buffer),
+            new LinToken.ByteArrayEnd()
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.ByteArrayStart(buffer.capacity()),
             new LinToken.ByteArrayContent(buffer),
@@ -166,12 +149,10 @@ public class OptionalInfoCalculatorTest {
 
     @Test
     void fillByteArrayStartEmpty() {
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.ByteArrayStart(),
-                new LinToken.ByteArrayEnd()
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.ByteArrayStart(),
+            new LinToken.ByteArrayEnd()
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.ByteArrayStart(0),
             new LinToken.ByteArrayEnd()
@@ -181,27 +162,23 @@ public class OptionalInfoCalculatorTest {
     @Test
     void fillByteArrayStartWithJunk() {
         LinToken.String junkToken = new LinToken.String("junk 😎");
-        var iterator = LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.ByteArrayStart(),
-                junkToken
-            )
-        );
+        var iterator = LinStream.of(
+            new LinToken.ByteArrayStart(),
+            junkToken
+        ).calculateOptionalInfo();
 
-        var ex = assertThrows(IllegalStateException.class, iterator::next);
+        var ex = assertThrows(IllegalStateException.class, iterator::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("Unexpected token: " + junkToken);
     }
 
     @Test
     void fillIntArrayStart() {
         var buffer = IntBuffer.allocate(1024).asReadOnlyBuffer();
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.IntArrayStart(),
-                new LinToken.IntArrayContent(buffer),
-                new LinToken.IntArrayEnd()
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.IntArrayStart(),
+            new LinToken.IntArrayContent(buffer),
+            new LinToken.IntArrayEnd()
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.IntArrayStart(buffer.capacity()),
             new LinToken.IntArrayContent(buffer),
@@ -211,12 +188,10 @@ public class OptionalInfoCalculatorTest {
 
     @Test
     void fillIntArrayStartEmpty() {
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.IntArrayStart(),
-                new LinToken.IntArrayEnd()
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.IntArrayStart(),
+            new LinToken.IntArrayEnd()
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.IntArrayStart(0),
             new LinToken.IntArrayEnd()
@@ -226,27 +201,23 @@ public class OptionalInfoCalculatorTest {
     @Test
     void fillIntArrayStartWithJunk() {
         LinToken.String junkToken = new LinToken.String("junk 😎");
-        var iterator = LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.IntArrayStart(),
-                junkToken
-            )
-        );
+        var iterator = LinStream.of(
+            new LinToken.IntArrayStart(),
+            junkToken
+        ).calculateOptionalInfo();
 
-        var ex = assertThrows(IllegalStateException.class, iterator::next);
+        var ex = assertThrows(IllegalStateException.class, iterator::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("Unexpected token: " + junkToken);
     }
 
     @Test
     void fillLongArrayStart() {
         var buffer = LongBuffer.allocate(1024).asReadOnlyBuffer();
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.LongArrayStart(),
-                new LinToken.LongArrayContent(buffer),
-                new LinToken.LongArrayEnd()
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.LongArrayStart(),
+            new LinToken.LongArrayContent(buffer),
+            new LinToken.LongArrayEnd()
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.LongArrayStart(buffer.capacity()),
             new LinToken.LongArrayContent(buffer),
@@ -256,12 +227,10 @@ public class OptionalInfoCalculatorTest {
 
     @Test
     void fillLongArrayStartEmpty() {
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.LongArrayStart(),
-                new LinToken.LongArrayEnd()
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.LongArrayStart(),
+            new LinToken.LongArrayEnd()
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.LongArrayStart(0),
             new LinToken.LongArrayEnd()
@@ -271,34 +240,30 @@ public class OptionalInfoCalculatorTest {
     @Test
     void fillLongArrayStartWithJunk() {
         LinToken.String junkToken = new LinToken.String("junk 😎");
-        var iterator = LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.LongArrayStart(),
-                junkToken
-            )
-        );
+        var iterator = LinStream.of(
+            new LinToken.LongArrayStart(),
+            junkToken
+        ).calculateOptionalInfo();
 
-        var ex = assertThrows(IllegalStateException.class, iterator::next);
+        var ex = assertThrows(IllegalStateException.class, iterator::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("Unexpected token: " + junkToken);
     }
 
     @Test
     void fillRecursive() {
-        var result = ImmutableList.copyOf(LinNbtStreams.calculateOptionalInfo(
-            Iterators.forArray(
-                new LinToken.ListStart(),
-                new LinToken.ListStart(),
-                new LinToken.Int(1),
-                new LinToken.ListEnd(),
-                new LinToken.ListStart(),
-                new LinToken.Int(2),
-                new LinToken.ListEnd(),
-                new LinToken.ListStart(),
-                new LinToken.Int(3),
-                new LinToken.ListEnd(),
-                new LinToken.ListEnd()
-            )
-        ));
+        var result = ImmutableList.copyOf(LinStream.of(
+            new LinToken.ListStart(),
+            new LinToken.ListStart(),
+            new LinToken.Int(1),
+            new LinToken.ListEnd(),
+            new LinToken.ListStart(),
+            new LinToken.Int(2),
+            new LinToken.ListEnd(),
+            new LinToken.ListStart(),
+            new LinToken.Int(3),
+            new LinToken.ListEnd(),
+            new LinToken.ListEnd()
+        ).calculateOptionalInfo().asIterator());
         assertThat(result).containsExactly(
             new LinToken.ListStart(3, LinTagId.LIST),
             new LinToken.ListStart(1, LinTagId.INT),

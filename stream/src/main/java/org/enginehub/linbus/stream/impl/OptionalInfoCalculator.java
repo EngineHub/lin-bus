@@ -19,20 +19,19 @@
 package org.enginehub.linbus.stream.impl;
 
 import org.enginehub.linbus.common.LinTagId;
-import org.enginehub.linbus.common.internal.AbstractIterator;
-import org.enginehub.linbus.stream.LinNbtStreams;
+import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Iterator;
 
 /**
- * Implementation of {@link LinNbtStreams#calculateOptionalInfo(Iterator)}.
+ * Implementation of {@link LinStream#calculateOptionalInfo()}.
  */
-public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
+public class OptionalInfoCalculator implements LinStream {
     private interface OptionalFill {
         /**
          * Try to fill the optional value with another token.
@@ -42,7 +41,7 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
         @Nullable LinToken tryFill(LinToken token);
     }
 
-    private final Iterator<? extends @NotNull LinToken> original;
+    private final LinStream original;
     private Deque<LinToken> tokenBuffer;
 
     /**
@@ -50,12 +49,12 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
      *
      * @param original the original stream
      */
-    public OptionalInfoCalculator(Iterator<? extends @NotNull LinToken> original) {
+    public OptionalInfoCalculator(LinStream original) {
         this.original = original;
     }
 
     @Override
-    protected LinToken computeNext() {
+    public @Nullable LinToken nextOrNull() throws IOException {
         if (tokenBuffer != null) {
             var next = tokenBuffer.pollFirst();
             if (next != null) {
@@ -64,21 +63,27 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
                 tokenBuffer = null;
             }
         }
-        if (!original.hasNext()) {
-            return end();
+        var next = original.nextOrNull();
+        if (next == null) {
+            return null;
         }
 
-        TokenAndBuffer tokenAndBuffer = fillIfNeeded(original.next());
+        TokenAndBuffer tokenAndBuffer = fillIfNeeded(next);
         if (tokenAndBuffer.buffer != null && !tokenAndBuffer.buffer.isEmpty()) {
             tokenBuffer = tokenAndBuffer.buffer;
         }
         return tokenAndBuffer.token;
     }
 
+    @Override
+    public LinStream calculateOptionalInfo() {
+        return this;
+    }
+
     private record TokenAndBuffer(@NotNull LinToken token, @Nullable Deque<LinToken> buffer) {
     }
 
-    private TokenAndBuffer fillIfNeeded(LinToken token) {
+    private TokenAndBuffer fillIfNeeded(LinToken token) throws IOException {
         if (token instanceof LinToken.ListStart listStart && (listStart.size().isEmpty() || listStart.elementId().isEmpty())) {
             return getFilled(new ListStartFill(listStart));
         } else if (token instanceof LinToken.ByteArrayStart byteArrayStart) {
@@ -99,14 +104,18 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
         return new TokenAndBuffer(token, null);
     }
 
-    private TokenAndBuffer getFilled(OptionalFill fill) {
+    private TokenAndBuffer getFilled(OptionalFill fill) throws IOException {
         var buffer = new ArrayDeque<LinToken>();
         var consumedTokenStack = new ArrayDeque<LinToken>();
-        while (!buffer.isEmpty() || original.hasNext()) {
+        while (true) {
             var next = buffer.pollFirst();
             if (next == null) {
                 // Replenish our buffer by taking the next token (and filling if needed).
-                var tokenAndBuffer = fillIfNeeded(original.next());
+                var originalNext = original.nextOrNull();
+                if (originalNext == null) {
+                    throw new IllegalStateException("Optional value not filled by the end of token stream");
+                }
+                var tokenAndBuffer = fillIfNeeded(originalNext);
                 buffer.add(tokenAndBuffer.token);
                 consumedTokenStack.add(tokenAndBuffer.token);
                 if (tokenAndBuffer.buffer != null) {
@@ -120,7 +129,6 @@ public class OptionalInfoCalculator extends AbstractIterator<LinToken> {
                 return new TokenAndBuffer(filled, consumedTokenStack);
             }
         }
-        throw new IllegalStateException("Optional value not filled by the end of token stream");
     }
 
     private static final class ListStartFill implements OptionalFill {

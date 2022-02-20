@@ -18,21 +18,18 @@
 
 package org.enginehub.linbus.stream;
 
+import org.enginehub.linbus.common.IOFunction;
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.impl.LinNbtReader;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Closeable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
-import java.util.Iterator;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Reads and writes NBT streams.
@@ -48,7 +45,7 @@ public class LinBinaryIO {
      * @param input the input to read from
      * @return the stream of NBT tokens
      */
-    public static Iterator<? extends @NotNull LinToken> read(@NotNull DataInput input) {
+    public static LinStream read(@NotNull DataInput input) {
         return new LinNbtReader(input);
     }
 
@@ -65,19 +62,16 @@ public class LinBinaryIO {
      * @return the result
      * @throws IOException if an I/O error occurs ({@link UncheckedIOException} is unwrapped)
      */
-    public static <R> R readUsing(@NotNull DataInput input, Function<? super Iterator<? extends @NotNull LinToken>, R> transform) throws IOException {
-        try {
-            return transform.apply(read(input));
-        } catch (UncheckedIOException e) {
-            throw e.getCause();
-        }
+    public static <R> R readUsing(@NotNull DataInput input, IOFunction<? super LinStream, ? extends R> transform)
+        throws IOException {
+        return transform.apply(read(input));
     }
 
     /**
      * Write a stream of NBT tokens to a {@link DataOutput}.
      *
      * <p>
-     * If optional information is not available, it will be calculated. See {@link LinNbtStreams#calculateOptionalInfo(Iterator)}
+     * If optional information is not available, it will be calculated. See {@link LinStream#calculateOptionalInfo()}
      * for details on what that means for memory and speed.
      * </p>
      *
@@ -89,14 +83,14 @@ public class LinBinaryIO {
      * @param tokens the stream of NBT tokens
      * @throws IOException if an I/O error occurs
      */
-    public static void write(@NotNull DataOutput output, @NotNull Iterator<? extends @NotNull LinToken> tokens) throws IOException {
+    public static void write(@NotNull DataOutput output, @NotNull LinStreamable tokens) throws IOException {
         // This is essentially free if the info is already there, so we can just do it.
-        tokens = LinNbtStreams.calculateOptionalInfo(tokens);
+        LinStream tokenStream = tokens.linStream().calculateOptionalInfo();
         boolean seenFirstName = false;
         // This also signals if we're in a compound tag or not.
         String nextName = null;
-        while (tokens.hasNext()) {
-            LinToken token = tokens.next();
+        LinToken token;
+        while ((token = tokenStream.nextOrNull()) != null) {
             if (!seenFirstName) {
                 if (token instanceof LinToken.Name) {
                     seenFirstName = true;
@@ -202,43 +196,6 @@ public class LinBinaryIO {
         if (name != null) {
             output.writeByte(id.id());
             output.writeUTF(name);
-        }
-    }
-
-    /**
-     * Write a stream of NBT tokens to a {@link DataOutput} and convert it to an object.
-     *
-     * <p>
-     * If optional information is not available, it will be calculated. See {@link LinNbtStreams#calculateOptionalInfo(Iterator)}
-     * for details on what that means for memory and speed.
-     * </p>
-     *
-     * <p>
-     * The output will be closed by this method after calling {@code finisher}, if needed. It must be {@link Closeable}
-     * for this to occur, {@link AutoCloseable} is not sufficient.
-     * </p>
-     *
-     * @param tokens the stream of NBT tokens
-     * @param outputSupplier the output to write to
-     * @param finisher the function to call after writing the stream
-     * @param <A> the type of the output
-     * @param <R> the type of the result
-     * @return the finished object
-     * @throws IOException if an I/O error occurs
-     */
-    public static <A extends @NotNull DataOutput, R> R writeUsing(
-        @NotNull Iterator<? extends @NotNull LinToken> tokens,
-        Supplier<? extends A> outputSupplier,
-        Function<? super A, ? extends R> finisher
-    ) throws IOException {
-        var output = outputSupplier.get();
-        try {
-            write(output, tokens);
-            return finisher.apply(output);
-        } finally {
-            if (output instanceof Closeable) {
-                ((Closeable) output).close();
-            }
         }
     }
 

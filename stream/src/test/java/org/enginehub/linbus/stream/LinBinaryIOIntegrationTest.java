@@ -33,6 +33,7 @@ import java.nio.LongBuffer;
 import static com.google.common.truth.Truth.assertThat;
 import static org.enginehub.linbus.stream.StreamTestUtil.convertNbtStream;
 import static org.enginehub.linbus.stream.StreamTestUtil.loadResource;
+import static org.enginehub.linbus.stream.StreamTestUtil.streamFromIterator;
 
 public class LinBinaryIOIntegrationTest {
     @Test
@@ -43,7 +44,7 @@ public class LinBinaryIOIntegrationTest {
         }
 
         var bytes = loadResource("bigtest.nbt.gz", InputStream::readAllBytes);
-        var tokens = convertNbtStream("bigtest.nbt.gz", ImmutableList::copyOf);
+        var tokens = convertNbtStream("bigtest.nbt.gz", s -> ImmutableList.copyOf(s.asIterator()));
         assertThat(tokens).containsExactly(
             new LinToken.Name("Level", LinTagId.COMPOUND),
             new LinToken.CompoundStart(),
@@ -109,14 +110,14 @@ public class LinBinaryIOIntegrationTest {
         ).inOrder();
 
         var byteCollector = ByteStreams.newDataOutput();
-        LinBinaryIO.write(byteCollector, tokens.iterator());
+        LinBinaryIO.write(byteCollector, streamFromIterator(tokens.iterator()));
         assertThat(byteCollector.toByteArray()).isEqualTo(bytes);
     }
 
     @Test
     void allTypes() throws IOException {
         var bytes = loadResource("all-types.nbt.gz", InputStream::readAllBytes);
-        var tokens = convertNbtStream("all-types.nbt.gz", ImmutableList::copyOf);
+        var tokens = convertNbtStream("all-types.nbt.gz", s -> ImmutableList.copyOf(s.asIterator()));
         assertThat(tokens).containsExactly(
             new LinToken.Name("root", LinTagId.COMPOUND),
             new LinToken.CompoundStart(),
@@ -194,7 +195,7 @@ public class LinBinaryIOIntegrationTest {
         ).inOrder();
 
         var byteCollector = ByteStreams.newDataOutput();
-        LinBinaryIO.write(byteCollector, tokens.iterator());
+        LinBinaryIO.write(byteCollector, streamFromIterator(tokens.iterator()));
         assertThat(byteCollector.toByteArray()).isEqualTo(bytes);
     }
 }

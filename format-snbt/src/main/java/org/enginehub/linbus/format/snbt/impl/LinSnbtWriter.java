@@ -19,6 +19,8 @@
 package org.enginehub.linbus.format.snbt.impl;
 
 import org.enginehub.linbus.format.snbt.LinStringIO;
+import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.LinStreamable;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,10 +29,9 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayDeque;
-import java.util.Iterator;
 
 /**
- * Implementation of {@link LinStringIO#write(Appendable, Iterator)}.
+ * Implementation of {@link LinStringIO#write(Appendable, LinStreamable)}.
  */
 public class LinSnbtWriter {
     private sealed interface WriteState {
@@ -53,10 +54,13 @@ public class LinSnbtWriter {
      * @param tokens the tokens
      * @throws IOException if an I/O error occurs
      */
-    public void write(@NotNull Appendable output, @NotNull Iterator<? extends @NotNull LinToken> tokens) throws IOException {
-        while (tokens.hasNext()) {
+    public void write(@NotNull Appendable output, @NotNull LinStream tokens) throws IOException {
+        while (true) {
             var state = stateStack.peekLast();
-            LinToken token = tokens.next();
+            LinToken token = tokens.nextOrNull();
+            if (token == null) {
+                break;
+            }
             if (token instanceof LinToken.Name name) {
                 if (!(state instanceof WriteState.Compound compound)) {
                     throw new IllegalStateException("Names can only appear inside compounds");

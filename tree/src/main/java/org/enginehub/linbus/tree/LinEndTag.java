@@ -18,13 +18,8 @@
 
 package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.stream.token.LinToken;
+import org.enginehub.linbus.stream.LinStream;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
 
 /**
  * Represents an end tag.
@@ -55,13 +50,8 @@ public final class LinEndTag extends LinTag<Void, LinEndTag> {
     }
 
     @Override
-    public @NotNull Iterator<@NotNull LinToken> iterator() {
-        return Collections.emptyIterator();
-    }
-
-    @Override
-    public Spliterator<LinToken> spliterator() {
-        return Spliterators.emptySpliterator();
+    public @NotNull LinStream linStream() {
+        return LinStream.of();
     }
 
     @Override

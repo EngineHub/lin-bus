@@ -19,6 +19,7 @@
 package org.enginehub.linbus.stream;
 
 import com.google.common.io.Resources;
+import org.enginehub.linbus.stream.token.LinToken;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -32,7 +33,14 @@ public class BigTestPrinter {
              var decompressed = new GZIPInputStream(stream);
              var buffered = new BufferedInputStream(decompressed)) {
             System.err.println("Here we go:");
-            LinBinaryIO.read(new DataInputStream(buffered)).forEachRemaining(System.err::println);
+            LinStream tokenStream = LinBinaryIO.read(new DataInputStream(buffered));
+            while (true) {
+                LinToken token = tokenStream.nextOrNull();
+                if (token == null) {
+                    break;
+                }
+                System.err.println(token);
+            }
             System.err.println("... that's all folks!");
         }
     }

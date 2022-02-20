@@ -18,14 +18,14 @@
 
 package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.common.internal.AbstractIterator;
-import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.internal.FlatteningLinStream;
+import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -164,24 +164,12 @@ public final class LinListTag<T extends @NotNull LinTag<?, T>> extends LinTag<@N
     }
 
     @Override
-    public @NotNull Iterator<@NotNull LinToken> iterator() {
-        return Iterators.combine(
-            Iterators.of(new LinToken.ListStart(value.size(), elementType.id())),
-            Iterators.combine(new EntryTokenIterator()),
-            Iterators.of(new LinToken.ListEnd())
+    public @NotNull LinStream linStream() {
+        return new SurroundingLinStream(
+            new LinToken.ListStart(value.size(), elementType.id()),
+            new FlatteningLinStream(value.iterator()),
+            new LinToken.ListEnd()
         );
-    }
-
-    private class EntryTokenIterator extends AbstractIterator<Iterator<? extends @NotNull LinToken>> {
-        private final Iterator<T> entryIterator = value.iterator();
-
-        @Override
-        protected Iterator<? extends @NotNull LinToken> computeNext() {
-            if (!entryIterator.hasNext()) {
-                return end();
-            }
-            return entryIterator.next().iterator();
-        }
     }
 
     /**

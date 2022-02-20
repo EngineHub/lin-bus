@@ -18,11 +18,9 @@
 
 package org.enginehub.linbus.tree;
 
-import org.enginehub.linbus.common.internal.Iterators;
+import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Iterator;
 
 /**
  * Represents a short tag.
@@ -59,7 +57,7 @@ public final class LinShortTag extends LinNumberTag<@NotNull Short, LinShortTag>
     }
 
     @Override
-    public @NotNull Iterator<@NotNull LinToken> iterator() {
-        return Iterators.of(new LinToken.Short(value));
+    public @NotNull LinStream linStream() {
+        return LinStream.of(new LinToken.Short(value));
     }
 }

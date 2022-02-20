@@ -19,11 +19,9 @@
 package org.enginehub.linbus.tree.impl;
 
 import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.List;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,14 +32,14 @@ public class LinTagReaderTest {
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(Collections.emptyIterator())
+                () -> LinTagReader.readRoot(LinStream.of())
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected root name");
         }
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(new LinToken.String("bogus")).iterator())
+                () -> LinTagReader.readRoot(LinStream.of(new LinToken.String("bogus")))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected root name");
         }
@@ -51,9 +49,9 @@ public class LinTagReaderTest {
     void wrongRootTagId() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.STRING)
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Expected compound tag for root tag");
     }
@@ -63,19 +61,19 @@ public class LinTagReaderTest {
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND)
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected compound start");
         }
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.String("bogus")
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected compound start");
         }
@@ -85,11 +83,11 @@ public class LinTagReaderTest {
     void noNameInCompound() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.String("bogus")
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Expected name, got String[value=bogus]");
     }
@@ -98,10 +96,10 @@ public class LinTagReaderTest {
     void noEndOfCompound() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart()
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Expected compound end");
     }
@@ -111,23 +109,23 @@ public class LinTagReaderTest {
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
                     new LinToken.Name("inner", LinTagId.BYTE_ARRAY)
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected byte array start");
         }
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
                     new LinToken.Name("inner", LinTagId.BYTE_ARRAY),
                     new LinToken.String("bogus")
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected byte array start");
         }
@@ -137,13 +135,13 @@ public class LinTagReaderTest {
     void notByteArrayContent() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.Name("inner", LinTagId.BYTE_ARRAY),
                 new LinToken.ByteArrayStart(1),
                 new LinToken.String("bogus")
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Expected byte array content, got String[value=bogus]");
     }
@@ -152,12 +150,12 @@ public class LinTagReaderTest {
     void noEndOfByteArray() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.Name("inner", LinTagId.BYTE_ARRAY),
                 new LinToken.ByteArrayStart(1)
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Expected byte array end");
     }
@@ -166,13 +164,13 @@ public class LinTagReaderTest {
     void earlyEndOfByteArray() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.Name("inner", LinTagId.BYTE_ARRAY),
                 new LinToken.ByteArrayStart(1),
                 new LinToken.ByteArrayEnd()
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Not all bytes received");
     }
@@ -182,23 +180,23 @@ public class LinTagReaderTest {
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
                     new LinToken.Name("inner", LinTagId.INT_ARRAY)
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected int array start");
         }
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
                     new LinToken.Name("inner", LinTagId.INT_ARRAY),
                     new LinToken.String("bogus")
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected int array start");
         }
@@ -208,13 +206,13 @@ public class LinTagReaderTest {
     void notIntArrayContent() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.Name("inner", LinTagId.INT_ARRAY),
                 new LinToken.IntArrayStart(1),
                 new LinToken.String("bogus")
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Expected int array content, got String[value=bogus]");
     }
@@ -223,12 +221,12 @@ public class LinTagReaderTest {
     void noEndOfIntArray() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.Name("inner", LinTagId.INT_ARRAY),
                 new LinToken.IntArrayStart(1)
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Expected int array end");
     }
@@ -237,13 +235,13 @@ public class LinTagReaderTest {
     void earlyEndOfIntArray() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.Name("inner", LinTagId.INT_ARRAY),
                 new LinToken.IntArrayStart(1),
                 new LinToken.IntArrayEnd()
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Not all ints received");
     }
@@ -253,23 +251,23 @@ public class LinTagReaderTest {
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
                     new LinToken.Name("inner", LinTagId.LONG_ARRAY)
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected long array start");
         }
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
                     new LinToken.Name("inner", LinTagId.LONG_ARRAY),
                     new LinToken.String("bogus")
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected long array start");
         }
@@ -279,13 +277,13 @@ public class LinTagReaderTest {
     void notLongArrayContent() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.Name("inner", LinTagId.LONG_ARRAY),
                 new LinToken.LongArrayStart(1),
                 new LinToken.String("bogus")
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Expected long array content, got String[value=bogus]");
     }
@@ -294,12 +292,12 @@ public class LinTagReaderTest {
     void noEndOfLongArray() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.Name("inner", LinTagId.LONG_ARRAY),
                 new LinToken.LongArrayStart(1)
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Expected long array end");
     }
@@ -308,13 +306,13 @@ public class LinTagReaderTest {
     void earlyEndOfLongArray() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.Name("inner", LinTagId.LONG_ARRAY),
                 new LinToken.LongArrayStart(1),
                 new LinToken.LongArrayEnd()
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Not all longs received");
     }
@@ -324,23 +322,23 @@ public class LinTagReaderTest {
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
                     new LinToken.Name("inner", LinTagId.LIST)
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected list start");
         }
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
                     new LinToken.Name("inner", LinTagId.LIST),
                     new LinToken.String("bogus")
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected list start");
         }
@@ -351,25 +349,25 @@ public class LinTagReaderTest {
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
                     new LinToken.Name("inner", LinTagId.LIST),
                     new LinToken.ListStart(0, LinTagId.STRING)
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected list end");
         }
         {
             var thrown = assertThrows(
                 IllegalStateException.class,
-                () -> LinTagReader.readRoot(List.of(
+                () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
                     new LinToken.Name("inner", LinTagId.LIST),
                     new LinToken.ListStart(0, LinTagId.STRING),
                     new LinToken.String("bogus")
-                ).iterator())
+                ))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected list end");
         }
@@ -379,12 +377,12 @@ public class LinTagReaderTest {
     void unexpectedEndId() {
         var thrown = assertThrows(
             IllegalStateException.class,
-            () -> LinTagReader.readRoot(List.of(
+            () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
                 new LinToken.Name("inner", LinTagId.LIST),
                 new LinToken.ListStart(1, LinTagId.END)
-            ).iterator())
+            ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Unexpected END id");
     }

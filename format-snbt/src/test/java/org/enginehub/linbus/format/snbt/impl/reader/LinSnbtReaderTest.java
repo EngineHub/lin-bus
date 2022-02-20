@@ -23,12 +23,13 @@ import com.google.common.collect.Iterables;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.StringReader;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class LinSnbtReaderTest {
@@ -55,26 +56,26 @@ public class LinSnbtReaderTest {
     }
 
     @Test
-    void invalidCharacterInSimpleValue() {
+    void invalidCharacterInSimpleValue() throws IOException {
         var reader = ezStringRead("{a:@}");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        assertThat(reader.next()).isEqualTo(new LinToken.Name("a"));
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
         var ex = assertThrows(IllegalStateException.class, reader::next);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(3) + "Unexpected character: @");
     }
 
     @Test
-    void invalidCharacterAfterSimpleValue() {
+    void invalidCharacterAfterSimpleValue() throws IOException {
         var reader = ezStringRead("{a:;}");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        assertThat(reader.next()).isEqualTo(new LinToken.Name("a"));
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
         var ex = assertThrows(IllegalStateException.class, reader::next);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(3) + "Unexpected token: ';'");
     }
 
     @Test
     void simpleValueWithWhitespace() {
-        var list = ImmutableList.copyOf(ezStringRead("{a:b      }"));
+        var list = ImmutableList.copyOf(ezStringRead("{a:b      }").asIterator());
         assertThat(list).containsExactly(
             new LinToken.CompoundStart(),
             new LinToken.Name("a"),
@@ -82,7 +83,7 @@ public class LinSnbtReaderTest {
             new LinToken.CompoundEnd()
         ).inOrder();
 
-        list = ImmutableList.copyOf(ezStringRead("{a:[b      , c ]}"));
+        list = ImmutableList.copyOf(ezStringRead("{a:[b      , c ]}").asIterator());
         assertThat(list).containsExactly(
             new LinToken.CompoundStart(),
             new LinToken.Name("a"),
@@ -96,7 +97,7 @@ public class LinSnbtReaderTest {
 
     @Test
     void stringThatLooksLikeALong() {
-        var list = ImmutableList.copyOf(ezStringRead("{a:AL}"));
+        var list = ImmutableList.copyOf(ezStringRead("{a:AL}").asIterator());
         assertThat(list).containsExactly(
             new LinToken.CompoundStart(),
             new LinToken.Name("a"),
@@ -107,7 +108,7 @@ public class LinSnbtReaderTest {
 
     @Test
     void stringThatLooksLikeAFloat() {
-        var list = ImmutableList.copyOf(ezStringRead("{a:AF}"));
+        var list = ImmutableList.copyOf(ezStringRead("{a:AF}").asIterator());
         assertThat(list).containsExactly(
             new LinToken.CompoundStart(),
             new LinToken.Name("a"),
@@ -118,7 +119,7 @@ public class LinSnbtReaderTest {
 
     @Test
     void implicitDoubleValue() {
-        var list = ImmutableList.copyOf(ezStringRead("{a:1.0}"));
+        var list = ImmutableList.copyOf(ezStringRead("{a:1.0}").asIterator());
         assertThat(list).containsExactly(
             new LinToken.CompoundStart(),
             new LinToken.Name("a"),
@@ -130,7 +131,7 @@ public class LinSnbtReaderTest {
     @Test
     void booleanValue() {
         assertAll(() -> {
-            var list = ImmutableList.copyOf(ezStringRead("{a:true}"));
+            var list = ImmutableList.copyOf(ezStringRead("{a:true}").asIterator());
             assertThat(list).containsExactly(
                 new LinToken.CompoundStart(),
                 new LinToken.Name("a"),
@@ -138,7 +139,7 @@ public class LinSnbtReaderTest {
                 new LinToken.CompoundEnd()
             ).inOrder();
         }, () -> {
-            var list = ImmutableList.copyOf(ezStringRead("{a:false}"));
+            var list = ImmutableList.copyOf(ezStringRead("{a:false}").asIterator());
             assertThat(list).containsExactly(
                 new LinToken.CompoundStart(),
                 new LinToken.Name("a"),
@@ -150,7 +151,7 @@ public class LinSnbtReaderTest {
 
     @Test
     void nameWithWhitespace() {
-        var list = ImmutableList.copyOf(ezStringRead("{ a :b,c  :d}"));
+        var list = ImmutableList.copyOf(ezStringRead("{ a :b,c  :d}").asIterator());
         assertThat(list).containsExactly(
             new LinToken.CompoundStart(),
             new LinToken.Name("a"),
@@ -162,93 +163,93 @@ public class LinSnbtReaderTest {
     }
 
     @Test
-    void badName() {
+    void badName() throws IOException {
         var reader = ezStringRead("{;");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(1) + "Unexpected token: ';', expected Text");
     }
 
     @Test
-    void badNameEnd() {
+    void badNameEnd() throws IOException {
         var reader = ezStringRead("{'a';");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(4) + "Unexpected token: ';', expected ':'");
     }
 
     @Test
-    void badCompoundEnd() {
+    void badCompoundEnd() throws IOException {
         var reader = ezStringRead("{a:'@'b");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        assertThat(reader.next()).isEqualTo(new LinToken.Name("a"));
-        assertThat(reader.next()).isEqualTo(new LinToken.String("@"));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.String("@"));
+        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(6) + "Unexpected token: Text[quoted=false, content=b]");
     }
 
     @Test
-    void badListEnd() {
+    void badListEnd() throws IOException {
         var reader = ezStringRead("{a:['@'}}");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        assertThat(reader.next()).isEqualTo(new LinToken.Name("a"));
-        assertThat(reader.next()).isEqualTo(new LinToken.ListStart());
-        assertThat(reader.next()).isEqualTo(new LinToken.String("@"));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.ListStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.String("@"));
+        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(7) + "Unexpected token: '}'");
     }
 
     @Test
-    void badArrayType() {
+    void badArrayType() throws IOException {
         var reader = ezStringRead("{a:[f;]}");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        assertThat(reader.next()).isEqualTo(new LinToken.Name("a"));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
+        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(5) + "Invalid array type: f");
     }
 
     @Test
-    void badByteArrayContent() {
+    void badByteArrayContent() throws IOException {
         var reader = ezStringRead("{a:[B;lmao_gottem]}");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        assertThat(reader.next()).isEqualTo(new LinToken.Name("a"));
-        assertThat(reader.next()).isEqualTo(new LinToken.ByteArrayStart());
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.ByteArrayStart());
+        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(6) + "Expected Byte token, got String[value=lmao_gottem]");
     }
 
     @Test
-    void badByteArrayContentByLowLevelToken() {
+    void badByteArrayContentByLowLevelToken() throws IOException {
         var reader = ezStringRead("{a:[B;;]}");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        assertThat(reader.next()).isEqualTo(new LinToken.Name("a"));
-        assertThat(reader.next()).isEqualTo(new LinToken.ByteArrayStart());
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.ByteArrayStart());
+        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(6) + "Unexpected token: ';', expected Text");
     }
 
     @Test
-    void badByteArraySeparator() {
+    void badByteArraySeparator() throws IOException {
         var reader = ezStringRead("{a:[B;1b}2b]}");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        assertThat(reader.next()).isEqualTo(new LinToken.Name("a"));
-        assertThat(reader.next()).isEqualTo(new LinToken.ByteArrayStart());
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.ByteArrayStart());
+        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(8) + "Unexpected token: '}'");
     }
 
     @Test
-    void largeByteArray() {
+    void largeByteArray() throws IOException {
         var reader = ezStringRead("{a:[B; " + String.join(",", Iterables.limit(
             Iterables.cycle("1b"), 100_000
         )) + "]}");
-        assertThat(reader.next()).isEqualTo(new LinToken.CompoundStart());
-        assertThat(reader.next()).isEqualTo(new LinToken.Name("a"));
-        assertThat(reader.next()).isEqualTo(new LinToken.ByteArrayStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
+        assertThat(reader.nextOrNull()).isEqualTo(new LinToken.ByteArrayStart());
         int size = 0;
         while (true) {
-            assertTrue(reader.hasNext(), "Expected more tokens");
-            var next = reader.next();
+            var next = reader.nextOrNull();
+            assertNotNull(next, "Expected more tokens");
             if (next instanceof LinToken.ByteArrayEnd) {
                 break;
             }

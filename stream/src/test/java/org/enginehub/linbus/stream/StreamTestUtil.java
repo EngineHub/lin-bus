@@ -20,13 +20,13 @@ package org.enginehub.linbus.stream;
 
 import com.google.common.io.Resources;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 
@@ -44,7 +44,13 @@ public class StreamTestUtil {
         }
     }
 
-    public static <T> T convertNbtStream(String name, Function<Iterator<? extends @NotNull LinToken>, T> converter) throws IOException {
+    public static <T> T convertNbtStream(String name, Function<LinStream, T> converter) throws IOException {
         return loadResource(name, stream -> converter.apply(LinBinaryIO.read(new DataInputStream(stream))));
+    }
+
+    public static LinStream streamFromIterator(Iterator<LinToken> tokens) {
+        return () -> tokens.hasNext()
+            ? Objects.requireNonNull(tokens.next(), "Cannot return null, violates contract")
+            : null;
     }
 }

@@ -16,48 +16,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.tree;
+package org.enginehub.linbus.stream.internal;
 
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * Represents an int tag.
- */
-public final class LinIntTag extends LinNumberTag<@NotNull Integer, LinIntTag> {
-    private final int value;
+import java.io.IOException;
 
-    /**
-     * Create a new int tag.
-     *
-     * @param value the value
-     */
-    public LinIntTag(int value) {
-        this.value = value;
+public class SurroundingLinStream implements LinStream {
+    private LinToken prefix;
+    private LinStream stream;
+    private LinToken suffix;
+
+    public SurroundingLinStream(LinToken prefix, LinStream stream, LinToken suffix) {
+        this.prefix = prefix;
+        this.stream = stream;
+        this.suffix = suffix;
     }
 
     @Override
-    public @NotNull LinTagType<LinIntTag> type() {
-        return LinTagType.intTag();
-    }
-
-    @Override
-    public @NotNull Integer value() {
-        return value;
-    }
-
-    /**
-     * Get the value as a primitive int, to avoid boxing.
-     *
-     * @return the value
-     */
-    public int valueAsInt() {
-        return value;
-    }
-
-    @Override
-    public @NotNull LinStream linStream() {
-        return LinStream.of(new LinToken.Int(value));
+    public @Nullable LinToken nextOrNull() throws IOException {
+        if (prefix != null) {
+            LinToken token = prefix;
+            prefix = null;
+            return token;
+        }
+        LinToken token = stream == null ? null : stream.nextOrNull();
+        if (token == null) {
+            stream = null;
+            token = suffix;
+            suffix = null;
+        }
+        return token;
     }
 }
