@@ -18,6 +18,7 @@
 
 package org.enginehub.linbus.stream.impl;
 
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
 
@@ -96,7 +97,7 @@ public class ValueCounterTest {
 
     @Test
     void countMalformedCompound() {
-        var ex = assertThrows(IllegalStateException.class, () ->
+        var ex = assertThrows(NbtParseException.class, () ->
             counter.add(new LinToken.CompoundEnd())
         );
         assertThat(ex).hasMessageThat().isEqualTo("Compound end without start");
@@ -146,7 +147,7 @@ public class ValueCounterTest {
 
     @Test
     void countMalformedList() {
-        var ex = assertThrows(IllegalStateException.class, () ->
+        var ex = assertThrows(NbtParseException.class, () ->
             counter.add(new LinToken.ListEnd())
         );
         assertThat(ex).hasMessageThat().isEqualTo("List end without start");
@@ -179,7 +180,7 @@ public class ValueCounterTest {
 
     @Test
     void countMalformedByteArray() {
-        var ex = assertThrows(IllegalStateException.class, () ->
+        var ex = assertThrows(NbtParseException.class, () ->
             counter.add(new LinToken.ByteArrayEnd())
         );
         assertThat(ex).hasMessageThat().isEqualTo("Byte array end without start");
@@ -212,7 +213,7 @@ public class ValueCounterTest {
 
     @Test
     void countMalformedIntArray() {
-        var ex = assertThrows(IllegalStateException.class, () ->
+        var ex = assertThrows(NbtParseException.class, () ->
             counter.add(new LinToken.IntArrayEnd())
         );
         assertThat(ex).hasMessageThat().isEqualTo("Int array end without start");
@@ -245,7 +246,7 @@ public class ValueCounterTest {
 
     @Test
     void countMalformedLongArray() {
-        var ex = assertThrows(IllegalStateException.class, () ->
+        var ex = assertThrows(NbtParseException.class, () ->
             counter.add(new LinToken.LongArrayEnd())
         );
         assertThat(ex).hasMessageThat().isEqualTo("Long array end without start");

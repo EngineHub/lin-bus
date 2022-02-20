@@ -20,6 +20,7 @@ package org.enginehub.linbus.format.snbt.impl.reader;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
@@ -46,7 +47,7 @@ public class LinSnbtTokenizerTest {
     @Test
     void unfinishedQuotedText() {
         var reader = ezStringTokenize("'cringes at the lack of end quote");
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::next);
         assertThat(ex).hasMessageThat().isEqualTo(
             atCharacterIndex(32) + "Unexpected end of input in quoted value"
         );
@@ -56,13 +57,13 @@ public class LinSnbtTokenizerTest {
     void invalidEscapesInQuotedText() {
         assertAll(() -> {
             var reader = ezStringTokenize("'what the \\fsck is this'");
-            var ex = assertThrows(IllegalStateException.class, reader::next);
+            var ex = assertThrows(NbtParseException.class, reader::next);
             assertThat(ex).hasMessageThat().isEqualTo(
                 atCharacterIndex(11) + "Invalid escape: \\f"
             );
         }, () -> {
             var reader = ezStringTokenize("'what the \\fsck is this'");
-            var ex = assertThrows(IllegalStateException.class, reader::next);
+            var ex = assertThrows(NbtParseException.class, reader::next);
             assertThat(ex).hasMessageThat().isEqualTo(
                 atCharacterIndex(11) + "Invalid escape: \\f"
             );
@@ -84,7 +85,7 @@ public class LinSnbtTokenizerTest {
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(SnbtToken.CompoundStart.INSTANCE, 0));
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(new SnbtToken.Text(false, "a"), 1));
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(SnbtToken.EntrySeparator.INSTANCE, 2));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::next);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(3) + "Unexpected character: @");
     }
 
@@ -119,7 +120,7 @@ public class LinSnbtTokenizerTest {
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(SnbtToken.CompoundStart.INSTANCE, 0));
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(new SnbtToken.Text(false, "a"), 1));
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(SnbtToken.EntrySeparator.INSTANCE, 2));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::next);
         assertThat(ex).hasMessageThat().endsWith("Found non-terminator after whitespace");
     }
 
@@ -176,12 +177,12 @@ public class LinSnbtTokenizerTest {
         assertAll(() -> {
             var reader = ezStringTokenize("{a@");
             assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(SnbtToken.CompoundStart.INSTANCE, 0));
-            var ex = assertThrows(IllegalStateException.class, reader::next);
+            var ex = assertThrows(NbtParseException.class, reader::next);
             assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(2) + "Unexpected character: @");
         }, () -> {
             var reader = ezStringTokenize("{A|");
             assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(SnbtToken.CompoundStart.INSTANCE, 0));
-            var ex = assertThrows(IllegalStateException.class, reader::next);
+            var ex = assertThrows(NbtParseException.class, reader::next);
             assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(2) + "Unexpected character: |");
         });
     }
@@ -191,7 +192,7 @@ public class LinSnbtTokenizerTest {
         var reader = ezStringTokenize("{'a'!");
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(SnbtToken.CompoundStart.INSTANCE, 0));
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(new SnbtToken.Text(true, "a"), 1));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::next);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(4) + "Unexpected character: !");
     }
 
@@ -202,7 +203,7 @@ public class LinSnbtTokenizerTest {
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(new SnbtToken.Text(false, "a"), 1));
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(SnbtToken.EntrySeparator.INSTANCE, 2));
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(new SnbtToken.Text(true, "@"), 3));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::next);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(6) + "Unexpected character: !");
     }
 
@@ -214,7 +215,7 @@ public class LinSnbtTokenizerTest {
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(SnbtToken.EntrySeparator.INSTANCE, 2));
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(SnbtToken.ListLikeStart.INSTANCE, 3));
         assertThat(reader.next()).isEqualTo(new SnbtTokenWithMetadata(new SnbtToken.Text(true, "@"), 4));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::next);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(7) + "Unexpected character: !");
     }
 

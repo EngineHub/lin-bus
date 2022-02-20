@@ -20,6 +20,7 @@ package org.enginehub.linbus.stream.impl;
 
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.Nullable;
 
@@ -118,7 +119,7 @@ public class LinNbtReader implements LinStream {
         }
         if (state instanceof State.Initial) {
             if (input.readUnsignedByte() != LinTagId.COMPOUND.id()) {
-                throw new IllegalStateException("NBT stream does not start with a compound tag");
+                throw new NbtParseException("NBT stream does not start with a compound tag");
             }
             stateStack.addLast(new State.CompoundStart());
             return new LinToken.Name(input.readUTF(), LinTagId.COMPOUND);
@@ -169,7 +170,7 @@ public class LinNbtReader implements LinStream {
                     stateStack.addLast(new State.ReadLongArray(size));
                     yield new LinToken.LongArrayStart(size);
                 }
-                case END -> throw new IllegalStateException("Invalid id: " + rv.id());
+                case END -> throw new NbtParseException("Invalid id: " + rv.id());
             };
         } else if (state instanceof State.ReadByteArray rba) {
             if (rba.remaining == 0) {

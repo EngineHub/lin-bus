@@ -21,6 +21,7 @@ package org.enginehub.linbus.stream;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.junit.jupiter.api.Test;
 
 import java.io.DataInputStream;
@@ -35,7 +36,7 @@ public class LinBinaryIOTest {
     @Test
     void mustStartWithCompoundId() {
         var reader = LinBinaryIO.read(ByteStreams.newDataInput(new byte[]{(byte) LinTagId.BYTE.id()}));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("NBT stream does not start with a compound tag");
     }
 

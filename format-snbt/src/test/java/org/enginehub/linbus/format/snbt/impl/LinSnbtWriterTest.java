@@ -21,6 +21,7 @@ package org.enginehub.linbus.format.snbt.impl;
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.LinStreamable;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
 
@@ -47,13 +48,13 @@ public class LinSnbtWriterTest {
 
     @Test
     void writeWithoutPrefixedCompound() {
-        var ex = assertThrows(IllegalStateException.class, () -> ezToString(LinStream.of(new LinToken.Name("foo"))));
+        var ex = assertThrows(NbtParseException.class, () -> ezToString(LinStream.of(new LinToken.Name("foo"))));
         assertThat(ex).hasMessageThat().isEqualTo("Names can only appear inside compounds");
     }
 
     @Test
     void writeNameInList() {
-        var ex = assertThrows(IllegalStateException.class, () -> ezToString(LinStream.of(
+        var ex = assertThrows(NbtParseException.class, () -> ezToString(LinStream.of(
             new LinToken.ListStart(1, LinTagId.STRING),
             new LinToken.Name("foo")
         )));

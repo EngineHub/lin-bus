@@ -18,6 +18,7 @@
 
 package org.enginehub.linbus.stream.impl;
 
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 
 /**
@@ -48,7 +49,7 @@ public class ValueCounter {
         } else if (token instanceof LinToken.CompoundEnd) {
             compounds--;
             if (compounds < 0) {
-                throw new IllegalStateException("Compound end without start");
+                throw new NbtParseException("Compound end without start");
             }
             if (!isNested()) {
                 count++;
@@ -58,7 +59,7 @@ public class ValueCounter {
         } else if (token instanceof LinToken.ListEnd) {
             lists--;
             if (lists < 0) {
-                throw new IllegalStateException("List end without start");
+                throw new NbtParseException("List end without start");
             }
             if (!isNested()) {
                 count++;
@@ -67,7 +68,7 @@ public class ValueCounter {
             arrayType = BYTE_ARRAY;
         } else if (token instanceof LinToken.ByteArrayEnd) {
             if (arrayType != BYTE_ARRAY) {
-                throw new IllegalStateException("Byte array end without start");
+                throw new NbtParseException("Byte array end without start");
             }
             arrayType = 0;
             if (!isNested()) {
@@ -77,7 +78,7 @@ public class ValueCounter {
             arrayType = INT_ARRAY;
         } else if (token instanceof LinToken.IntArrayEnd) {
             if (arrayType != INT_ARRAY) {
-                throw new IllegalStateException("Int array end without start");
+                throw new NbtParseException("Int array end without start");
             }
             arrayType = 0;
             if (!isNested()) {
@@ -87,7 +88,7 @@ public class ValueCounter {
             arrayType = LONG_ARRAY;
         } else if (token instanceof LinToken.LongArrayEnd) {
             if (arrayType != LONG_ARRAY) {
-                throw new IllegalStateException("Long array end without start");
+                throw new NbtParseException("Long array end without start");
             }
             arrayType = 0;
             if (!isNested()) {

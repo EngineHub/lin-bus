@@ -20,6 +20,7 @@ package org.enginehub.linbus.format.snbt.impl.reader;
 
 import org.enginehub.linbus.common.internal.AbstractIterator;
 import org.enginehub.linbus.format.snbt.impl.Elusion;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
@@ -117,10 +118,10 @@ public class LinSnbtTokenizer extends AbstractIterator<@NotNull SnbtTokenWithMet
                 wasWhitespace = true;
                 continue;
             } else if (!Elusion.isSafeCharacter((char) next)) {
-                throw new IllegalStateException(errorPrefix() + "Unexpected character: " + (char) next);
+                throw new NbtParseException(errorPrefix() + "Unexpected character: " + (char) next);
             } else if (wasWhitespace) {
                 // Whitespace can only occur before terminators, not in the middle of a value.
-                throw new IllegalStateException(errorPrefix() + "Found non-terminator after whitespace");
+                throw new NbtParseException(errorPrefix() + "Found non-terminator after whitespace");
             }
             builder.append((char) next);
         }
@@ -133,7 +134,7 @@ public class LinSnbtTokenizer extends AbstractIterator<@NotNull SnbtTokenWithMet
         while (true) {
             int c = input.read();
             if (c == -1) {
-                throw new IllegalStateException(errorPrefix() + "Unexpected end of input in quoted value");
+                throw new NbtParseException(errorPrefix() + "Unexpected end of input in quoted value");
             }
             charIndex++;
             if (!escaped) {
@@ -144,7 +145,7 @@ public class LinSnbtTokenizer extends AbstractIterator<@NotNull SnbtTokenWithMet
                     continue;
                 }
             } else if (c != quoteChar && c != '\\') {
-                throw new IllegalStateException(errorPrefix() + "Invalid escape: \\" + (char) c);
+                throw new NbtParseException(errorPrefix() + "Invalid escape: \\" + (char) c);
             } else {
                 escaped = false;
             }

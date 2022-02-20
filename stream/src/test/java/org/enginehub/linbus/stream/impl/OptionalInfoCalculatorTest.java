@@ -21,6 +21,7 @@ package org.enginehub.linbus.stream.impl;
 import com.google.common.collect.ImmutableList;
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +47,7 @@ public class OptionalInfoCalculatorTest {
 
     @Test
     void failToFill() {
-        var ex = assertThrows(IllegalStateException.class, () ->
+        var ex = assertThrows(NbtParseException.class, () ->
             LinStream.of(new LinToken.Name("foo")).calculateOptionalInfo().nextOrNull()
         );
         assertThat(ex).hasMessageThat().isEqualTo("Optional value not filled by the end of token stream");
@@ -66,7 +67,7 @@ public class OptionalInfoCalculatorTest {
             new LinToken.Name("foo"),
             new LinToken.ByteArrayEnd()
         ).calculateOptionalInfo();
-        var ex = assertThrows(IllegalStateException.class, iterator::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, iterator::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("Token doesn't represent a tag directly: " + new LinToken.ByteArrayEnd());
     }
 
@@ -128,7 +129,7 @@ public class OptionalInfoCalculatorTest {
             new LinToken.ListStart(OptionalInt.of(1), Optional.empty()),
             new LinToken.ByteArrayEnd()
         ).calculateOptionalInfo();
-        var ex = assertThrows(IllegalStateException.class, iterator::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, iterator::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("Token doesn't represent a tag directly: " + new LinToken.ByteArrayEnd());
     }
 
@@ -167,7 +168,7 @@ public class OptionalInfoCalculatorTest {
             junkToken
         ).calculateOptionalInfo();
 
-        var ex = assertThrows(IllegalStateException.class, iterator::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, iterator::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("Unexpected token: " + junkToken);
     }
 
@@ -206,7 +207,7 @@ public class OptionalInfoCalculatorTest {
             junkToken
         ).calculateOptionalInfo();
 
-        var ex = assertThrows(IllegalStateException.class, iterator::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, iterator::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("Unexpected token: " + junkToken);
     }
 
@@ -245,7 +246,7 @@ public class OptionalInfoCalculatorTest {
             junkToken
         ).calculateOptionalInfo();
 
-        var ex = assertThrows(IllegalStateException.class, iterator::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, iterator::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo("Unexpected token: " + junkToken);
     }
 

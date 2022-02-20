@@ -16,14 +16,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+package org.enginehub.linbus.stream.exception;
+
+import java.io.Serial;
+
 /**
- * The streaming module of lin-bus. Features a Jackson-like API for decoding and encoding NBT.
+ * Thrown when a NBT stream is malformed.
  */
-module org.enginehub.linbus.stream {
-    exports org.enginehub.linbus.stream;
-    exports org.enginehub.linbus.stream.exception;
-    exports org.enginehub.linbus.stream.token;
-    exports org.enginehub.linbus.stream.internal to org.enginehub.linbus.tree;
-    requires static transitive org.jetbrains.annotations;
-    requires transitive org.enginehub.linbus.common;
+public final class NbtParseException extends RuntimeException {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * {@inheritDoc}
+     */
+    public NbtParseException(String message) {
+        super(message);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public NbtParseException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

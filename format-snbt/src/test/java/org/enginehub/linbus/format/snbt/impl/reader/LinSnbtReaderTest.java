@@ -20,6 +20,7 @@ package org.enginehub.linbus.format.snbt.impl.reader;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
 
@@ -44,14 +45,14 @@ public class LinSnbtReaderTest {
     @Test
     void tooShortInput() {
         var reader = ezStringRead("");
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(0) + "Unexpected end of input");
     }
 
     @Test
     void mustHaveRootCompound() {
         var reader = ezStringRead("[]");
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(0) + "Unexpected token: '[', expected '{'");
     }
 
@@ -60,7 +61,7 @@ public class LinSnbtReaderTest {
         var reader = ezStringRead("{a:@}");
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(3) + "Unexpected character: @");
     }
 
@@ -69,7 +70,7 @@ public class LinSnbtReaderTest {
         var reader = ezStringRead("{a:;}");
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
-        var ex = assertThrows(IllegalStateException.class, reader::next);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(3) + "Unexpected token: ';'");
     }
 
@@ -166,7 +167,7 @@ public class LinSnbtReaderTest {
     void badName() throws IOException {
         var reader = ezStringRead("{;");
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
-        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(1) + "Unexpected token: ';', expected Text");
     }
 
@@ -174,7 +175,7 @@ public class LinSnbtReaderTest {
     void badNameEnd() throws IOException {
         var reader = ezStringRead("{'a';");
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
-        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(4) + "Unexpected token: ';', expected ':'");
     }
 
@@ -184,7 +185,7 @@ public class LinSnbtReaderTest {
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.String("@"));
-        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(6) + "Unexpected token: Text[quoted=false, content=b]");
     }
 
@@ -195,7 +196,7 @@ public class LinSnbtReaderTest {
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.ListStart());
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.String("@"));
-        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(7) + "Unexpected token: '}'");
     }
 
@@ -204,7 +205,7 @@ public class LinSnbtReaderTest {
         var reader = ezStringRead("{a:[f;]}");
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
-        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(5) + "Invalid array type: f");
     }
 
@@ -214,7 +215,7 @@ public class LinSnbtReaderTest {
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.ByteArrayStart());
-        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(6) + "Expected Byte token, got String[value=lmao_gottem]");
     }
 
@@ -224,7 +225,7 @@ public class LinSnbtReaderTest {
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.ByteArrayStart());
-        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(6) + "Unexpected token: ';', expected Text");
     }
 
@@ -234,7 +235,7 @@ public class LinSnbtReaderTest {
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.ByteArrayStart());
-        var ex = assertThrows(IllegalStateException.class, reader::nextOrNull);
+        var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
         assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(8) + "Unexpected token: '}'");
     }
 

@@ -20,6 +20,7 @@ package org.enginehub.linbus.tree.impl;
 
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
 
@@ -31,14 +32,14 @@ public class LinTagReaderTest {
     void noRootName() {
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of())
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected root name");
         }
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(new LinToken.String("bogus")))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("Expected root name");
@@ -48,7 +49,7 @@ public class LinTagReaderTest {
     @Test
     void wrongRootTagId() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.STRING)
             ))
@@ -60,7 +61,7 @@ public class LinTagReaderTest {
     void noCompoundStart() {
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND)
                 ))
@@ -69,7 +70,7 @@ public class LinTagReaderTest {
         }
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.String("bogus")
@@ -82,7 +83,7 @@ public class LinTagReaderTest {
     @Test
     void noNameInCompound() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
@@ -95,7 +96,7 @@ public class LinTagReaderTest {
     @Test
     void noEndOfCompound() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart()
@@ -108,7 +109,7 @@ public class LinTagReaderTest {
     void noByteArrayStart() {
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
@@ -119,7 +120,7 @@ public class LinTagReaderTest {
         }
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
@@ -134,7 +135,7 @@ public class LinTagReaderTest {
     @Test
     void notByteArrayContent() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
@@ -149,7 +150,7 @@ public class LinTagReaderTest {
     @Test
     void noEndOfByteArray() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
@@ -163,7 +164,7 @@ public class LinTagReaderTest {
     @Test
     void earlyEndOfByteArray() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
@@ -179,7 +180,7 @@ public class LinTagReaderTest {
     void noIntArrayStart() {
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
@@ -190,7 +191,7 @@ public class LinTagReaderTest {
         }
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
@@ -205,7 +206,7 @@ public class LinTagReaderTest {
     @Test
     void notIntArrayContent() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
@@ -220,7 +221,7 @@ public class LinTagReaderTest {
     @Test
     void noEndOfIntArray() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
@@ -234,7 +235,7 @@ public class LinTagReaderTest {
     @Test
     void earlyEndOfIntArray() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
@@ -250,7 +251,7 @@ public class LinTagReaderTest {
     void noLongArrayStart() {
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
@@ -261,7 +262,7 @@ public class LinTagReaderTest {
         }
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
@@ -276,7 +277,7 @@ public class LinTagReaderTest {
     @Test
     void notLongArrayContent() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
@@ -291,7 +292,7 @@ public class LinTagReaderTest {
     @Test
     void noEndOfLongArray() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
@@ -305,7 +306,7 @@ public class LinTagReaderTest {
     @Test
     void earlyEndOfLongArray() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),
@@ -321,7 +322,7 @@ public class LinTagReaderTest {
     void noListStart() {
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
@@ -332,7 +333,7 @@ public class LinTagReaderTest {
         }
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
@@ -348,7 +349,7 @@ public class LinTagReaderTest {
     void noListEnd() {
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
@@ -360,7 +361,7 @@ public class LinTagReaderTest {
         }
         {
             var thrown = assertThrows(
-                IllegalStateException.class,
+                NbtParseException.class,
                 () -> LinTagReader.readRoot(LinStream.of(
                     new LinToken.Name("root", LinTagId.COMPOUND),
                     new LinToken.CompoundStart(),
@@ -376,7 +377,7 @@ public class LinTagReaderTest {
     @Test
     void unexpectedEndId() {
         var thrown = assertThrows(
-            IllegalStateException.class,
+            NbtParseException.class,
             () -> LinTagReader.readRoot(LinStream.of(
                 new LinToken.Name("root", LinTagId.COMPOUND),
                 new LinToken.CompoundStart(),

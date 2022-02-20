@@ -19,6 +19,7 @@
 package org.enginehub.linbus.format.snbt.impl.reader;
 
 import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -147,7 +148,7 @@ public class LinSnbtReader implements LinStream {
             return token;
         }
         if (!input.hasNext()) {
-            throw new IllegalStateException(errorPrefix() + "Unexpected end of input");
+            throw new NbtParseException(errorPrefix() + "Unexpected end of input");
         }
         var next = input.next();
         charIndex = next.charIndex();
@@ -158,12 +159,12 @@ public class LinSnbtReader implements LinStream {
         return "At character index " + charIndex + ": ";
     }
 
-    private IllegalStateException unexpectedTokenError(SnbtToken token) {
-        return new IllegalStateException(errorPrefix() + "Unexpected token: " + token);
+    private NbtParseException unexpectedTokenError(SnbtToken token) {
+        return new NbtParseException(errorPrefix() + "Unexpected token: " + token);
     }
 
-    private IllegalStateException unexpectedTokenSpecificError(SnbtToken token, String expected) {
-        return new IllegalStateException(errorPrefix() + "Unexpected token: " + token + ", expected " + expected);
+    private NbtParseException unexpectedTokenSpecificError(SnbtToken token, String expected) {
+        return new NbtParseException(errorPrefix() + "Unexpected token: " + token + ", expected " + expected);
     }
 
     @Override
@@ -181,7 +182,7 @@ public class LinSnbtReader implements LinStream {
         return token;
     }
 
-    private void fillTokenStack(State state) throws IOException {
+    private void fillTokenStack(State state) {
         if (state instanceof State.ReadValue rv) {
             readValue(rv.mustBeCompound);
         } else if (state instanceof State.InCompound) {
@@ -313,7 +314,7 @@ public class LinSnbtReader implements LinStream {
             }
             LinToken nextValue = getTokenFor(text.content());
             if (!tagType.isInstance(nextValue)) {
-                throw new IllegalStateException(errorPrefix() + "Expected " + tagType.getSimpleName() + " token, got " + nextValue);
+                throw new NbtParseException(errorPrefix() + "Expected " + tagType.getSimpleName() + " token, got " + nextValue);
             }
             putter.accept(buffer, tagType.cast(nextValue));
             token = read().token();
@@ -350,7 +351,7 @@ public class LinSnbtReader implements LinStream {
                         stateStack.addLast(new State.InLongArray());
                         tokenQueue.addLast(new LinToken.LongArrayStart());
                     }
-                    default -> throw new IllegalStateException(errorPrefix() + "Invalid array type: " + text.content());
+                    default -> throw new NbtParseException(errorPrefix() + "Invalid array type: " + text.content());
                 }
                 return;
             }

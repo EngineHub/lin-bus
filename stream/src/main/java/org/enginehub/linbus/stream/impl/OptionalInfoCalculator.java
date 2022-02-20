@@ -20,6 +20,7 @@ package org.enginehub.linbus.stream.impl;
 
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -113,7 +114,7 @@ public class OptionalInfoCalculator implements LinStream {
                 // Replenish our buffer by taking the next token (and filling if needed).
                 var originalNext = original.nextOrNull();
                 if (originalNext == null) {
-                    throw new IllegalStateException("Optional value not filled by the end of token stream");
+                    throw new NbtParseException("Optional value not filled by the end of token stream");
                 }
                 var tokenAndBuffer = fillIfNeeded(originalNext);
                 buffer.add(tokenAndBuffer.token);
@@ -156,7 +157,7 @@ public class OptionalInfoCalculator implements LinStream {
                         elementId = LinTagId.END;
                     } else {
                         elementId = token.tagId().orElseThrow(() ->
-                            new IllegalStateException("Token doesn't represent a tag directly: " + token)
+                            new NbtParseException("Token doesn't represent a tag directly: " + token)
                         );
                     }
                     this.elementId = elementId;
@@ -185,7 +186,7 @@ public class OptionalInfoCalculator implements LinStream {
             if (token instanceof LinToken.ByteArrayContent content) {
                 size += content.buffer().remaining();
             } else {
-                throw new IllegalStateException("Unexpected token: " + token);
+                throw new NbtParseException("Unexpected token: " + token);
             }
             return null;
         }
@@ -203,7 +204,7 @@ public class OptionalInfoCalculator implements LinStream {
             if (token instanceof LinToken.IntArrayContent content) {
                 size += content.buffer().remaining();
             } else {
-                throw new IllegalStateException("Unexpected token: " + token);
+                throw new NbtParseException("Unexpected token: " + token);
             }
             return null;
         }
@@ -221,7 +222,7 @@ public class OptionalInfoCalculator implements LinStream {
             if (token instanceof LinToken.LongArrayContent content) {
                 size += content.buffer().remaining();
             } else {
-                throw new IllegalStateException("Unexpected token: " + token);
+                throw new NbtParseException("Unexpected token: " + token);
             }
             return null;
         }
@@ -237,7 +238,7 @@ public class OptionalInfoCalculator implements LinStream {
         @Override
         public LinToken tryFill(LinToken token) {
             return new LinToken.Name(name, token.tagId().orElseThrow(() ->
-                new IllegalStateException("Token doesn't represent a tag directly: " + token)
+                new NbtParseException("Token doesn't represent a tag directly: " + token)
             ));
         }
     }

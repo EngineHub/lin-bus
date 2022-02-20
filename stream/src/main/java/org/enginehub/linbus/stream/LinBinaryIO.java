@@ -20,6 +20,7 @@ package org.enginehub.linbus.stream;
 
 import org.enginehub.linbus.common.IOFunction;
 import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.impl.LinNbtReader;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
@@ -62,7 +63,7 @@ public class LinBinaryIO {
      * @return the result
      * @throws IOException if an I/O error occurs ({@link UncheckedIOException} is unwrapped)
      */
-    public static <R> R readUsing(@NotNull DataInput input, IOFunction<? super LinStream, ? extends R> transform)
+    public static <R> R readUsing(@NotNull DataInput input, @NotNull IOFunction<? super LinStream, ? extends R> transform)
         throws IOException {
         return transform.apply(read(input));
     }
@@ -96,7 +97,7 @@ public class LinBinaryIO {
                     seenFirstName = true;
                 } else {
                     // It's not legal to write without a name.
-                    throw new IllegalStateException("Expected first token to be a name");
+                    throw new NbtParseException("Expected first token to be a name");
                 }
             }
             if (token instanceof LinToken.Name name) {

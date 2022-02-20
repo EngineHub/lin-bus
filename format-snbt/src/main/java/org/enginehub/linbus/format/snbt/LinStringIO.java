@@ -18,6 +18,7 @@
 
 package org.enginehub.linbus.format.snbt;
 
+import org.enginehub.linbus.common.IOFunction;
 import org.enginehub.linbus.format.snbt.impl.LinSnbtWriter;
 import org.enginehub.linbus.format.snbt.impl.reader.LinSnbtReader;
 import org.enginehub.linbus.format.snbt.impl.reader.LinSnbtTokenizer;
@@ -29,7 +30,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
-import java.util.function.Function;
 
 /**
  * Reads and writes NBT streams.
@@ -84,14 +84,10 @@ public class LinStringIO {
      * @param transform the function to apply to the stream of NBT tokens
      * @param <R> the type of the result
      * @return the result
-     * @throws IOException if an I/O error occurs ({@link UncheckedIOException} is unwrapped)
+     * @throws IOException if an I/O error occurs
      */
-    public static <R> R readUsing(@NotNull Reader input, @NotNull Function<? super @NotNull LinStream, R> transform) throws IOException {
-        try {
-            return transform.apply(read(input));
-        } catch (UncheckedIOException e) {
-            throw e.getCause();
-        }
+    public static <R> R readUsing(@NotNull Reader input, @NotNull IOFunction<? super @NotNull LinStream, R> transform) throws IOException {
+        return transform.apply(read(input));
     }
 
     /**
@@ -102,8 +98,12 @@ public class LinStringIO {
      * @param <R> the type of the result
      * @return the stream of NBT tokens
      */
-    public static <R> R readFromStringUsing(@NotNull String input, @NotNull Function<? super @NotNull LinStream, R> transform) {
-        return transform.apply(readFromString(input));
+    public static <R> R readFromStringUsing(@NotNull String input, @NotNull IOFunction<? super @NotNull LinStream, R> transform) {
+        try {
+            return transform.apply(readFromString(input));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /**

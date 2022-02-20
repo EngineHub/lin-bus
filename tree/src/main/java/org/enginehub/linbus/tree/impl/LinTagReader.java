@@ -20,6 +20,7 @@ package org.enginehub.linbus.tree.impl;
 
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.LinStream;
+import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.enginehub.linbus.tree.LinByteArrayTag;
 import org.enginehub.linbus.tree.LinByteTag;
@@ -61,10 +62,10 @@ public class LinTagReader {
     public static LinRootEntry readRoot(@NotNull LinStream tokens) throws IOException {
         tokens = tokens.calculateOptionalInfo();
         if (!(tokens.nextOrNull() instanceof LinToken.Name name)) {
-            throw new IllegalStateException("Expected root name");
+            throw new NbtParseException("Expected root name");
         }
         if (name.id().orElseThrow() != LinTagId.COMPOUND) {
-            throw new IllegalStateException("Expected compound tag for root tag");
+            throw new NbtParseException("Expected compound tag for root tag");
         }
         var tag = readCompound(tokens);
         return new LinRootEntry(name.name(), tag);
@@ -84,7 +85,7 @@ public class LinTagReader {
     public static LinCompoundTag readCompound(@NotNull LinStream tokens) throws IOException {
         tokens = tokens.linStream();
         if (!(tokens.nextOrNull() instanceof LinToken.CompoundStart)) {
-            throw new IllegalStateException("Expected compound start");
+            throw new NbtParseException("Expected compound start");
         }
         var builder = LinCompoundTag.builder();
         while (true) {
@@ -96,17 +97,17 @@ public class LinTagReader {
                 return builder.build();
             }
             if (!(token instanceof LinToken.Name name)) {
-                throw new IllegalStateException("Expected name, got " + token);
+                throw new NbtParseException("Expected name, got " + token);
             }
             var value = readValue(tokens, LinTagType.fromId(name.id().orElseThrow()));
             builder.put(name.name(), value);
         }
-        throw new IllegalStateException("Expected compound end");
+        throw new NbtParseException("Expected compound end");
     }
 
     private static LinByteArrayTag readByteArray(LinStream tokens) throws IOException {
         if (!(tokens.nextOrNull() instanceof LinToken.ByteArrayStart start)) {
-            throw new IllegalStateException("Expected byte array start");
+            throw new NbtParseException("Expected byte array start");
         }
         var buffer = ByteBuffer.allocate(start.size().orElseThrow());
         while (true) {
@@ -116,21 +117,21 @@ public class LinTagReader {
             }
             if (token instanceof LinToken.ByteArrayEnd) {
                 if (buffer.hasRemaining()) {
-                    throw new IllegalStateException("Not all bytes received");
+                    throw new NbtParseException("Not all bytes received");
                 }
                 return new LinByteArrayTag(buffer.array());
             }
             if (!(token instanceof LinToken.ByteArrayContent content)) {
-                throw new IllegalStateException("Expected byte array content, got " + token);
+                throw new NbtParseException("Expected byte array content, got " + token);
             }
             buffer.put(content.buffer());
         }
-        throw new IllegalStateException("Expected byte array end");
+        throw new NbtParseException("Expected byte array end");
     }
 
     private static LinIntArrayTag readIntArray(LinStream tokens) throws IOException {
         if (!(tokens.nextOrNull() instanceof LinToken.IntArrayStart start)) {
-            throw new IllegalStateException("Expected int array start");
+            throw new NbtParseException("Expected int array start");
         }
         var buffer = IntBuffer.allocate(start.size().orElseThrow());
         while (true) {
@@ -140,21 +141,21 @@ public class LinTagReader {
             }
             if (token instanceof LinToken.IntArrayEnd) {
                 if (buffer.hasRemaining()) {
-                    throw new IllegalStateException("Not all ints received");
+                    throw new NbtParseException("Not all ints received");
                 }
                 return new LinIntArrayTag(buffer.array());
             }
             if (!(token instanceof LinToken.IntArrayContent content)) {
-                throw new IllegalStateException("Expected int array content, got " + token);
+                throw new NbtParseException("Expected int array content, got " + token);
             }
             buffer.put(content.buffer());
         }
-        throw new IllegalStateException("Expected int array end");
+        throw new NbtParseException("Expected int array end");
     }
 
     private static LinLongArrayTag readLongArray(LinStream tokens) throws IOException {
         if (!(tokens.nextOrNull() instanceof LinToken.LongArrayStart start)) {
-            throw new IllegalStateException("Expected long array start");
+            throw new NbtParseException("Expected long array start");
         }
         var buffer = LongBuffer.allocate(start.size().orElseThrow());
         while (true) {
@@ -164,21 +165,21 @@ public class LinTagReader {
             }
             if (token instanceof LinToken.LongArrayEnd) {
                 if (buffer.hasRemaining()) {
-                    throw new IllegalStateException("Not all longs received");
+                    throw new NbtParseException("Not all longs received");
                 }
                 return new LinLongArrayTag(buffer.array());
             }
             if (!(token instanceof LinToken.LongArrayContent content)) {
-                throw new IllegalStateException("Expected long array content, got " + token);
+                throw new NbtParseException("Expected long array content, got " + token);
             }
             buffer.put(content.buffer());
         }
-        throw new IllegalStateException("Expected long array end");
+        throw new NbtParseException("Expected long array end");
     }
 
     private static <T extends @NotNull LinTag<?, T>> LinListTag<T> readList(LinStream tokens) throws IOException {
         if (!(tokens.nextOrNull() instanceof LinToken.ListStart start)) {
-            throw new IllegalStateException("Expected list start");
+            throw new NbtParseException("Expected list start");
         }
         @SuppressWarnings("unchecked")
         LinTagType<T> elementType = (LinTagType<T>) LinTagType.fromId(start.elementId().orElseThrow());
@@ -188,7 +189,7 @@ public class LinTagReader {
             builder.add(tag);
         }
         if (!(tokens.nextOrNull() instanceof LinToken.ListEnd)) {
-            throw new IllegalStateException("Expected list end");
+            throw new NbtParseException("Expected list end");
         }
         return builder.build();
     }
@@ -199,7 +200,7 @@ public class LinTagReader {
             case BYTE -> new LinByteTag(((LinToken.Byte) requireNextToken(tokens)).value());
             case COMPOUND -> readCompound(tokens);
             case DOUBLE -> new LinDoubleTag(((LinToken.Double) requireNextToken(tokens)).value());
-            case END -> throw new IllegalStateException("Unexpected END id");
+            case END -> throw new NbtParseException("Unexpected END id");
             case FLOAT -> new LinFloatTag(((LinToken.Float) requireNextToken(tokens)).value());
             case INT_ARRAY -> readIntArray(tokens);
             case INT -> new LinIntTag(((LinToken.Int) requireNextToken(tokens)).value());
@@ -214,7 +215,7 @@ public class LinTagReader {
     private static LinToken requireNextToken(@NotNull LinStream tokens) throws IOException {
         LinToken linToken = tokens.nextOrNull();
         if (linToken == null) {
-            throw new IllegalStateException("Unexpected end of stream");
+            throw new NbtParseException("Unexpected end of stream");
         }
         return linToken;
     }
