@@ -23,6 +23,6 @@ module org.enginehub.linbus.stream {
     exports org.enginehub.linbus.stream;
     exports org.enginehub.linbus.stream.token;
     exports org.enginehub.linbus.stream.internal to org.enginehub.linbus.tree;
-    requires static org.jetbrains.annotations;
-    requires org.enginehub.linbus.common;
+    requires static transitive org.jetbrains.annotations;
+    requires transitive org.enginehub.linbus.common;
 }

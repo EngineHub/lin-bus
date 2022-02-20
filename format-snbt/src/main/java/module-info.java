@@ -22,7 +22,7 @@
  */
 module org.enginehub.linbus.format.snbt {
     exports org.enginehub.linbus.format.snbt;
-    requires static org.jetbrains.annotations;
-    requires org.enginehub.linbus.common;
-    requires org.enginehub.linbus.stream;
+    requires static transitive org.jetbrains.annotations;
+    requires transitive org.enginehub.linbus.common;
+    requires transitive org.enginehub.linbus.stream;
 }

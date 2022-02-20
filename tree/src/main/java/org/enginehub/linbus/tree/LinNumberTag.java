@@ -26,4 +26,9 @@ package org.enginehub.linbus.tree;
  */
 public sealed abstract class LinNumberTag<T extends Number, SELF extends LinNumberTag<T, SELF>> extends LinTag<T, SELF>
     permits LinByteTag, LinDoubleTag, LinFloatTag, LinIntTag, LinLongTag, LinShortTag {
+    /**
+     * Constructor for subclasses.
+     */
+    protected LinNumberTag() {
+    }
 }

@@ -31,6 +31,13 @@ import java.util.Objects;
  */
 public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTag<SELF>, LinStreamable
     permits LinByteArrayTag, LinCompoundTag, LinEndTag, LinIntArrayTag, LinListTag, LinLongArrayTag, LinNumberTag, LinStringTag {
+
+    /**
+     * Constructor for subclasses.
+     */
+    protected LinTag() {
+    }
+
     /**
      * Gets the type of this tag.
      *

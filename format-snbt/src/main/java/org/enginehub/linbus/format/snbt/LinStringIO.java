@@ -140,4 +140,7 @@ public class LinStringIO {
         }
         return builder.toString();
     }
+
+    private LinStringIO() {
+    }
 }

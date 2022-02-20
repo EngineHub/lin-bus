@@ -180,6 +180,7 @@ public final class LinTagType<T extends LinTag<?, T>> {
         return LONG_ARRAY_TAG;
     }
 
+    @SuppressWarnings("rawtypes")
     private static final @NotNull LinTagType<?>[] LIN_TAG_TYPES =
         Stream.of(
                 END_TAG,
