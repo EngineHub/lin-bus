@@ -27,9 +27,8 @@ import java.util.Objects;
  * Represents an NBT tag, which has a canonical representation of type {@code T}.
  *
  * @param <T> the type of the canonical representation
- * @param <SELF> the type of the tag
  */
-public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements ToLinTag<SELF>, LinStreamable
+public sealed abstract class LinTag<T> implements ToLinTag<LinTag<T>>, LinStreamable
     permits LinByteArrayTag, LinCompoundTag, LinEndTag, LinIntArrayTag, LinListTag, LinLongArrayTag, LinNumberTag, LinStringTag {
 
     /**
@@ -44,7 +43,7 @@ public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements 
      * @return the type of this tag
      */
     // This is to be overriden directly to save memory in the tag itself
-    public abstract @NotNull LinTagType<SELF> type();
+    public abstract @NotNull LinTagType<? extends LinTag<T>> type();
 
     /**
      * Gets the value of this tag.
@@ -53,18 +52,18 @@ public sealed abstract class LinTag<T, SELF extends LinTag<T, SELF>> implements 
      */
     public abstract T value();
 
-    // all abiding implementations use SELF properly
-    @SuppressWarnings("unchecked")
     @Override
-    public final @NotNull SELF toLinTag() {
-        return (SELF) this;
+    public final @NotNull LinTag<T> toLinTag() {
+        // This could be overriden by subclasses to provide a sharper return type. I didn't do this because it's
+        // a lot of work, but please ask / PR if you want it.
+        return this;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LinTag<?, ?> that = (LinTag<?, ?>) o;
+        LinTag<?> that = (LinTag<?>) o;
         return Objects.equals(value(), that.value());
     }
 

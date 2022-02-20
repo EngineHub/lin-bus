@@ -22,9 +22,8 @@ package org.enginehub.linbus.tree;
  * A tag that represents a number. This allows for generic handling of tags that provide {@link Number} subtypes.
  *
  * @param <T> the specific type of number this tag represents
- * @param <SELF> the type of this tag
  */
-public sealed abstract class LinNumberTag<T extends Number, SELF extends LinNumberTag<T, SELF>> extends LinTag<T, SELF>
+public sealed abstract class LinNumberTag<T extends Number> extends LinTag<T>
     permits LinByteTag, LinDoubleTag, LinFloatTag, LinIntTag, LinLongTag, LinShortTag {
     /**
      * Constructor for subclasses.

@@ -31,7 +31,7 @@ import java.util.Arrays;
 /**
  * Represents a long array tag.
  */
-public final class LinLongArrayTag extends LinTag<long @NotNull [], LinLongArrayTag> {
+public final class LinLongArrayTag extends LinTag<long @NotNull []> {
     private final long[] value;
 
     /**

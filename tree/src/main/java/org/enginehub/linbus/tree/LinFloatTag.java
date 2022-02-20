@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a float tag.
  */
-public final class LinFloatTag extends LinNumberTag<@NotNull Float, LinFloatTag> {
+public final class LinFloatTag extends LinNumberTag<@NotNull Float> {
     private final float value;
 
     /**

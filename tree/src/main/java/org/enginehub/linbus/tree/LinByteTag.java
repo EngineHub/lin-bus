@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a byte tag.
  */
-public final class LinByteTag extends LinNumberTag<@NotNull Byte, LinByteTag> {
+public final class LinByteTag extends LinNumberTag<@NotNull Byte> {
     private final byte value;
 
     /**

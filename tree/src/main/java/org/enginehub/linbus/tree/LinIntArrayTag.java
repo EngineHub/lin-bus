@@ -30,7 +30,7 @@ import java.util.Arrays;
 /**
  * Represents an int array tag.
  */
-public final class LinIntArrayTag extends LinTag<int @NotNull [], LinIntArrayTag> {
+public final class LinIntArrayTag extends LinTag<int @NotNull []> {
     private final int[] value;
 
     /**

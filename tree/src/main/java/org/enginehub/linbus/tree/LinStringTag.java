@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * Represents a string tag.
  */
-public final class LinStringTag extends LinTag<@NotNull String, LinStringTag> {
+public final class LinStringTag extends LinTag<@NotNull String> {
     private final String value;
 
     /**

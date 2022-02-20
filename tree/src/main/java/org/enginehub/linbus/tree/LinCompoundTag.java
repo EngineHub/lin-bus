@@ -39,7 +39,7 @@ import java.util.Objects;
 /**
  * Represents a compound tag.
  */
-public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ? extends @NotNull LinTag<?, ?>>, LinCompoundTag> {
+public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ? extends @NotNull LinTag<?>>> {
 
     /**
      * Creates a new builder.
@@ -54,7 +54,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * A builder for {@link LinCompoundTag LinCompoundTags}.
      */
     public static final class Builder {
-        private final LinkedHashMap<@NotNull String, @NotNull LinTag<?, ?>> collector;
+        private final LinkedHashMap<@NotNull String, @NotNull LinTag<?>> collector;
 
         private Builder() {
             this.collector = new LinkedHashMap<>();
@@ -71,7 +71,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value of the tag
          * @return this builder
          */
-        public Builder put(@NotNull String name, @NotNull LinTag<?, ?> value) {
+        public Builder put(@NotNull String name, @NotNull LinTag<?> value) {
             if (value.type().id() == LinTagId.END) {
                 throw new IllegalArgumentException("Cannot add END tag to compound tag");
             }
@@ -85,7 +85,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param map the tags to add
          * @return this builder
          */
-        public Builder putAll(@NotNull Map<String, ? extends LinTag<?, ?>> map) {
+        public Builder putAll(@NotNull Map<String, ? extends LinTag<?>> map) {
             map.forEach(this::put);
             return this;
         }
@@ -130,7 +130,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        public Builder putCompound(@NotNull String name, @NotNull Map<String, ? extends LinTag<?, ?>> value) {
+        public Builder putCompound(@NotNull String name, @NotNull Map<String, ? extends LinTag<?>> value) {
             return put(name, new LinCompoundTag(value));
         }
 
@@ -243,11 +243,13 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
         return LinTagReader.readCompound(tokens);
     }
 
-    private static @NotNull Map<@NotNull String, @NotNull LinTag<?, ?>> copyImmutable(@NotNull Map<@NotNull String, ? extends @NotNull LinTag<?, ?>> value) {
+    private static @NotNull Map<@NotNull String, @NotNull LinTag<?>> copyImmutable(
+        @NotNull Map<@NotNull String, ? extends @NotNull LinTag<?>> value
+    ) {
         return Collections.unmodifiableMap(new LinkedHashMap<>(value));
     }
 
-    private final Map<@NotNull String, @NotNull LinTag<?, ?>> value;
+    private final Map<@NotNull String, @NotNull LinTag<?>> value;
 
     /**
      * Creates a new compound tag.
@@ -259,14 +261,14 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      *
      * @param value the value
      */
-    public LinCompoundTag(@NotNull Map<@NotNull String, ? extends @NotNull LinTag<?, ?>> value) {
+    public LinCompoundTag(@NotNull Map<@NotNull String, ? extends @NotNull LinTag<?>> value) {
         this(copyImmutable(value), true);
     }
 
 
-    LinCompoundTag(@NotNull Map<@NotNull String, @NotNull LinTag<?, ?>> value, boolean check) {
+    LinCompoundTag(@NotNull Map<@NotNull String, @NotNull LinTag<?>> value, boolean check) {
         if (check) {
-            for (LinTag<?, ?> tag : value.values()) {
+            for (LinTag<?> tag : value.values()) {
                 if (tag.type().id() == LinTagId.END) {
                     throw new IllegalArgumentException("Cannot add END tag to compound tag");
                 }
@@ -281,7 +283,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
     }
 
     @Override
-    public @NotNull Map<@NotNull String, ? extends @NotNull LinTag<?, ?>> value() {
+    public @NotNull Map<@NotNull String, ? extends @NotNull LinTag<?>> value() {
         return value;
     }
 
@@ -295,7 +297,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
     }
 
     private class EntryTokenIterator implements Iterator<LinStreamable> {
-        private final Iterator<Map.Entry<String, LinTag<?, ?>>> entryIterator = value.entrySet().iterator();
+        private final Iterator<Map.Entry<String, LinTag<?>>> entryIterator = value.entrySet().iterator();
 
         @Override
         public boolean hasNext() {
@@ -321,8 +323,8 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * @param <T> the type of the tag
      * @return the tag, or {@code null} if not found
      */
-    public <T extends LinTag<?, T>> @Nullable T findTag(@NotNull String name, @NotNull LinTagType<T> type) {
-        LinTag<?, ?> tag = value.get(name);
+    public <T extends LinTag<?>> @Nullable T findTag(@NotNull String name, @NotNull LinTagType<T> type) {
+        LinTag<?> tag = value.get(name);
         return tag != null && type == tag.type() ? type.cast(tag) : null;
     }
 
@@ -336,8 +338,8 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * @throws NoSuchElementException if there is no tag under the given name
      * @throws IllegalStateException if the tag exists but is of a different type
      */
-    public <T extends LinTag<?, T>> @NotNull T getTag(@NotNull String name, @NotNull LinTagType<T> type) {
-        LinTag<?, ?> tag = value.get(name);
+    public <T extends LinTag<?>> @NotNull T getTag(@NotNull String name, @NotNull LinTagType<T> type) {
+        LinTag<?> tag = value.get(name);
 
         if (tag == null) {
             throw new NoSuchElementException("No tag under the name '" + name + "' exists");

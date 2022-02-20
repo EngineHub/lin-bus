@@ -30,7 +30,7 @@ import java.util.Arrays;
 /**
  * Represents a byte array tag.
  */
-public final class LinByteArrayTag extends LinTag<byte @NotNull [], LinByteArrayTag> {
+public final class LinByteArrayTag extends LinTag<byte @NotNull []> {
     private final byte[] value;
 
     /**

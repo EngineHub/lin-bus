@@ -30,17 +30,18 @@ import static org.enginehub.linbus.tree.truth.LinTagSubject.assertThat;
 class TagTestUtil {
     private static final String NESTING_KEY = "inner";
 
-    static <T extends LinTag<?, T>> void assertRoundTrip(T input) throws IOException {
+    static <T extends LinTag<?>> void assertRoundTrip(T input) throws IOException {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         // It's not legal to use bare streams, so we wrap in a root entry and compound.
         LinBinaryIO.write(
             dataOutput,
             new LinRootEntry("", new LinCompoundTag(Map.of(NESTING_KEY, input)))
         );
+        @SuppressWarnings("unchecked")
         T recreated = LinBinaryIO.readUsing(
             ByteStreams.newDataInput(dataOutput.toByteArray()),
             LinRootEntry::readFrom
-        ).value().getTag(NESTING_KEY, input.type());
+        ).value().getTag(NESTING_KEY, (LinTagType<T>) input.type());
         assertThat(recreated).isEqualTo(input);
     }
 

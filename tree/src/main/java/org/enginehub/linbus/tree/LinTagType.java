@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  * This is different from the plain {@link LinTagId}, because it offers generic methods for casting to tag types.
  * </p>
  */
-public final class LinTagType<T extends LinTag<?, T>> {
+public final class LinTagType<T extends LinTag<?>> {
     private static final LinTagType<LinEndTag> END_TAG = new LinTagType<>(
         LinTagId.END, LinEndTag.class
     );
@@ -141,7 +141,7 @@ public final class LinTagType<T extends LinTag<?, T>> {
      *
      * @param <T> the type of the list elements
      */
-    public static <T extends @NotNull LinTag<?, T>> LinTagType<LinListTag<T>> listTag() {
+    public static <T extends @NotNull LinTag<?>> LinTagType<LinListTag<T>> listTag() {
         @SuppressWarnings("unchecked")
         LinTagType<LinListTag<T>> cast = (LinTagType<LinListTag<T>>) LIST_TAG;
         return cast;
@@ -239,7 +239,7 @@ public final class LinTagType<T extends LinTag<?, T>> {
      * @return the tag as {@code T}
      * @throws IllegalArgumentException if the tag is not of type {@code T}
      */
-    public T cast(LinTag<?, ?> tag) {
+    public T cast(LinTag<?> tag) {
         if (tag.type() != this) {
             throw new IllegalArgumentException("Tag is a " + tag.type().name() + ", not a " + name());
         }

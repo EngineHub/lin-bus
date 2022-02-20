@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a short tag.
  */
-public final class LinShortTag extends LinNumberTag<@NotNull Short, LinShortTag> {
+public final class LinShortTag extends LinNumberTag<@NotNull Short> {
     private final short value;
 
     /**

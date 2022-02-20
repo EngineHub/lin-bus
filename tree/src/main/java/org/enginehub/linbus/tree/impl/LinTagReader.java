@@ -177,7 +177,7 @@ public class LinTagReader {
         throw new NbtParseException("Expected long array end");
     }
 
-    private static <T extends @NotNull LinTag<?, T>> LinListTag<T> readList(LinStream tokens) throws IOException {
+    private static <T extends @NotNull LinTag<?>> LinListTag<T> readList(LinStream tokens) throws IOException {
         if (!(tokens.nextOrNull() instanceof LinToken.ListStart start)) {
             throw new NbtParseException("Expected list start");
         }
@@ -194,7 +194,7 @@ public class LinTagReader {
         return builder.build();
     }
 
-    private static <T extends LinTag<?, T>> T readValue(@NotNull LinStream tokens, LinTagType<T> id) throws IOException {
+    private static <T extends LinTag<?>> T readValue(@NotNull LinStream tokens, LinTagType<T> id) throws IOException {
         return id.cast(switch (id.id()) {
             case BYTE_ARRAY -> readByteArray(tokens);
             case BYTE -> new LinByteTag(((LinToken.Byte) requireNextToken(tokens)).value());

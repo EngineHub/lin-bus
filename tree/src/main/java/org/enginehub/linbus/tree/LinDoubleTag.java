@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a double tag.
  */
-public final class LinDoubleTag extends LinNumberTag<@NotNull Double, LinDoubleTag> {
+public final class LinDoubleTag extends LinNumberTag<@NotNull Double> {
     private final double value;
 
     /**

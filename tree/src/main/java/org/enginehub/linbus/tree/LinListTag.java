@@ -34,7 +34,7 @@ import java.util.Objects;
  *
  * @param <T> the type of the elements in the list
  */
-public final class LinListTag<T extends @NotNull LinTag<?, T>> extends LinTag<@NotNull List<T>, LinListTag<T>> {
+public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotNull List<T>> {
     /**
      * Get an empty list of the given element type.
      *
@@ -42,7 +42,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, T>> extends LinTag<@N
      * @param <T> the type of the elements in the list
      * @return an empty list
      */
-    public static <T extends @NotNull LinTag<?, T>> LinListTag<T> empty(LinTagType<T> elementType) {
+    public static <T extends @NotNull LinTag<?>> LinListTag<T> empty(LinTagType<T> elementType) {
         return builder(elementType).build();
     }
 
@@ -53,7 +53,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, T>> extends LinTag<@N
      * @param <T> the type of the elements in the list
      * @return a new builder
      */
-    public static <T extends @NotNull LinTag<?, T>> Builder<T> builder(LinTagType<T> elementType) {
+    public static <T extends @NotNull LinTag<?>> Builder<T> builder(LinTagType<T> elementType) {
         return new Builder<>(elementType);
     }
 
@@ -62,7 +62,7 @@ public final class LinListTag<T extends @NotNull LinTag<?, T>> extends LinTag<@N
      *
      * @param <T> the type of the elements in the list
      */
-    public static final class Builder<T extends @NotNull LinTag<?, T>> {
+    public static final class Builder<T extends @NotNull LinTag<?>> {
         private final LinTagType<T> elementType;
         private final List<T> collector;
 

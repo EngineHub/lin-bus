@@ -52,17 +52,17 @@ import org.enginehub.linbus.tree.LinTagType;
 import static com.google.common.truth.Truth.assertAbout;
 
 public class LinTagSubject extends Subject {
-    public static Factory<LinTagSubject, LinTag<?, ?>> linTags() {
+    public static Factory<LinTagSubject, LinTag<?>> linTags() {
         return LinTagSubject::new;
     }
 
-    public static LinTagSubject assertThat(@Nullable LinTag<?, ?> tag) {
+    public static LinTagSubject assertThat(@Nullable LinTag<?> tag) {
         return assertAbout(linTags()).that(tag);
     }
 
-    private final LinTag<?, ?> tag;
+    private final LinTag<?> tag;
 
-    protected LinTagSubject(FailureMetadata metadata, @Nullable LinTag<?, ?> actual) {
+    protected LinTagSubject(FailureMetadata metadata, @Nullable LinTag<?> actual) {
         super(metadata, actual);
         this.tag = actual;
     }

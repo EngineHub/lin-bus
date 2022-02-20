@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents an end tag.
  */
-public final class LinEndTag extends LinTag<Void, LinEndTag> {
+public final class LinEndTag extends LinTag<Void> {
     private static final LinEndTag INSTANCE = new LinEndTag();
 
     /**
