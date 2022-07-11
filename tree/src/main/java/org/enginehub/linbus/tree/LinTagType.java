@@ -203,11 +203,14 @@ public final class LinTagType<T extends @NotNull LinTag<?>> {
     /**
      * Get the {@link LinTagType} for the given {@link LinTagId}.
      *
-     * @param id The {@link LinTagId} to get the {@link LinTagType} for.
-     * @return The {@link LinTagType} for the given {@link LinTagId}.
+     * @param id the {@link LinTagId} to get the {@link LinTagType} for
+     * @param <T> the type of the tag
+     * @return the {@link LinTagType} for the given {@link LinTagId}
      */
-    public static @NotNull LinTagType<?> fromId(LinTagId id) {
-        return LIN_TAG_TYPES[id.id()];
+    public static <T extends @NotNull LinTag<?>> @NotNull LinTagType<T> fromId(LinTagId id) {
+        @SuppressWarnings("unchecked")
+        var cast = (LinTagType<T>) LIN_TAG_TYPES[id.id()];
+        return cast;
     }
 
     private final LinTagId id;
