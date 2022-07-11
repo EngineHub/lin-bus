@@ -119,7 +119,7 @@ public class LinTagReader {
                 if (buffer.hasRemaining()) {
                     throw new NbtParseException("Not all bytes received");
                 }
-                return new LinByteArrayTag(buffer.array());
+                return LinByteArrayTag.of(buffer.array());
             }
             if (!(token instanceof LinToken.ByteArrayContent content)) {
                 throw new NbtParseException("Expected byte array content, got " + token);
@@ -143,7 +143,7 @@ public class LinTagReader {
                 if (buffer.hasRemaining()) {
                     throw new NbtParseException("Not all ints received");
                 }
-                return new LinIntArrayTag(buffer.array());
+                return LinIntArrayTag.of(buffer.array());
             }
             if (!(token instanceof LinToken.IntArrayContent content)) {
                 throw new NbtParseException("Expected int array content, got " + token);
@@ -167,7 +167,7 @@ public class LinTagReader {
                 if (buffer.hasRemaining()) {
                     throw new NbtParseException("Not all longs received");
                 }
-                return new LinLongArrayTag(buffer.array());
+                return LinLongArrayTag.of(buffer.array());
             }
             if (!(token instanceof LinToken.LongArrayContent content)) {
                 throw new NbtParseException("Expected long array content, got " + token);
@@ -194,21 +194,21 @@ public class LinTagReader {
         return builder.build();
     }
 
-    private static <T extends LinTag<?>> T readValue(@NotNull LinStream tokens, LinTagType<T> id) throws IOException {
+    private static <T extends @NotNull LinTag<?>> T readValue(@NotNull LinStream tokens, LinTagType<T> id) throws IOException {
         return id.cast(switch (id.id()) {
             case BYTE_ARRAY -> readByteArray(tokens);
-            case BYTE -> new LinByteTag(((LinToken.Byte) requireNextToken(tokens)).value());
+            case BYTE -> LinByteTag.of(((LinToken.Byte) requireNextToken(tokens)).value());
             case COMPOUND -> readCompound(tokens);
-            case DOUBLE -> new LinDoubleTag(((LinToken.Double) requireNextToken(tokens)).value());
+            case DOUBLE -> LinDoubleTag.of(((LinToken.Double) requireNextToken(tokens)).value());
             case END -> throw new NbtParseException("Unexpected END id");
-            case FLOAT -> new LinFloatTag(((LinToken.Float) requireNextToken(tokens)).value());
+            case FLOAT -> LinFloatTag.of(((LinToken.Float) requireNextToken(tokens)).value());
             case INT_ARRAY -> readIntArray(tokens);
-            case INT -> new LinIntTag(((LinToken.Int) requireNextToken(tokens)).value());
+            case INT -> LinIntTag.of(((LinToken.Int) requireNextToken(tokens)).value());
             case LIST -> readList(tokens);
             case LONG_ARRAY -> readLongArray(tokens);
-            case LONG -> new LinLongTag(((LinToken.Long) requireNextToken(tokens)).value());
-            case SHORT -> new LinShortTag(((LinToken.Short) requireNextToken(tokens)).value());
-            case STRING -> new LinStringTag(((LinToken.String) requireNextToken(tokens)).value());
+            case LONG -> LinLongTag.of(((LinToken.Long) requireNextToken(tokens)).value());
+            case SHORT -> LinShortTag.of(((LinToken.Short) requireNextToken(tokens)).value());
+            case STRING -> LinStringTag.of(((LinToken.String) requireNextToken(tokens)).value());
         });
     }
 

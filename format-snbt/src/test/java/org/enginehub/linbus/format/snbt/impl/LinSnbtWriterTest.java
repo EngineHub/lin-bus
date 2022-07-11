@@ -21,7 +21,7 @@ package org.enginehub.linbus.format.snbt.impl;
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.LinStreamable;
-import org.enginehub.linbus.stream.exception.NbtParseException;
+import org.enginehub.linbus.stream.exception.NbtWriteException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +30,6 @@ import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
-import java.util.List;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -48,13 +47,13 @@ public class LinSnbtWriterTest {
 
     @Test
     void writeWithoutPrefixedCompound() {
-        var ex = assertThrows(NbtParseException.class, () -> ezToString(LinStream.of(new LinToken.Name("foo"))));
+        var ex = assertThrows(NbtWriteException.class, () -> ezToString(LinStream.of(new LinToken.Name("foo"))));
         assertThat(ex).hasMessageThat().isEqualTo("Names can only appear inside compounds");
     }
 
     @Test
     void writeNameInList() {
-        var ex = assertThrows(NbtParseException.class, () -> ezToString(LinStream.of(
+        var ex = assertThrows(NbtWriteException.class, () -> ezToString(LinStream.of(
             new LinToken.ListStart(1, LinTagId.STRING),
             new LinToken.Name("foo")
         )));

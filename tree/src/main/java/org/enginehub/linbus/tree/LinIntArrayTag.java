@@ -31,26 +31,25 @@ import java.util.Arrays;
  * Represents an int array tag.
  */
 public final class LinIntArrayTag extends LinTag<int @NotNull []> {
-    private final int[] value;
 
     /**
-     * Creates a new int array tag from the given int array. The array will be {@linkplain  Object#clone() cloned}.
+     * Creates a new int array tag from the given int array. The array will be {@linkplain Object#clone() cloned}.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinIntArrayTag(int @NotNull ... value) {
-        this(value.clone(), true);
+    public static @NotNull LinIntArrayTag of(int @NotNull ... value) {
+        return new LinIntArrayTag(value.clone());
     }
 
-    LinIntArrayTag(int @NotNull [] value, boolean iSwearToNotModifyValue) {
-        if (!iSwearToNotModifyValue) {
-            throw new IllegalArgumentException("You think you're clever, huh?");
-        }
+    private final int[] value;
+
+    private LinIntArrayTag(int @NotNull [] value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<LinIntArrayTag> type() {
+    public @NotNull LinTagType<@NotNull LinIntArrayTag> type() {
         return LinTagType.intArrayTag();
     }
 

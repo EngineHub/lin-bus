@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInput;
-import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -168,7 +167,7 @@ public class LinSnbtReader implements LinStream {
     }
 
     @Override
-    public @Nullable LinToken nextOrNull() throws IOException {
+    public @Nullable LinToken nextOrNull() {
         var token = tokenQueue.pollFirst();
         while (token == null) {
             State state = stateStack.peekLast();

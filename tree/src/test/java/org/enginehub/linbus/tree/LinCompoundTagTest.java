@@ -29,33 +29,32 @@ import java.util.NoSuchElementException;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.enginehub.linbus.tree.truth.LinTagSubject.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LinCompoundTagTest {
     @Test
     void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(new LinCompoundTag(Collections.emptyMap()));
-        TagTestUtil.assertRoundTrip(new LinCompoundTag(new LinkedHashMap<>() {{
-            put("Hello", new LinStringTag("World!"));
-            put("Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE));
+        TagTestUtil.assertRoundTrip(LinCompoundTag.of(Collections.emptyMap()));
+        TagTestUtil.assertRoundTrip(LinCompoundTag.of(new LinkedHashMap<>() {{
+            put("Hello", LinStringTag.of("World!"));
+            put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE));
         }}));
     }
 
     @Test
     void roundTripBuilder() {
-        var initial = new LinCompoundTag(Map.of(
-            "Hello", new LinStringTag("World!"),
-            "Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE)
+        var initial = LinCompoundTag.of(Map.of(
+            "Hello", LinStringTag.of("World!"),
+            "Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE)
         ));
         assertThat(initial).isEqualTo(initial.toBuilder().build());
     }
 
     @Test
     void builderRemove() {
-        var initial = new LinCompoundTag(Map.of(
-            "Hello", new LinStringTag("World!"),
-            "Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE)
+        var initial = LinCompoundTag.of(Map.of(
+            "Hello", LinStringTag.of("World!"),
+            "Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE)
         ));
         var afterRemove = initial.toBuilder().remove("Hello").build();
         assertThat(afterRemove).getTagByKey("Hello").isNull();
@@ -66,7 +65,7 @@ public class LinCompoundTagTest {
     void checksForEndTag() {
         var ex = assertThrows(
             IllegalArgumentException.class,
-            () -> new LinCompoundTag(Map.of("this is the end", LinEndTag.instance()), true)
+            () -> LinCompoundTag.of(Map.of("this is the end", LinEndTag.instance()))
         );
         assertThat(ex).hasMessageThat().isEqualTo("Cannot add END tag to compound tag");
     }
@@ -81,17 +80,10 @@ public class LinCompoundTagTest {
     }
 
     @Test
-    void canAvoidCheckForPerformance() {
-        assertDoesNotThrow(
-            () -> new LinCompoundTag(Map.of("this is the end", LinEndTag.instance()), false)
-        );
-    }
-
-    @Test
     void toStringImplementation() {
-        assertThat(new LinCompoundTag(new LinkedHashMap<>() {{
-            put("Hello", new LinStringTag("World!"));
-            put("Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE));
+        assertThat(LinCompoundTag.of(new LinkedHashMap<>() {{
+            put("Hello", LinStringTag.of("World!"));
+            put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE));
         }}).toString())
             .isEqualTo("LinCompoundTag{Hello=LinStringTag[World!], Goodbye=LinIntArrayTag[51966, 47806]}");
     }
@@ -99,24 +91,24 @@ public class LinCompoundTagTest {
     @Test
     void putsAllFromMap() {
         var tag = LinCompoundTag.builder()
-            .put("Initially here", new LinDoubleTag(1.0))
+            .put("Initially here", LinDoubleTag.of(1.0))
             .putAll(ImmutableMap.of(
-                "Hello", new LinStringTag("World!"),
-                "Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE)
+                "Hello", LinStringTag.of("World!"),
+                "Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE)
             ))
             .build();
         assertThat(tag).compoundValue().containsExactly(
-            "Initially here", new LinDoubleTag(1.0),
-            "Hello", new LinStringTag("World!"),
-            "Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE)
+            "Initially here", LinDoubleTag.of(1.0),
+            "Hello", LinStringTag.of("World!"),
+            "Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE)
         ).inOrder();
     }
 
     @Test
     void getByName() {
-        var tag = new LinCompoundTag(new LinkedHashMap<>() {{
-            put("Hello", new LinStringTag("World!"));
-            put("Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE));
+        var tag = LinCompoundTag.of(new LinkedHashMap<>() {{
+            put("Hello", LinStringTag.of("World!"));
+            put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE));
         }});
         assertThat(tag.getTag("Hello", LinTagType.stringTag()))
             .stringValue()
@@ -147,9 +139,9 @@ public class LinCompoundTagTest {
 
     @Test
     void findByName() {
-        var tag = new LinCompoundTag(new LinkedHashMap<>() {{
-            put("Hello", new LinStringTag("World!"));
-            put("Goodbye", new LinIntArrayTag(0xCAFE, 0xBABE));
+        var tag = LinCompoundTag.of(new LinkedHashMap<>() {{
+            put("Hello", LinStringTag.of("World!"));
+            put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE));
         }});
         assertThat(tag.findTag("Hello", LinTagType.stringTag()))
             .stringValue()
@@ -165,11 +157,49 @@ public class LinCompoundTagTest {
     }
 
     @Test
+    void findListTag() {
+        var tag = LinCompoundTag.builder()
+            .put("Hello", LinListTag.empty(LinTagType.stringTag()))
+            .build();
+        var helloList = tag.findListTag("Hello", LinTagType.stringTag());
+        assertThat(helloList).isNotNull();
+        assertThat(helloList).listValue().isEmpty();
+        assertThat(tag.findListTag("Hello", LinTagType.longArrayTag()))
+            .isNull();
+        assertThat(tag.findListTag("Not Here", LinTagType.longArrayTag()))
+            .isNull();
+    }
+
+    @Test
+    void getListTag() {
+        var tag = LinCompoundTag.builder()
+            .put("Hello", LinListTag.empty(LinTagType.stringTag()))
+            .build();
+        var helloList = tag.getListTag("Hello", LinTagType.stringTag());
+        assertThat(helloList).isNotNull();
+        assertThat(helloList).listValue().isEmpty();
+        {
+            var ex = assertThrows(
+                IllegalStateException.class,
+                () -> tag.getListTag("Hello", LinTagType.longArrayTag())
+            );
+            assertThat(ex).hasMessageThat().isEqualTo("Tag under 'Hello' exists, but is a STRING list instead of a LONG_ARRAY list");
+        }
+        {
+            var ex = assertThrows(
+                NoSuchElementException.class,
+                () -> tag.getListTag("Not Here", LinTagType.longArrayTag())
+            );
+            assertThat(ex).hasMessageThat().isEqualTo("No tag under the name 'Not Here' exists");
+        }
+    }
+
+    @Test
     void builderSpecialization() {
         var tag = LinCompoundTag.builder()
             .putByteArray("byteArray", new byte[]{(byte) 0xCA, (byte) 0xFE})
             .putByte("byte", (byte) 0xBA)
-            .putCompound("compound", Map.of("inner", new LinStringTag("inner")))
+            .putCompound("compound", Map.of("inner", LinStringTag.of("inner")))
             .putDouble("double", 1.0)
             .putFloat("float", 1.0f)
             .putIntArray("intArray", new int[]{0xCAFE, 0xBABE})

@@ -32,26 +32,25 @@ import java.util.Arrays;
  * Represents a long array tag.
  */
 public final class LinLongArrayTag extends LinTag<long @NotNull []> {
-    private final long[] value;
 
     /**
-     * Creates a new long array tag from the given long array. The array will be {@linkplain  Object#clone() cloned}.
+     * Creates a new long array tag from the given long array. The array will be {@linkplain Object#clone() cloned}.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinLongArrayTag(long @NotNull ... value) {
-        this(value.clone(), true);
+    public static @NotNull LinLongArrayTag of(long @NotNull ... value) {
+        return new LinLongArrayTag(value.clone());
     }
 
-    LinLongArrayTag(long @NotNull [] value, boolean iSwearToNotModifyValue) {
-        if (!iSwearToNotModifyValue) {
-            throw new IllegalArgumentException("You think you're clever, huh?");
-        }
+    private final long[] value;
+
+    private LinLongArrayTag(long @NotNull [] value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<LinLongArrayTag> type() {
+    public @NotNull LinTagType<@NotNull LinLongArrayTag> type() {
         return LinTagType.longArrayTag();
     }
 
@@ -66,7 +65,7 @@ public final class LinLongArrayTag extends LinTag<long @NotNull []> {
      *
      * @return a read-only {@link LongBuffer} providing view access to the contents of this tag
      */
-    public LongBuffer view() {
+    public @NotNull LongBuffer view() {
         return LongBuffer.wrap(value).asReadOnlyBuffer();
     }
 

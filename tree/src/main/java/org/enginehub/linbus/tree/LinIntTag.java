@@ -26,19 +26,25 @@ import org.jetbrains.annotations.NotNull;
  * Represents an int tag.
  */
 public final class LinIntTag extends LinNumberTag<@NotNull Integer> {
-    private final int value;
 
     /**
      * Create a new int tag.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinIntTag(int value) {
+    public static @NotNull LinIntTag of(int value) {
+        return new LinIntTag(value);
+    }
+
+    private final int value;
+
+    private LinIntTag(int value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<LinIntTag> type() {
+    public @NotNull LinTagType<@NotNull LinIntTag> type() {
         return LinTagType.intTag();
     }
 

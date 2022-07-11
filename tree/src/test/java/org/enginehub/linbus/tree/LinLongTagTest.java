@@ -27,8 +27,8 @@ import static org.enginehub.linbus.tree.TagTestUtil.assertRoundTrip;
 public class LinLongTagTest {
     @Test
     void roundTrip() throws IOException {
-        assertRoundTrip(new LinLongTag(0x01));
-        assertRoundTrip(new LinLongTag(0x09));
-        assertRoundTrip(new LinLongTag(Integer.MIN_VALUE));
+        assertRoundTrip(LinLongTag.of(0x01));
+        assertRoundTrip(LinLongTag.of(0x09));
+        assertRoundTrip(LinLongTag.of(Integer.MIN_VALUE));
     }
 }

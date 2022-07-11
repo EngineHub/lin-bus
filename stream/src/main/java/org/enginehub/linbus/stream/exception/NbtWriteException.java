@@ -16,17 +16,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.tree;
+package org.enginehub.linbus.stream.exception;
 
-import org.junit.jupiter.api.Test;
+import java.io.Serial;
 
-import java.io.IOException;
+/**
+ * Thrown when a NBT stream is malformed for writing.
+ */
+public final class NbtWriteException extends RuntimeException {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-public class LinStringTagTest {
-    @Test
-    void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(LinStringTag.of(""));
-        TagTestUtil.assertRoundTrip(LinStringTag.of("Hello World!"));
-        TagTestUtil.assertRoundTrip(LinStringTag.of("ⓝⓘⓒⓔ ⓜⓔⓜⓔ!"));
+    /**
+     * {@inheritDoc}
+     */
+    public NbtWriteException(String message) {
+        super(message);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public NbtWriteException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

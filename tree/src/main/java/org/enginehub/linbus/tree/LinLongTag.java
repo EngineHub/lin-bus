@@ -26,19 +26,25 @@ import org.jetbrains.annotations.NotNull;
  * Represents a long tag.
  */
 public final class LinLongTag extends LinNumberTag<@NotNull Long> {
-    private final long value;
 
     /**
      * Create a new long tag.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinLongTag(long value) {
+    public static @NotNull LinLongTag of(long value) {
+        return new LinLongTag(value);
+    }
+
+    private final long value;
+
+    private LinLongTag(long value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<LinLongTag> type() {
+    public @NotNull LinTagType<@NotNull LinLongTag> type() {
         return LinTagType.longTag();
     }
 

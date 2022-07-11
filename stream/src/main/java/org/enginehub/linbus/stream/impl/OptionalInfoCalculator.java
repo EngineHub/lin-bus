@@ -228,13 +228,7 @@ public class OptionalInfoCalculator implements LinStream {
         }
     }
 
-    private static final class NameFill implements OptionalFill {
-        private final String name;
-
-        private NameFill(String name) {
-            this.name = name;
-        }
-
+    private record NameFill(String name) implements OptionalFill {
         @Override
         public LinToken tryFill(LinToken token) {
             return new LinToken.Name(name, token.tagId().orElseThrow(() ->

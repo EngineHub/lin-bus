@@ -26,19 +26,25 @@ import org.jetbrains.annotations.NotNull;
  * Represents a double tag.
  */
 public final class LinDoubleTag extends LinNumberTag<@NotNull Double> {
-    private final double value;
 
     /**
      * Creates a new double tag.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinDoubleTag(double value) {
+    public static @NotNull LinDoubleTag of(double value) {
+        return new LinDoubleTag(value);
+    }
+
+    private final double value;
+
+    private LinDoubleTag(double value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<LinDoubleTag> type() {
+    public @NotNull LinTagType<@NotNull LinDoubleTag> type() {
         return LinTagType.doubleTag();
     }
 

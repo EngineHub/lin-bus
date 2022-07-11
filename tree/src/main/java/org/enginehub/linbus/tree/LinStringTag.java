@@ -28,19 +28,25 @@ import java.util.Objects;
  * Represents a string tag.
  */
 public final class LinStringTag extends LinTag<@NotNull String> {
-    private final String value;
 
     /**
      * Creates a new string tag.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinStringTag(@NotNull String value) {
+    public static @NotNull LinStringTag of(@NotNull String value) {
+        return new LinStringTag(value);
+    }
+
+    private final String value;
+
+    private LinStringTag(@NotNull String value) {
         this.value = Objects.requireNonNull(value, "value is null");
     }
 
     @Override
-    public @NotNull LinTagType<LinStringTag> type() {
+    public @NotNull LinTagType<@NotNull LinStringTag> type() {
         return LinTagType.stringTag();
     }
 

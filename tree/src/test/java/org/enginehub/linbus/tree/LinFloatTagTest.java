@@ -25,10 +25,10 @@ import java.io.IOException;
 public class LinFloatTagTest {
     @Test
     void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(new LinFloatTag(0x01));
-        TagTestUtil.assertRoundTrip(new LinFloatTag(0x09));
-        TagTestUtil.assertRoundTrip(new LinFloatTag(Float.MIN_VALUE));
-        TagTestUtil.assertRoundTrip(new LinFloatTag(Float.NaN));
-        TagTestUtil.assertRoundTrip(new LinFloatTag(Float.NEGATIVE_INFINITY));
+        TagTestUtil.assertRoundTrip(LinFloatTag.of(0x01));
+        TagTestUtil.assertRoundTrip(LinFloatTag.of(0x09));
+        TagTestUtil.assertRoundTrip(LinFloatTag.of(Float.MIN_VALUE));
+        TagTestUtil.assertRoundTrip(LinFloatTag.of(Float.NaN));
+        TagTestUtil.assertRoundTrip(LinFloatTag.of(Float.NEGATIVE_INFINITY));
     }
 }

@@ -24,37 +24,28 @@ import java.io.IOException;
 import java.nio.IntBuffer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LinIntArrayTagTest {
     @Test
     void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(new LinIntArrayTag());
-        TagTestUtil.assertRoundTrip(new LinIntArrayTag(0x01));
-        TagTestUtil.assertRoundTrip(new LinIntArrayTag(0x01, 0x02, 0x03, 0x04));
-    }
-
-    @Test
-    void throwsIfImproperlyConstructed() {
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> new LinIntArrayTag(new int[0], false)
-        );
+        TagTestUtil.assertRoundTrip(LinIntArrayTag.of());
+        TagTestUtil.assertRoundTrip(LinIntArrayTag.of(0x01));
+        TagTestUtil.assertRoundTrip(LinIntArrayTag.of(0x01, 0x02, 0x03, 0x04));
     }
 
     @Test
     void viewContentEqualsActualContent() {
-        var tag = new LinIntArrayTag(0x01, 0x02, 0x03, 0x04);
+        var tag = LinIntArrayTag.of(0x01, 0x02, 0x03, 0x04);
         assertEquals(IntBuffer.wrap(tag.value()), tag.view());
     }
 
     @Test
     void equalsAndHashCodeImplementation() {
         SimpleObjectVerifier.assertEqualsHashCodeImplementation(
-            new LinIntArrayTag(0x01, 0x02, 0x03, 0x04),
-            new LinIntArrayTag(0x01, 0x02, 0x03, 0x04),
-            new LinIntArrayTag(0x01, 0x02, 0x03, 0x04),
-            new LinIntArrayTag(0x01, 0x02, 0x03, 0x05)
+            LinIntArrayTag.of(0x01, 0x02, 0x03, 0x04),
+            LinIntArrayTag.of(0x01, 0x02, 0x03, 0x04),
+            LinIntArrayTag.of(0x01, 0x02, 0x03, 0x04),
+            LinIntArrayTag.of(0x01, 0x02, 0x03, 0x05)
         );
     }
 
@@ -62,7 +53,7 @@ public class LinIntArrayTagTest {
     void toStringImplementation() {
         assertEquals(
             "LinIntArrayTag[1, 2, 3, 4]",
-            new LinIntArrayTag(0x01, 0x02, 0x03, 0x04).toString()
+            LinIntArrayTag.of(0x01, 0x02, 0x03, 0x04).toString()
         );
     }
 }

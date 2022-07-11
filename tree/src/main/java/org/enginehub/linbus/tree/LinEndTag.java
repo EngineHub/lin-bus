@@ -40,7 +40,7 @@ public final class LinEndTag extends LinTag<Void> {
     }
 
     @Override
-    public @NotNull LinTagType<LinEndTag> type() {
+    public @NotNull LinTagType<@NotNull LinEndTag> type() {
         return LinTagType.endTag();
     }
 

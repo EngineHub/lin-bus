@@ -24,37 +24,28 @@ import java.io.IOException;
 import java.nio.LongBuffer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LinLongArrayTagTest {
     @Test
     void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(new LinLongArrayTag());
-        TagTestUtil.assertRoundTrip(new LinLongArrayTag(0x01));
-        TagTestUtil.assertRoundTrip(new LinLongArrayTag(0x01, 0x02, 0x03, 0x04));
-    }
-
-    @Test
-    void throwsIfImproperlyConstructed() {
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> new LinLongArrayTag(new long[0], false)
-        );
+        TagTestUtil.assertRoundTrip(LinLongArrayTag.of());
+        TagTestUtil.assertRoundTrip(LinLongArrayTag.of(0x01));
+        TagTestUtil.assertRoundTrip(LinLongArrayTag.of(0x01, 0x02, 0x03, 0x04));
     }
 
     @Test
     void viewContentEqualsActualContent() {
-        var tag = new LinLongArrayTag(0x01, 0x02, 0x03, 0x04);
+        var tag = LinLongArrayTag.of(0x01, 0x02, 0x03, 0x04);
         assertEquals(LongBuffer.wrap(tag.value()), tag.view());
     }
 
     @Test
     void equalsAndHashCodeImplementation() {
         SimpleObjectVerifier.assertEqualsHashCodeImplementation(
-            new LinLongArrayTag(0x01, 0x02, 0x03, 0x04),
-            new LinLongArrayTag(0x01, 0x02, 0x03, 0x04),
-            new LinLongArrayTag(0x01, 0x02, 0x03, 0x04),
-            new LinLongArrayTag(0x01, 0x02, 0x03, 0x05)
+            LinLongArrayTag.of(0x01, 0x02, 0x03, 0x04),
+            LinLongArrayTag.of(0x01, 0x02, 0x03, 0x04),
+            LinLongArrayTag.of(0x01, 0x02, 0x03, 0x04),
+            LinLongArrayTag.of(0x01, 0x02, 0x03, 0x05)
         );
     }
 
@@ -62,7 +53,7 @@ public class LinLongArrayTagTest {
     void toStringImplementation() {
         assertEquals(
             "LinLongArrayTag[1, 2, 3, 4]",
-            new LinLongArrayTag(0x01, 0x02, 0x03, 0x04).toString()
+            LinLongArrayTag.of(0x01, 0x02, 0x03, 0x04).toString()
         );
     }
 }

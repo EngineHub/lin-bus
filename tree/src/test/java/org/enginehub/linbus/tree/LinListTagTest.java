@@ -30,22 +30,22 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class LinListTagTest {
     @Test
     void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(new LinListTag<>(LinTagType.stringTag(), List.of(
-            new LinStringTag("Hello"),
-            new LinStringTag("World!")
+        TagTestUtil.assertRoundTrip(LinListTag.of(LinTagType.stringTag(), List.of(
+            LinStringTag.of("Hello"),
+            LinStringTag.of("World!")
         )));
-        TagTestUtil.assertRoundTrip(new LinListTag<>(LinTagType.doubleTag(), List.of(
-            new LinDoubleTag(Double.POSITIVE_INFINITY),
-            new LinDoubleTag(0.0),
-            new LinDoubleTag(-0.0)
+        TagTestUtil.assertRoundTrip(LinListTag.of(LinTagType.doubleTag(), List.of(
+            LinDoubleTag.of(Double.POSITIVE_INFINITY),
+            LinDoubleTag.of(0.0),
+            LinDoubleTag.of(-0.0)
         )));
     }
 
     @Test
     void roundTripBuilder() {
-        var initial = new LinListTag<>(LinTagType.stringTag(), List.of(
-            new LinStringTag("Hello"),
-            new LinStringTag("World!")
+        var initial = LinListTag.of(LinTagType.stringTag(), List.of(
+            LinStringTag.of("Hello"),
+            LinStringTag.of("World!")
         ));
         assertThat(initial).isEqualTo(initial.toBuilder().build());
     }
@@ -59,9 +59,9 @@ public class LinListTagTest {
 
     @Test
     void toStringImplementation() {
-        assertThat(new LinListTag<>(LinTagType.stringTag(), List.of(
-            new LinStringTag("Hello"),
-            new LinStringTag("World!")
+        assertThat(LinListTag.of(LinTagType.stringTag(), List.of(
+            LinStringTag.of("Hello"),
+            LinStringTag.of("World!")
         )).toString()).isEqualTo("LinListTag[LinStringTag[Hello], LinStringTag[World!]]");
     }
 
@@ -71,7 +71,7 @@ public class LinListTagTest {
         var thrown = assertThrows(
             IllegalArgumentException.class,
             () -> LinListTag.builder((LinTagType) LinTagType.stringTag())
-                .add(new LinDoubleTag(0.0))
+                .add(LinDoubleTag.of(0.0))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Element is not of type STRING but DOUBLE");
     }
@@ -81,8 +81,8 @@ public class LinListTagTest {
         @SuppressWarnings({"unchecked", "rawtypes"})
         var thrown = assertThrows(
             IllegalArgumentException.class,
-            () -> new LinListTag<>((LinTagType) LinTagType.stringTag(), List.of(
-                new LinDoubleTag(0.0)
+            () -> LinListTag.of((LinTagType) LinTagType.stringTag(), List.of(
+                LinDoubleTag.of(0.0)
             ))
         );
         assertThat(thrown).hasMessageThat().isEqualTo("Element is not of type STRING but DOUBLE");
@@ -102,7 +102,7 @@ public class LinListTagTest {
         {
             var thrown = assertThrows(
                 IllegalArgumentException.class,
-                () -> new LinListTag<>(LinTagType.endTag(), List.of(LinEndTag.instance()))
+                () -> LinListTag.of(LinTagType.endTag(), List.of(LinEndTag.instance()))
             );
             assertThat(thrown).hasMessageThat().isEqualTo("A non-empty list cannot be of type END");
         }
@@ -111,13 +111,13 @@ public class LinListTagTest {
     @Test
     void addsAllFromCollection() {
         var tag = LinListTag.builder(LinTagType.stringTag())
-            .add(new LinStringTag("I'm first!"))
-            .addAll(List.of(new LinStringTag("Hello"), new LinStringTag("World!")))
+            .add(LinStringTag.of("I'm first!"))
+            .addAll(List.of(LinStringTag.of("Hello"), LinStringTag.of("World!")))
             .build();
         assertThat(tag).listValue().containsExactly(
-            new LinStringTag("I'm first!"),
-            new LinStringTag("Hello"),
-            new LinStringTag("World!")
+            LinStringTag.of("I'm first!"),
+            LinStringTag.of("Hello"),
+            LinStringTag.of("World!")
         ).inOrder();
     }
 }

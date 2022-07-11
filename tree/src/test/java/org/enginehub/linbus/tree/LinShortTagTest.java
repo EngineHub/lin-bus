@@ -25,8 +25,8 @@ import java.io.IOException;
 public class LinShortTagTest {
     @Test
     void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(new LinShortTag((short) 0x01));
-        TagTestUtil.assertRoundTrip(new LinShortTag((short) 0x09));
-        TagTestUtil.assertRoundTrip(new LinShortTag(Short.MIN_VALUE));
+        TagTestUtil.assertRoundTrip(LinShortTag.of((short) 0x01));
+        TagTestUtil.assertRoundTrip(LinShortTag.of((short) 0x09));
+        TagTestUtil.assertRoundTrip(LinShortTag.of(Short.MIN_VALUE));
     }
 }

@@ -26,19 +26,25 @@ import org.jetbrains.annotations.NotNull;
  * Represents a float tag.
  */
 public final class LinFloatTag extends LinNumberTag<@NotNull Float> {
-    private final float value;
 
     /**
      * Create a new float tag.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinFloatTag(float value) {
+    public static @NotNull LinFloatTag of(float value) {
+        return new LinFloatTag(value);
+    }
+
+    private final float value;
+
+    private LinFloatTag(float value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<LinFloatTag> type() {
+    public @NotNull LinTagType<@NotNull LinFloatTag> type() {
         return LinTagType.floatTag();
     }
 

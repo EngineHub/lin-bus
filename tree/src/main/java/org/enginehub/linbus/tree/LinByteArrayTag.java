@@ -31,26 +31,24 @@ import java.util.Arrays;
  * Represents a byte array tag.
  */
 public final class LinByteArrayTag extends LinTag<byte @NotNull []> {
-    private final byte[] value;
-
     /**
-     * Creates a new byte array tag from the given byte array. The array will be {@linkplain  Object#clone() cloned}.
+     * Creates a new byte array tag from the given byte array. The array will be {@linkplain Object#clone() cloned}.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinByteArrayTag(byte @NotNull ... value) {
-        this(value.clone(), true);
+    public static @NotNull LinByteArrayTag of(byte @NotNull ... value) {
+        return new LinByteArrayTag(value.clone());
     }
 
-    LinByteArrayTag(byte @NotNull [] value, boolean iSwearToNotModifyValue) {
-        if (!iSwearToNotModifyValue) {
-            throw new IllegalArgumentException("You think you're clever, huh?");
-        }
+    private final byte[] value;
+
+    private LinByteArrayTag(byte @NotNull [] value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<LinByteArrayTag> type() {
+    public @NotNull LinTagType<@NotNull LinByteArrayTag> type() {
         return LinTagType.byteArrayTag();
     }
 

@@ -28,7 +28,6 @@ import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -72,21 +71,11 @@ public record LinRootEntry(
     public byte[] writeToArray() {
         var output = new ByteArrayOutputStream();
         try (var dataOutputStream = new DataOutputStream(output)) {
-            writeTo(dataOutputStream);
+            LinBinaryIO.write(dataOutputStream, this);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return output.toByteArray();
-    }
-
-    /**
-     * Write this entry to the given output.
-     *
-     * @param output the output to write to
-     * @throws IOException if an I/O error occurs
-     */
-    public void writeTo(DataOutput output) throws IOException {
-        LinBinaryIO.write(output, this);
     }
 
     /**
@@ -96,7 +85,7 @@ public record LinRootEntry(
      */
     @Override
     public @NotNull LinCompoundTag toLinTag() {
-        return new LinCompoundTag(Map.of(name, value), true);
+        return LinCompoundTag.of(Map.of(name, value));
     }
 
     @Override

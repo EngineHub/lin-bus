@@ -21,7 +21,7 @@ package org.enginehub.linbus.format.snbt.impl;
 import org.enginehub.linbus.format.snbt.LinStringIO;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.LinStreamable;
-import org.enginehub.linbus.stream.exception.NbtParseException;
+import org.enginehub.linbus.stream.exception.NbtWriteException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,7 +64,7 @@ public class LinSnbtWriter {
             }
             if (token instanceof LinToken.Name name) {
                 if (!(state instanceof WriteState.Compound compound)) {
-                    throw new NbtParseException("Names can only appear inside compounds");
+                    throw new NbtWriteException("Names can only appear inside compounds");
                 }
                 if (compound.hasPrevious) {
                     output.append(',');
@@ -186,7 +186,7 @@ public class LinSnbtWriter {
                 handleValueEnd(output);
             } else {
                 // switch patterns wen
-                throw new IllegalArgumentException("Unknown token: " + token);
+                throw new NbtWriteException("Unknown token: " + token);
             }
         }
     }
@@ -205,7 +205,7 @@ public class LinSnbtWriter {
         } else if (state instanceof WriteState.Compound) {
             stateStack.addLast(new WriteState.Compound(true));
         } else {
-            throw new NbtParseException("Unexpected state: " + state);
+            throw new NbtWriteException("Unexpected state: " + state);
         }
     }
 

@@ -24,37 +24,28 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LinByteArrayTagTest {
     @Test
     void roundTrip() throws IOException {
-        TagTestUtil.assertRoundTrip(new LinByteArrayTag());
-        TagTestUtil.assertRoundTrip(new LinByteArrayTag(new byte[]{0x01}));
-        TagTestUtil.assertRoundTrip(new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04}));
-    }
-
-    @Test
-    void throwsIfImproperlyConstructed() {
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> new LinByteArrayTag(new byte[0], false)
-        );
+        TagTestUtil.assertRoundTrip(LinByteArrayTag.of());
+        TagTestUtil.assertRoundTrip(LinByteArrayTag.of(new byte[]{0x01}));
+        TagTestUtil.assertRoundTrip(LinByteArrayTag.of(new byte[]{0x01, 0x02, 0x03, 0x04}));
     }
 
     @Test
     void viewContentEqualsActualContent() {
-        var tag = new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04});
+        var tag = LinByteArrayTag.of(new byte[]{0x01, 0x02, 0x03, 0x04});
         assertEquals(ByteBuffer.wrap(tag.value()), tag.view());
     }
 
     @Test
     void equalsAndHashCodeImplementation() {
         SimpleObjectVerifier.assertEqualsHashCodeImplementation(
-            new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04}),
-            new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04}),
-            new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04}),
-            new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x05})
+            LinByteArrayTag.of(new byte[]{0x01, 0x02, 0x03, 0x04}),
+            LinByteArrayTag.of(new byte[]{0x01, 0x02, 0x03, 0x04}),
+            LinByteArrayTag.of(new byte[]{0x01, 0x02, 0x03, 0x04}),
+            LinByteArrayTag.of(new byte[]{0x01, 0x02, 0x03, 0x05})
         );
     }
 
@@ -62,7 +53,7 @@ public class LinByteArrayTagTest {
     void toStringImplementation() {
         assertEquals(
             "LinByteArrayTag[1, 2, 3, 4]",
-            new LinByteArrayTag(new byte[]{0x01, 0x02, 0x03, 0x04}).toString()
+            LinByteArrayTag.of(new byte[]{0x01, 0x02, 0x03, 0x04}).toString()
         );
     }
 }

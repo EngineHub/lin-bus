@@ -21,6 +21,7 @@ package org.enginehub.linbus.tree;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import org.enginehub.linbus.stream.LinBinaryIO;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,12 +31,12 @@ import static org.enginehub.linbus.tree.truth.LinTagSubject.assertThat;
 class TagTestUtil {
     private static final String NESTING_KEY = "inner";
 
-    static <T extends LinTag<?>> void assertRoundTrip(T input) throws IOException {
+    static <T extends @NotNull LinTag<?>> void assertRoundTrip(T input) throws IOException {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         // It's not legal to use bare streams, so we wrap in a root entry and compound.
         LinBinaryIO.write(
             dataOutput,
-            new LinRootEntry("", new LinCompoundTag(Map.of(NESTING_KEY, input)))
+            new LinRootEntry("", LinCompoundTag.of(Map.of(NESTING_KEY, input)))
         );
         @SuppressWarnings("unchecked")
         T recreated = LinBinaryIO.readUsing(

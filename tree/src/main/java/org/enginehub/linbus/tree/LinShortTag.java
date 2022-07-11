@@ -26,19 +26,25 @@ import org.jetbrains.annotations.NotNull;
  * Represents a short tag.
  */
 public final class LinShortTag extends LinNumberTag<@NotNull Short> {
-    private final short value;
 
     /**
      * Create a new short tag.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinShortTag(short value) {
+    public static @NotNull LinShortTag of(short value) {
+        return new LinShortTag(value);
+    }
+
+    private final short value;
+
+    private LinShortTag(short value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<LinShortTag> type() {
+    public @NotNull LinTagType<@NotNull LinShortTag> type() {
         return LinTagType.shortTag();
     }
 

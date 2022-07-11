@@ -21,7 +21,7 @@ package org.enginehub.linbus.stream.exception;
 import java.io.Serial;
 
 /**
- * Thrown when a NBT stream is malformed.
+ * Thrown when a NBT stream is malformed for parsing.
  */
 public final class NbtParseException extends RuntimeException {
     @Serial

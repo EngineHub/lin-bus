@@ -26,28 +26,35 @@ import org.jetbrains.annotations.NotNull;
  * Represents a byte tag.
  */
 public final class LinByteTag extends LinNumberTag<@NotNull Byte> {
-    private final byte value;
 
     /**
      * Creates a new byte tag from the given integer, which will be cast to a byte.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinByteTag(int value) {
-        this((byte) value);
+    public static @NotNull LinByteTag fromInt(int value) {
+        return of((byte) value);
     }
 
     /**
      * Creates a new byte tag.
      *
      * @param value the value
+     * @return the tag
      */
-    public LinByteTag(byte value) {
+    public static @NotNull LinByteTag of(byte value) {
+        return new LinByteTag(value);
+    }
+
+    private final byte value;
+
+    private LinByteTag(byte value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<LinByteTag> type() {
+    public @NotNull LinTagType<@NotNull LinByteTag> type() {
         return LinTagType.byteTag();
     }
 

@@ -43,11 +43,11 @@ public class LinTagTypeTest {
 
     @Test
     void castImplementation() {
-        var item = new LinLongTag(1L);
+        var item = LinLongTag.of(1L);
         assertThat(LinTagType.longTag().cast(item)).isSameInstanceAs(item);
         var thrown = assertThrows(
             IllegalArgumentException.class,
-            () -> LinTagType.longTag().cast(new LinStringTag("foo"))
+            () -> LinTagType.longTag().cast(LinStringTag.of("foo"))
         );
         assertThat(thrown).hasMessageThat().contains("Tag is a STRING, not a LONG");
     }

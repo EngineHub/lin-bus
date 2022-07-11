@@ -43,7 +43,7 @@ public sealed abstract class LinTag<T> implements ToLinTag<LinTag<T>>, LinStream
      * @return the type of this tag
      */
     // This is to be overriden directly to save memory in the tag itself
-    public abstract @NotNull LinTagType<? extends LinTag<T>> type();
+    public abstract @NotNull LinTagType<? extends @NotNull LinTag<T>> type();
 
     /**
      * Gets the value of this tag.

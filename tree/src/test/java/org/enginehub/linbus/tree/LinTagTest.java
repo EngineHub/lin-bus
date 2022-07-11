@@ -26,16 +26,16 @@ public class LinTagTest {
     @Test
     void equalsAndHashCodeImplementation() {
         SimpleObjectVerifier.assertEqualsHashCodeImplementation(
-            new LinIntTag(42),
-            new LinIntTag(42),
-            new LinIntTag(42),
-            new LinIntTag(Integer.MAX_VALUE)
+            LinIntTag.of(42),
+            LinIntTag.of(42),
+            LinIntTag.of(42),
+            LinIntTag.of(Integer.MAX_VALUE)
         );
     }
 
     @Test
     void toLinTagImplementation() {
-        var tag = new LinIntTag(42);
+        var tag = LinIntTag.of(42);
         assertThat(tag.toLinTag()).isSameInstanceAs(tag);
     }
 }

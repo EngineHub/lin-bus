@@ -20,7 +20,7 @@ package org.enginehub.linbus.stream;
 
 import org.enginehub.linbus.common.IOFunction;
 import org.enginehub.linbus.common.LinTagId;
-import org.enginehub.linbus.stream.exception.NbtParseException;
+import org.enginehub.linbus.stream.exception.NbtWriteException;
 import org.enginehub.linbus.stream.impl.LinNbtReader;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jetbrains.annotations.NotNull;
@@ -97,7 +97,7 @@ public class LinBinaryIO {
                     seenFirstName = true;
                 } else {
                     // It's not legal to write without a name.
-                    throw new NbtParseException("Expected first token to be a name");
+                    throw new NbtWriteException("Expected first token to be a name");
                 }
             }
             if (token instanceof LinToken.Name name) {
@@ -188,7 +188,7 @@ public class LinBinaryIO {
                 output.writeUTF(stringValue.value());
             } else {
                 // switch patterns wen
-                throw new IllegalArgumentException("Unknown token: " + token);
+                throw new NbtWriteException("Unknown token: " + token);
             }
         }
     }
