@@ -1,5 +1,5 @@
 name: Gradle Build
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   build:
@@ -8,23 +8,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ ubuntu-latest, windows-latest ]
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        lfs: true
-    - name: Set up JDK
-      uses: actions/setup-java@v2
-      with:
-        java-version: 17
-        cache: 'gradle'
-        distribution: 'temurin'
-    - name: Build with Gradle
-      run: ./gradlew build -s
-    - uses: actions/upload-artifact@v2.2.4
-      name: Archive Reports
-      if: always()
-      with:
-        name: reports for ${{ matrix.os }}
-        path: '**/build/reports/**'
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          cache: 'gradle'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        run: ./gradlew build -s
+      - uses: actions/upload-artifact@v2.2.4
+        name: Archive Reports
+        if: always()
+        with:
+          name: reports for ${{ matrix.os }}
+          path: '**/build/reports/**'
+  deploy:
+    name: Deploy WorldEdit to Artifactory
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'master'
+    steps:
+      - name: Deploy to Artifactory
+        shell: bash
+        env:
+          ORG_GRADLE_PROJECT_artifactory_contextUrl: ${{ secrets.ARTIFACTORY_CONTEXTURL }}
+          ORG_GRADLE_PROJECT_artifactory_user: ${{ secrets.ARTIFACTORY_USER }}
+          ORG_GRADLE_PROJECT_artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+        run: ./gradlew publishToMavenLocal artifactoryPublish -s
