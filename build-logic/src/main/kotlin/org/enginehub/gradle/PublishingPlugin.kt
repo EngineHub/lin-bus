@@ -18,8 +18,6 @@ class PublishingPlugin : Plugin<Project> {
         project.apply(plugin = "com.jfrog.artifactory")
         if (project.parent == null) {
             project.applyRootArtifactoryConfig()
-        } else {
-            project.applyChildArtifactoryConfig()
         }
     }
 
@@ -28,30 +26,27 @@ class PublishingPlugin : Plugin<Project> {
         if (!project.hasProperty(ARTIFACTORY_USER)) ext[ARTIFACTORY_USER] = "guest"
         if (!project.hasProperty(ARTIFACTORY_PASSWORD)) ext[ARTIFACTORY_PASSWORD] = ""
 
-        apply(plugin = "com.jfrog.artifactory")
         configure<ArtifactoryPluginConvention> {
             setContextUrl("${project.property(ARTIFACTORY_CONTEXT_URL)}")
-            clientConfig.publisher.run {
-                repoKey = when {
-                    "${project.version}".contains("SNAPSHOT") -> "libs-snapshot-local"
-                    else -> "libs-release-local"
+            publish {
+                repository {
+                    setRepoKey(when {
+                        "${project.version}".contains("SNAPSHOT") -> "libs-snapshot-local"
+                        else -> "libs-release-local"
+                    })
+                    setUsername("${project.property(ARTIFACTORY_USER)}")
+                    setPassword("${project.property(ARTIFACTORY_PASSWORD)}")
+                    setMavenCompatible(true)
+                    setPublishIvy(false)
                 }
-                username = "${project.property(ARTIFACTORY_USER)}"
-                password = "${project.property(ARTIFACTORY_PASSWORD)}"
-                isMaven = true
-                isIvy = false
+                defaults {
+                    setPublishIvy(false)
+                    publications("maven")
+                }
             }
         }
         tasks.named<ArtifactoryTask>("artifactoryPublish") {
             isSkip = true
-        }
-    }
-
-    private fun Project.applyChildArtifactoryConfig() {
-        afterEvaluate {
-            tasks.named<ArtifactoryTask>("artifactoryPublish") {
-                publications("maven")
-            }
         }
     }
 }
