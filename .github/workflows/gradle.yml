@@ -22,6 +22,8 @@ jobs:
           distribution: 'temurin'
       - name: Build with Gradle
         run: ./gradlew build -s
+      - name: "Kill Daemons Because Apparently GitHub Won't Do It For You"
+        run: ./gradlew --stop
       - uses: actions/upload-artifact@v3
         name: Archive Reports
         if: always()

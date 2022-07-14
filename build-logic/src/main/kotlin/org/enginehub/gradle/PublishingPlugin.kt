@@ -23,7 +23,7 @@ class PublishingPlugin : Plugin<Project> {
         }
     }
 
-    fun Project.applyRootArtifactoryConfig() {
+    private fun Project.applyRootArtifactoryConfig() {
         if (!project.hasProperty(ARTIFACTORY_CONTEXT_URL)) ext[ARTIFACTORY_CONTEXT_URL] = "http://localhost"
         if (!project.hasProperty(ARTIFACTORY_USER)) ext[ARTIFACTORY_USER] = "guest"
         if (!project.hasProperty(ARTIFACTORY_PASSWORD)) ext[ARTIFACTORY_PASSWORD] = ""
@@ -47,9 +47,11 @@ class PublishingPlugin : Plugin<Project> {
         }
     }
 
-    fun Project.applyChildArtifactoryConfig() {
-        tasks.named<ArtifactoryTask>("artifactoryPublish") {
-            publications("maven")
+    private fun Project.applyChildArtifactoryConfig() {
+        afterEvaluate {
+            tasks.named<ArtifactoryTask>("artifactoryPublish") {
+                publications("maven")
+            }
         }
     }
 }
