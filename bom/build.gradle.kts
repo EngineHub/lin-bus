@@ -1,6 +1,6 @@
 plugins {
     `java-platform`
-    `maven-publish`
+    id("org.enginehub.lin-bus.publishing")
 }
 
 dependencies {

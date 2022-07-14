@@ -12,6 +12,7 @@ repositories {
 dependencies {
     implementation(gradleApi())
     implementation("gradle.plugin.org.cadixdev.gradle:licenser:0.6.1")
+    implementation("org.jfrog.buildinfo:build-info-extractor-gradle:4.28.4")
 }
 
 configure<JavaPluginExtension> {
@@ -27,6 +28,10 @@ gradlePlugin {
         create("license") {
             id = "org.enginehub.lin-bus.license"
             implementationClass = "org.enginehub.gradle.LicensePlugin"
+        }
+        create("publishing") {
+            id = "org.enginehub.lin-bus.publishing"
+            implementationClass = "org.enginehub.gradle.PublishingPlugin"
         }
     }
 }
