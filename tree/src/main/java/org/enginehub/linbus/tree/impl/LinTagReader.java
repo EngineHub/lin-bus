@@ -21,6 +21,7 @@ package org.enginehub.linbus.tree.impl;
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.exception.NbtParseException;
+import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.enginehub.linbus.tree.LinByteArrayTag;
 import org.enginehub.linbus.tree.LinByteTag;
@@ -38,6 +39,7 @@ import org.enginehub.linbus.tree.LinStringTag;
 import org.enginehub.linbus.tree.LinTag;
 import org.enginehub.linbus.tree.LinTagType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -83,7 +85,6 @@ public class LinTagReader {
      * @throws IOException if an I/O error occurs
      */
     public static LinCompoundTag readCompound(@NotNull LinStream tokens) throws IOException {
-        tokens = tokens.linStream();
         if (!(tokens.nextOrNull() instanceof LinToken.CompoundStart)) {
             throw new NbtParseException("Expected compound start");
         }
@@ -99,7 +100,7 @@ public class LinTagReader {
             if (!(token instanceof LinToken.Name name)) {
                 throw new NbtParseException("Expected name, got " + token);
             }
-            var value = readValue(tokens, LinTagType.fromId(name.id().orElseThrow()));
+            var value = readValue(tokens, name.id().map(LinTagType::fromId).orElse(null));
             builder.put(name.name(), value);
         }
         throw new NbtParseException("Expected compound end");
@@ -181,8 +182,7 @@ public class LinTagReader {
         if (!(tokens.nextOrNull() instanceof LinToken.ListStart start)) {
             throw new NbtParseException("Expected list start");
         }
-        @SuppressWarnings("unchecked")
-        LinTagType<T> elementType = (LinTagType<T>) LinTagType.fromId(start.elementId().orElseThrow());
+        LinTagType<T> elementType = LinTagType.fromId(start.elementId().orElseThrow());
         var builder = LinListTag.builder(elementType);
         for (int i = 0; i < start.size().orElseThrow(); i++) {
             T tag = readValue(tokens, elementType);
@@ -194,7 +194,15 @@ public class LinTagReader {
         return builder.build();
     }
 
-    private static <T extends @NotNull LinTag<?>> T readValue(@NotNull LinStream tokens, LinTagType<T> id) throws IOException {
+    private static <T extends @NotNull LinTag<?>> T readValue(@NotNull LinStream tokens, @Nullable LinTagType<T> id) throws IOException {
+        if (id == null) {
+            var next = tokens.nextOrNull();
+            if (next == null) {
+                throw new NbtParseException("Expected value, got end of stream");
+            }
+            id = LinTagType.fromId(next.tagId().orElseThrow(() -> new NbtParseException("Expected value, got " + next)));
+            tokens = new SurroundingLinStream(next, tokens, null);
+        }
         return id.cast(switch (id.id()) {
             case BYTE_ARRAY -> readByteArray(tokens);
             case BYTE -> LinByteTag.of(((LinToken.Byte) requireNextToken(tokens)).value());
