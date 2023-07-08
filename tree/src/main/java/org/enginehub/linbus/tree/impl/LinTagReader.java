@@ -85,6 +85,7 @@ public class LinTagReader {
      * @throws IOException if an I/O error occurs
      */
     public static LinCompoundTag readCompound(@NotNull LinStream tokens) throws IOException {
+        tokens = tokens.calculateOptionalInfo();
         if (!(tokens.nextOrNull() instanceof LinToken.CompoundStart)) {
             throw new NbtParseException("Expected compound start");
         }
@@ -201,7 +202,7 @@ public class LinTagReader {
                 throw new NbtParseException("Expected value, got end of stream");
             }
             id = LinTagType.fromId(next.tagId().orElseThrow(() -> new NbtParseException("Expected value, got " + next)));
-            tokens = new SurroundingLinStream(next, tokens, null).calculateOptionalInfo();
+            tokens = new SurroundingLinStream(next, tokens, null);
         }
         return id.cast(switch (id.id()) {
             case BYTE_ARRAY -> readByteArray(tokens);
