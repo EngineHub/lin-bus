@@ -201,7 +201,7 @@ public class LinTagReader {
                 throw new NbtParseException("Expected value, got end of stream");
             }
             id = LinTagType.fromId(next.tagId().orElseThrow(() -> new NbtParseException("Expected value, got " + next)));
-            tokens = new SurroundingLinStream(next, tokens, null);
+            tokens = new SurroundingLinStream(next, tokens, null).calculateOptionalInfo();
         }
         return id.cast(switch (id.id()) {
             case BYTE_ARRAY -> readByteArray(tokens);
