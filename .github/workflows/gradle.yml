@@ -3,7 +3,7 @@ on: [ push, pull_request ]
 
 jobs:
   build:
-    name: Build WorldEdit on ${{ matrix.os }}
+    name: Build lin-bus on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -31,7 +31,7 @@ jobs:
           name: reports for ${{ matrix.os }}
           path: '**/build/reports/**'
   deploy:
-    name: Deploy WorldEdit to Artifactory
+    name: Deploy lin-bus to Artifactory
     needs: build
     runs-on: ubuntu-latest
     if: github.ref_name == 'master'
