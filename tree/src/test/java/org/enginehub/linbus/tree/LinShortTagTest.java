@@ -22,11 +22,18 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.google.common.truth.Truth.assertThat;
+
 public class LinShortTagTest {
     @Test
     void roundTrip() throws IOException {
         TagTestUtil.assertRoundTrip(LinShortTag.of((short) 0x01));
         TagTestUtil.assertRoundTrip(LinShortTag.of((short) 0x09));
         TagTestUtil.assertRoundTrip(LinShortTag.of(Short.MIN_VALUE));
+    }
+
+    @Test
+    void valueAsShort() {
+        assertThat(LinShortTag.of((short) 0x01).valueAsShort()).isEqualTo((short) 0x01);
     }
 }
