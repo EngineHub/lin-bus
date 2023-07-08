@@ -85,6 +85,7 @@ public class LinTagReader {
      * @throws IOException if an I/O error occurs
      */
     public static LinCompoundTag readCompound(@NotNull LinStream tokens) throws IOException {
+        tokens = tokens.calculateOptionalInfo();
         if (!(tokens.nextOrNull() instanceof LinToken.CompoundStart)) {
             throw new NbtParseException("Expected compound start");
         }

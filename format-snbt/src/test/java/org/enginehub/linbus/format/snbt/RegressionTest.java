@@ -19,6 +19,9 @@
 package org.enginehub.linbus.format.snbt;
 
 import org.enginehub.linbus.tree.LinCompoundTag;
+import org.enginehub.linbus.tree.LinListTag;
+import org.enginehub.linbus.tree.LinStringTag;
+import org.enginehub.linbus.tree.LinTagType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,6 +34,20 @@ public class RegressionTest {
         assertEquals(
             LinCompoundTag.builder()
                 .putString("CustomName", "cake")
+                .build(),
+            compound
+        );
+    }
+
+    // https://github.com/EngineHub/lin-bus/issues/3
+    @Test
+    void readListFromString() {
+        var compound = LinStringIO.readFromStringUsing("{'messages':['a']}", LinCompoundTag::readFrom);
+        assertEquals(
+            LinCompoundTag.builder()
+                .put("messages", LinListTag.builder(LinTagType.stringTag())
+                    .add(LinStringTag.of("a"))
+                    .build())
                 .build(),
             compound
         );

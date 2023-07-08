@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.enginehub.linbus.tree.TagTestUtil.assertRoundTrip;
 
 public class LinLongTagTest {
@@ -30,5 +31,10 @@ public class LinLongTagTest {
         assertRoundTrip(LinLongTag.of(0x01));
         assertRoundTrip(LinLongTag.of(0x09));
         assertRoundTrip(LinLongTag.of(Integer.MIN_VALUE));
+    }
+
+    @Test
+    void valueAsLong() {
+        assertThat(LinLongTag.of(0x01).valueAsLong()).isEqualTo(0x01);
     }
 }
