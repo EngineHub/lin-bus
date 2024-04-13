@@ -11,20 +11,23 @@ jobs:
         os: [ ubuntu-latest, windows-latest ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           lfs: true
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 17
-          cache: 'gradle'
           distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
       - name: Build with Gradle
         run: ./gradlew build -s
       - name: "Kill Daemons Because Apparently GitHub Won't Do It For You"
         run: ./gradlew --stop
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Archive Reports
         if: always()
         with:
@@ -34,17 +37,21 @@ jobs:
     name: Deploy lin-bus to Artifactory
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref_name == 'master'
+    if: github.ref_name == 'master' || (github.ref_type == 'tag' && startsWith(github.ref_name, 'v'))
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           lfs: true
+
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 17
-          cache: 'gradle'
           distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
       - name: Deploy to Artifactory
         shell: bash
         env:
