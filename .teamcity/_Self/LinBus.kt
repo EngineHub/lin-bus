@@ -75,6 +75,9 @@ object Release : BuildType({
         configuredGradle {
             name = "Publish release version"
             tasks = "publishToMavenLocal artifactoryPublish"
+            gradleParams = "-Partifactory_contextUrl=%artifactory.contextUrl% " +
+                    "-Partifactory_user=%artifactory.user% " +
+                    "-Partifactory_password=%artifactory.password%"
         }
         script {
             name = "Push release version commit"
