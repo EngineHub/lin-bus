@@ -26,7 +26,6 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 
 public class LinTokenTest {
     @Test
