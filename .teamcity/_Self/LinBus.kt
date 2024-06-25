@@ -53,7 +53,7 @@ object Release : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-        branchFilter = "+:master"
+        branchFilter = "+:refs/heads/master"
     }
 
     dependencies {
