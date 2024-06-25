@@ -83,7 +83,7 @@ object Release : BuildType({
             name = "Push release version commit"
             scriptContent = """
                 set -e
-                git push master --tags
+                git push origin master --tags
             """.trimIndent()
         }
         configuredGradle {
