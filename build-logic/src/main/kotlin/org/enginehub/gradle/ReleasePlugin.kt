@@ -16,6 +16,9 @@ class ReleasePlugin @Inject constructor(
         if (!versionFile.exists()) {
             throw IllegalStateException("version.txt file does not exist")
         }
+
+        project.version = getVersion(versionFile)
+
         project.tasks.register("changeSnapshotToRelease") {
             group = RELEASE_GROUP
             description = "Change the version from a snapshot to a release version, commit it, and tag it"

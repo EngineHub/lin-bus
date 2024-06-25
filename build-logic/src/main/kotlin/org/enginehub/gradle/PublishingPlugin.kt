@@ -18,6 +18,8 @@ class PublishingPlugin : Plugin<Project> {
         project.apply(plugin = "com.jfrog.artifactory")
         if (project.parent == null) {
             project.applyRootArtifactoryConfig()
+        } else {
+            project.version = project.rootProject.version
         }
     }
 
