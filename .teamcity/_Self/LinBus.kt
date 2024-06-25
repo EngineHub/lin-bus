@@ -2,6 +2,7 @@ package _Self
 
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
+import jetbrains.buildServer.configs.kotlin.buildFeatures.sshAgent
 import jetbrains.buildServer.configs.kotlin.buildSteps.GradleBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
@@ -46,6 +47,41 @@ object Build : BuildType({
     }
 })
 
+const val ARTIFACTORY_PARAMS = "-Partifactory_contextUrl=%artifactory.contextUrl% " +
+        "-Partifactory_user=%artifactory.user% " +
+        "-Partifactory_password=%artifactory.password%"
+
+object DeployNormal : BuildType({
+    id = RelativeId("DeployNormal")
+    name = "DeployNormal"
+    description = "Make a normal deployment of the project."
+
+    vcs {
+        root(DslContext.settingsRoot)
+        branchFilter = "+:<default>"
+    }
+
+    triggers {
+        vcs {
+        }
+    }
+
+    dependencies {
+        snapshot(Build) {
+            onDependencyFailure = FailureAction.FAIL_TO_START
+        }
+    }
+
+    steps {
+        configuredGradle {
+            name = "Publish"
+            tasks = "publishToMavenLocal artifactoryPublish"
+            gradleParams = ARTIFACTORY_PARAMS
+        }
+    }
+})
+
+
 object Release : BuildType({
     id = RelativeId("Release")
     name = "Release"
@@ -68,6 +104,14 @@ object Release : BuildType({
     }
 
     steps {
+        script {
+            name = "Setup git for push"
+            scriptContent = """
+                set -e
+                git config --global credential.helper store
+                echo "https://git:%git.github.token.push%@github.com" > ~/.git-credentials
+            """.trimIndent()
+        }
         configuredGradle {
             name = "Switch to release version"
             tasks = "changeSnapshotToRelease"
@@ -75,26 +119,17 @@ object Release : BuildType({
         configuredGradle {
             name = "Publish release version"
             tasks = "publishToMavenLocal artifactoryPublish"
-            gradleParams = "-Partifactory_contextUrl=%artifactory.contextUrl% " +
-                    "-Partifactory_user=%artifactory.user% " +
-                    "-Partifactory_password=%artifactory.password%"
-        }
-        script {
-            name = "Push release version commit"
-            scriptContent = """
-                set -e
-                git push origin master --tags
-            """.trimIndent()
+            gradleParams = ARTIFACTORY_PARAMS
         }
         configuredGradle {
             name = "Switch to next snapshot version"
             tasks = "changeReleaseToNextSnapshot"
         }
         script {
-            name = "Push snapshot version commit"
+            name = "Push version commits"
             scriptContent = """
                 set -e
-                git push
+                git push origin master --tags
             """.trimIndent()
         }
     }

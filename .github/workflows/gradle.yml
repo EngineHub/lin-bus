@@ -33,29 +33,3 @@ jobs:
         with:
           name: reports for ${{ matrix.os }}
           path: '**/build/reports/**'
-  deploy:
-    name: Deploy lin-bus to Artifactory
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref_name == 'master' || (github.ref_type == 'tag' && startsWith(github.ref_name, 'v'))
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-
-      - name: Deploy to Artifactory
-        shell: bash
-        env:
-          ORG_GRADLE_PROJECT_artifactory_contextUrl: ${{ secrets.ARTIFACTORY_CONTEXTURL }}
-          ORG_GRADLE_PROJECT_artifactory_user: ${{ secrets.ARTIFACTORY_USER }}
-          ORG_GRADLE_PROJECT_artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
-        run: ./gradlew publishToMavenLocal artifactoryPublish -s
