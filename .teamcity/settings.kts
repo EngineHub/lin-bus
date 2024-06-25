@@ -1,17 +1,8 @@
-import jetbrains.buildServer.configs.kotlin.*
-import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
-import jetbrains.buildServer.configs.kotlin.triggers.vcs
+import _Self.Build
+import jetbrains.buildServer.configs.kotlin.project
+import jetbrains.buildServer.configs.kotlin.version
 
 /*
-The settings script is an entry point for defining a TeamCity
-project hierarchy. The script should contain a single call to the
-project() function with a Project instance or an init function as
-an argument.
-
-VcsRoots, BuildTypes, Templates, and subprojects can be
-registered inside the project using the vcsRoot(), buildType(),
-template(), and subProject() methods respectively.
-
 To debug settings scripts in command-line, run the
 
     mvnDebug org.jetbrains.teamcity:teamcity-configs-maven-plugin:generate
@@ -27,25 +18,5 @@ To debug in IntelliJ Idea, open the 'Maven Projects' tool window (View
 version = "2024.03"
 
 project {
-
-    buildType(LinBus_Build)
+    buildType(Build)
 }
-
-object LinBus_Build : BuildType({
-    id = AbsoluteId("LinBus_Build")
-    name = "Build"
-
-    vcs {
-        root(DslContext.settingsRoot)
-    }
-
-    triggers {
-        vcs {
-        }
-    }
-
-    features {
-        perfmon {
-        }
-    }
-})
