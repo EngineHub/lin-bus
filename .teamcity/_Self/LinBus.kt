@@ -54,6 +54,11 @@ object Release : BuildType({
     vcs {
         root(DslContext.settingsRoot)
         branchFilter = "+:<default>"
+        checkoutMode = CheckoutMode.ON_AGENT
+    }
+
+    requirements {
+        startsWith("teamcity.agent.name", "hetzner-")
     }
 
     dependencies {
