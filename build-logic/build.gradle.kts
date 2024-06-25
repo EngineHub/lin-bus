@@ -33,5 +33,9 @@ gradlePlugin {
             id = "org.enginehub.lin-bus.publishing"
             implementationClass = "org.enginehub.gradle.PublishingPlugin"
         }
+        create("release") {
+            id = "org.enginehub.lin-bus.release"
+            implementationClass = "org.enginehub.gradle.ReleasePlugin"
+        }
     }
 }
