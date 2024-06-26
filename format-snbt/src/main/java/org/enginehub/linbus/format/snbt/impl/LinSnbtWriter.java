@@ -48,6 +48,12 @@ public class LinSnbtWriter {
     private final ArrayDeque<WriteState> stateStack = new ArrayDeque<>();
 
     /**
+     * Construct a new writer.
+     */
+    public LinSnbtWriter() {
+    }
+
+    /**
      * Write the tokens to the output.
      *
      * @param output the output

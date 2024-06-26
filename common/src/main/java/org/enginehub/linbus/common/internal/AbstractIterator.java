@@ -36,6 +36,12 @@ public abstract class AbstractIterator<T extends @Nullable Object> implements It
     private T next;
 
     /**
+     * Create a new iterator.
+     */
+    public AbstractIterator() {
+    }
+
+    /**
      * Compute the next item.
      *
      * @return the next item, or the return value of {@link #end()} if there are no more items

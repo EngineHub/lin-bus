@@ -35,6 +35,12 @@ public class ValueCounter {
     private byte arrayType;
 
     /**
+     * Construct a new value counter.
+     */
+    public ValueCounter() {
+    }
+
+    /**
      * Add a token to this counter.
      *
      * @param token the token to add

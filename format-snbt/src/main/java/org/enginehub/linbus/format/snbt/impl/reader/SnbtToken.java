@@ -131,6 +131,9 @@ public sealed interface SnbtToken {
 
     /**
      * String literal for arbitrary text.
+     *
+     * @param quoted if the text was quoted
+     * @param content the content of the text
      */
     record Text(boolean quoted, String content) implements SnbtToken {
     }

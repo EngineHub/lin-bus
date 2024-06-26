@@ -35,6 +35,9 @@ import java.util.Objects;
 
 /**
  * Represents the root implicit-compound-tag entry.
+ *
+ * @param name the name of the entry
+ * @param value the value of the entry
  */
 public record LinRootEntry(
     String name,
