@@ -18,6 +18,8 @@
 
 package org.enginehub.linbus.common;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.function.Function;
 
@@ -27,7 +29,7 @@ import java.util.function.Function;
  * @param <T> the input type
  * @param <R> the output type
  */
-public interface IOFunction<T, R> {
+public interface IOFunction<T, R extends @Nullable Object> {
     /**
      * Applies this function to the given argument.
      *

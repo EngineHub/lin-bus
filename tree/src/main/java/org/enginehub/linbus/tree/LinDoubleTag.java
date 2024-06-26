@@ -20,12 +20,11 @@ package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a double tag.
  */
-public final class LinDoubleTag extends LinNumberTag<@NotNull Double> {
+public final class LinDoubleTag extends LinNumberTag<Double> {
 
     /**
      * Creates a new double tag.
@@ -33,7 +32,7 @@ public final class LinDoubleTag extends LinNumberTag<@NotNull Double> {
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinDoubleTag of(double value) {
+    public static LinDoubleTag of(double value) {
         return new LinDoubleTag(value);
     }
 
@@ -44,12 +43,12 @@ public final class LinDoubleTag extends LinNumberTag<@NotNull Double> {
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinDoubleTag> type() {
+    public LinTagType<LinDoubleTag> type() {
         return LinTagType.doubleTag();
     }
 
     @Override
-    public @NotNull Double value() {
+    public Double value() {
         return value;
     }
 
@@ -63,7 +62,7 @@ public final class LinDoubleTag extends LinNumberTag<@NotNull Double> {
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return LinStream.of(new LinToken.Double(value));
     }
 }

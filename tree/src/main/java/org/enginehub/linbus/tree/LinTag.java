@@ -19,7 +19,7 @@
 package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.stream.LinStreamable;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -43,7 +43,7 @@ public sealed abstract class LinTag<T> implements ToLinTag<LinTag<T>>, LinStream
      * @return the type of this tag
      */
     // This is to be overriden directly to save memory in the tag itself
-    public abstract @NotNull LinTagType<? extends @NotNull LinTag<T>> type();
+    public abstract LinTagType<? extends LinTag<T>> type();
 
     /**
      * Gets the value of this tag.
@@ -53,14 +53,14 @@ public sealed abstract class LinTag<T> implements ToLinTag<LinTag<T>>, LinStream
     public abstract T value();
 
     @Override
-    public final @NotNull LinTag<T> toLinTag() {
+    public final LinTag<T> toLinTag() {
         // This could be overriden by subclasses to provide a sharper return type. I didn't do this because it's
         // a lot of work, but please ask / PR if you want it.
         return this;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LinTag<?> that = (LinTag<?>) o;
@@ -73,7 +73,7 @@ public sealed abstract class LinTag<T> implements ToLinTag<LinTag<T>>, LinStream
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return getClass().getSimpleName() + "[" + value() + ']';
     }
 }

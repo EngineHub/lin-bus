@@ -16,14 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.enginehub.linbus.stream;
+@NullMarked
+package org.enginehub.linbus.tree;
 
-/**
- * Represents something that can provide a {@link LinStream}.
- */
-public interface LinStreamable {
-    /**
-     * {@return a {@link LinStream} for this object}
-     */
-    LinStream linStream();
-}
+import org.jspecify.annotations.NullMarked;

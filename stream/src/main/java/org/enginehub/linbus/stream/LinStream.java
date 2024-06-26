@@ -21,8 +21,7 @@ package org.enginehub.linbus.stream;
 import org.enginehub.linbus.common.internal.AbstractIterator;
 import org.enginehub.linbus.stream.impl.OptionalInfoCalculator;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -47,7 +46,7 @@ public interface LinStream extends LinStreamable {
      */
     static LinStream of(LinToken token) {
         return new LinStream() {
-            private LinToken nextToken = token;
+            private @Nullable LinToken nextToken = token;
 
             @Override
             public @Nullable LinToken nextOrNull() {
@@ -122,7 +121,7 @@ public interface LinStream extends LinStreamable {
      * @return this
      */
     @Override
-    default @NotNull LinStream linStream() {
+    default LinStream linStream() {
         return this;
     }
 
@@ -135,7 +134,7 @@ public interface LinStream extends LinStreamable {
      *
      * @return an iterator over this stream
      */
-    default @NotNull Iterator<LinToken> asIterator() {
+    default Iterator<LinToken> asIterator() {
         return new AbstractIterator<>() {
             @Override
             protected @Nullable LinToken computeNext() {

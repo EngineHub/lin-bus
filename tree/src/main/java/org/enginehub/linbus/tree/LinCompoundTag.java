@@ -25,9 +25,7 @@ import org.enginehub.linbus.stream.internal.FlatteningLinStream;
 import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.enginehub.linbus.tree.impl.LinTagReader;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -40,7 +38,7 @@ import java.util.Objects;
 /**
  * Represents a compound tag.
  */
-public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ? extends @NotNull LinTag<?>>> {
+public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>>> {
 
     /**
      * Creates a new compound tag.
@@ -53,7 +51,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinCompoundTag of(@NotNull Map<@NotNull String, ? extends @NotNull LinTag<?>> value) {
+    public static LinCompoundTag of(Map<String, ? extends LinTag<?>> value) {
         return new LinCompoundTag(copyImmutable(value), true);
     }
 
@@ -70,7 +68,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * A builder for {@link LinCompoundTag LinCompoundTags}.
      */
     public static final class Builder {
-        private final LinkedHashMap<@NotNull String, @NotNull LinTag<?>> collector;
+        private final LinkedHashMap<String, LinTag<?>> collector;
 
         private Builder() {
             this.collector = new LinkedHashMap<>();
@@ -87,8 +85,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value of the tag
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder put(@NotNull String name, @NotNull LinTag<?> value) {
+        public Builder put(String name, LinTag<?> value) {
             if (value.type().id() == LinTagId.END) {
                 throw new IllegalArgumentException("Cannot add END tag to compound tag");
             }
@@ -102,8 +99,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param map the tags to add
          * @return this builder
          */
-        @Contract("_ -> this")
-        public @NotNull Builder putAll(@NotNull Map<String, ? extends LinTag<?>> map) {
+        public Builder putAll(Map<String, ? extends LinTag<?>> map) {
             map.forEach(this::put);
             return this;
         }
@@ -114,8 +110,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param name the name of the tag
          * @return this builder
          */
-        @Contract("_ -> this")
-        public @NotNull Builder remove(@NotNull String name) {
+        public Builder remove(String name) {
             this.collector.remove(name);
             return this;
         }
@@ -127,8 +122,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putByteArray(@NotNull String name, byte @NotNull [] value) {
+        public Builder putByteArray(String name, byte[] value) {
             return put(name, LinByteArrayTag.of(value));
         }
 
@@ -139,8 +133,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putByte(@NotNull String name, byte value) {
+        public Builder putByte(String name, byte value) {
             return put(name, LinByteTag.of(value));
         }
 
@@ -151,8 +144,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putCompound(@NotNull String name, @NotNull Map<String, ? extends LinTag<?>> value) {
+        public Builder putCompound(String name, Map<String, ? extends LinTag<?>> value) {
             return put(name, new LinCompoundTag(value, true));
         }
 
@@ -163,8 +155,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putDouble(@NotNull String name, double value) {
+        public Builder putDouble(String name, double value) {
             return put(name, LinDoubleTag.of(value));
         }
 
@@ -175,8 +166,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putFloat(@NotNull String name, float value) {
+        public Builder putFloat(String name, float value) {
             return put(name, LinFloatTag.of(value));
         }
 
@@ -187,8 +177,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putIntArray(@NotNull String name, int @NotNull [] value) {
+        public Builder putIntArray(String name, int[] value) {
             return put(name, LinIntArrayTag.of(value));
         }
 
@@ -199,8 +188,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putInt(@NotNull String name, int value) {
+        public Builder putInt(String name, int value) {
             return put(name, LinIntTag.of(value));
         }
 
@@ -211,8 +199,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putLongArray(@NotNull String name, long @NotNull [] value) {
+        public Builder putLongArray(String name, long[] value) {
             return put(name, LinLongArrayTag.of(value));
         }
 
@@ -223,8 +210,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putLong(@NotNull String name, long value) {
+        public Builder putLong(String name, long value) {
             return put(name, LinLongTag.of(value));
         }
 
@@ -235,8 +221,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putShort(@NotNull String name, short value) {
+        public Builder putShort(String name, short value) {
             return put(name, LinShortTag.of(value));
         }
 
@@ -247,8 +232,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          * @param value the value to add
          * @return this builder
          */
-        @Contract("_, _ -> this")
-        public @NotNull Builder putString(@NotNull String name, @NotNull String value) {
+        public Builder putString(String name, String value) {
             return put(name, LinStringTag.of(value));
         }
 
@@ -257,7 +241,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
          *
          * @return the built tag
          */
-        public @NotNull LinCompoundTag build() {
+        public LinCompoundTag build() {
             return new LinCompoundTag(copyImmutable(this.collector), false);
         }
     }
@@ -269,19 +253,19 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * @return the compound tag
      * @throws IOException if an I/O error occurs
      */
-    public static @NotNull LinCompoundTag readFrom(@NotNull LinStream tokens) throws IOException {
+    public static LinCompoundTag readFrom(LinStream tokens) throws IOException {
         return LinTagReader.readCompound(tokens);
     }
 
-    private static @NotNull Map<@NotNull String, @NotNull LinTag<?>> copyImmutable(
-        @NotNull Map<@NotNull String, ? extends @NotNull LinTag<?>> value
+    private static Map<String, LinTag<?>> copyImmutable(
+        Map<String, ? extends LinTag<?>> value
     ) {
         return Collections.unmodifiableMap(new LinkedHashMap<>(value));
     }
 
-    private final Map<@NotNull String, ? extends @NotNull LinTag<?>> value;
+    private final Map<String, ? extends LinTag<?>> value;
 
-    private LinCompoundTag(@NotNull Map<@NotNull String, ? extends @NotNull LinTag<?>> value, boolean check) {
+    private LinCompoundTag(Map<String, ? extends LinTag<?>> value, boolean check) {
         if (check) {
             for (LinTag<?> tag : value.values()) {
                 if (tag.type().id() == LinTagId.END) {
@@ -293,17 +277,17 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinCompoundTag> type() {
+    public LinTagType<LinCompoundTag> type() {
         return LinTagType.compoundTag();
     }
 
     @Override
-    public @NotNull Map<@NotNull String, ? extends @NotNull LinTag<?>> value() {
+    public Map<String, ? extends LinTag<?>> value() {
         return value;
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return new SurroundingLinStream(
             new LinToken.CompoundStart(),
             new FlatteningLinStream(new EntryTokenIterator()),
@@ -338,7 +322,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * @param <T> the type of the tag
      * @return the tag, or {@code null} if not found
      */
-    public <T extends @NotNull LinTag<?>> @Nullable T findTag(@NotNull String name, @NotNull LinTagType<T> type) {
+    public <T extends LinTag<?>> @Nullable T findTag(String name, LinTagType<T> type) {
         LinTag<?> tag = value.get(name);
         return tag != null && type == tag.type() ? type.cast(tag) : null;
     }
@@ -351,8 +335,8 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * @param <T> the element type of the tag
      * @return the tag, or {@code null} if not found
      */
-    public <T extends @NotNull LinTag<?>> @Nullable LinListTag<T> findListTag(
-        @NotNull String name, @NotNull LinTagType<T> elementType
+    public <T extends LinTag<?>> @Nullable LinListTag<T> findListTag(
+        String name, LinTagType<T> elementType
     ) {
         var listTag = findTag(name, LinTagType.listTag());
         if (listTag == null || listTag.elementType() != elementType) {
@@ -373,7 +357,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * @throws NoSuchElementException if there is no tag under the given name
      * @throws IllegalStateException if the tag exists but is of a different type
      */
-    public <T extends @NotNull LinTag<?>> @NotNull T getTag(@NotNull String name, @NotNull LinTagType<T> type) {
+    public <T extends LinTag<?>> T getTag(String name, LinTagType<T> type) {
         LinTag<?> tag = value.get(name);
 
         if (tag == null) {
@@ -398,8 +382,8 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
      * @throws NoSuchElementException if there is no tag under the given name
      * @throws IllegalStateException if the tag exists but is of a different type
      */
-    public <T extends @NotNull LinTag<?>> @NotNull LinListTag<T> getListTag(
-        @NotNull String name, @NotNull LinTagType<T> elementType
+    public <T extends LinTag<?>> LinListTag<T> getListTag(
+        String name, LinTagType<T> elementType
     ) {
         var listTag = getTag(name, LinTagType.listTag());
         if (listTag.elementType() != elementType) {
@@ -421,7 +405,7 @@ public final class LinCompoundTag extends LinTag<@NotNull Map<@NotNull String, ?
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return getClass().getSimpleName() + value;
     }
 }

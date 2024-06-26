@@ -21,7 +21,7 @@ package org.enginehub.linbus.stream.internal;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.LinStreamable;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -31,7 +31,7 @@ import java.util.Iterator;
  */
 public class FlatteningLinStream implements LinStream {
     private final Iterator<? extends LinStreamable> streamables;
-    private LinStream current;
+    private @Nullable LinStream current;
 
     /**
      * Create a new flattening stream.

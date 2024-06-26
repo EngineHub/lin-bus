@@ -18,8 +18,6 @@
 
 package org.enginehub.linbus.tree;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Interface for things that can be converted to a {@link LinTag}.
  *
@@ -31,5 +29,5 @@ public interface ToLinTag<T extends LinTag<?>> {
      *
      * @return the {@link LinTag}
      */
-    @NotNull T toLinTag();
+    T toLinTag();
 }

@@ -21,8 +21,7 @@ package org.enginehub.linbus.tree;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.IntBuffer;
 import java.util.Arrays;
@@ -30,7 +29,7 @@ import java.util.Arrays;
 /**
  * Represents an int array tag.
  */
-public final class LinIntArrayTag extends LinTag<int @NotNull []> {
+public final class LinIntArrayTag extends LinTag<int[]> {
 
     /**
      * Creates a new int array tag from the given int array. The array will be {@linkplain Object#clone() cloned}.
@@ -38,23 +37,23 @@ public final class LinIntArrayTag extends LinTag<int @NotNull []> {
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinIntArrayTag of(int @NotNull ... value) {
+    public static LinIntArrayTag of(int... value) {
         return new LinIntArrayTag(value.clone());
     }
 
     private final int[] value;
 
-    private LinIntArrayTag(int @NotNull [] value) {
+    private LinIntArrayTag(int[] value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinIntArrayTag> type() {
+    public LinTagType<LinIntArrayTag> type() {
         return LinTagType.intArrayTag();
     }
 
     @Override
-    public int @NotNull [] value() {
+    public int[] value() {
         return value.clone();
     }
 
@@ -69,7 +68,7 @@ public final class LinIntArrayTag extends LinTag<int @NotNull []> {
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return new SurroundingLinStream(
             new LinToken.IntArrayStart(value.length),
             new LinStream() {
@@ -107,7 +106,7 @@ public final class LinIntArrayTag extends LinTag<int @NotNull []> {
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return getClass().getSimpleName() + Arrays.toString(value());
     }
 }

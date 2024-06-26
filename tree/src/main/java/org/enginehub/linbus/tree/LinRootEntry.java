@@ -25,7 +25,6 @@ import org.enginehub.linbus.stream.LinStreamable;
 import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.enginehub.linbus.tree.impl.LinTagReader;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -48,7 +47,7 @@ public record LinRootEntry(
      * @return the root entry
      * @throws IOException if an I/O error occurs
      */
-    public static LinRootEntry readFrom(@NotNull LinStream tokens) throws IOException {
+    public static LinRootEntry readFrom(LinStream tokens) throws IOException {
         return LinTagReader.readRoot(tokens);
     }
 
@@ -84,12 +83,12 @@ public record LinRootEntry(
      * Note that the tag returned is not the same as {@link #value()}.
      */
     @Override
-    public @NotNull LinCompoundTag toLinTag() {
+    public LinCompoundTag toLinTag() {
         return LinCompoundTag.of(Map.of(name, value));
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return new SurroundingLinStream(
             new LinToken.Name(name, LinTagId.COMPOUND),
             value.linStream(),

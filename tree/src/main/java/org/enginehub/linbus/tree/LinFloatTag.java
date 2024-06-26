@@ -20,12 +20,11 @@ package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a float tag.
  */
-public final class LinFloatTag extends LinNumberTag<@NotNull Float> {
+public final class LinFloatTag extends LinNumberTag<Float> {
 
     /**
      * Create a new float tag.
@@ -33,7 +32,7 @@ public final class LinFloatTag extends LinNumberTag<@NotNull Float> {
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinFloatTag of(float value) {
+    public static LinFloatTag of(float value) {
         return new LinFloatTag(value);
     }
 
@@ -44,12 +43,12 @@ public final class LinFloatTag extends LinNumberTag<@NotNull Float> {
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinFloatTag> type() {
+    public LinTagType<LinFloatTag> type() {
         return LinTagType.floatTag();
     }
 
     @Override
-    public @NotNull Float value() {
+    public Float value() {
         return value;
     }
 
@@ -63,7 +62,7 @@ public final class LinFloatTag extends LinNumberTag<@NotNull Float> {
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return LinStream.of(new LinToken.Float(value));
     }
 }

@@ -23,7 +23,7 @@ import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.exception.NbtWriteException;
 import org.enginehub.linbus.stream.impl.LinNbtReader;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -46,7 +46,7 @@ public class LinBinaryIO {
      * @param input the input to read from
      * @return the stream of NBT tokens
      */
-    public static LinStream read(@NotNull DataInput input) {
+    public static LinStream read(DataInput input) {
         return new LinNbtReader(input);
     }
 
@@ -63,7 +63,7 @@ public class LinBinaryIO {
      * @return the result
      * @throws IOException if an I/O error occurs ({@link UncheckedIOException} is unwrapped)
      */
-    public static <R> R readUsing(@NotNull DataInput input, @NotNull IOFunction<? super LinStream, ? extends R> transform)
+    public static <R extends @Nullable Object> R readUsing(DataInput input, IOFunction<? super LinStream, ? extends R> transform)
         throws IOException {
         return transform.apply(read(input));
     }
@@ -84,7 +84,7 @@ public class LinBinaryIO {
      * @param tokens the stream of NBT tokens
      * @throws IOException if an I/O error occurs
      */
-    public static void write(@NotNull DataOutput output, @NotNull LinStreamable tokens) throws IOException {
+    public static void write(DataOutput output, LinStreamable tokens) throws IOException {
         // This is essentially free if the info is already there, so we can just do it.
         LinStream tokenStream = tokens.linStream().calculateOptionalInfo();
         boolean seenFirstName = false;
@@ -193,7 +193,7 @@ public class LinBinaryIO {
         }
     }
 
-    private static void writeIdAndNameIfNeeded(DataOutput output, LinTagId id, String name) throws IOException {
+    private static void writeIdAndNameIfNeeded(DataOutput output, LinTagId id, @Nullable String name) throws IOException {
         if (name != null) {
             output.writeByte(id.id());
             output.writeUTF(name);

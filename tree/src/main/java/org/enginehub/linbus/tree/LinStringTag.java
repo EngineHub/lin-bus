@@ -20,14 +20,13 @@ package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 /**
  * Represents a string tag.
  */
-public final class LinStringTag extends LinTag<@NotNull String> {
+public final class LinStringTag extends LinTag<String> {
 
     /**
      * Creates a new string tag.
@@ -35,28 +34,28 @@ public final class LinStringTag extends LinTag<@NotNull String> {
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinStringTag of(@NotNull String value) {
+    public static LinStringTag of(String value) {
         return new LinStringTag(value);
     }
 
     private final String value;
 
-    private LinStringTag(@NotNull String value) {
+    private LinStringTag(String value) {
         this.value = Objects.requireNonNull(value, "value is null");
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinStringTag> type() {
+    public LinTagType<LinStringTag> type() {
         return LinTagType.stringTag();
     }
 
     @Override
-    public @NotNull String value() {
+    public String value() {
         return value;
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return LinStream.of(new LinToken.String(value));
     }
 }

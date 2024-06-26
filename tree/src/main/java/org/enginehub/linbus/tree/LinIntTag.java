@@ -20,12 +20,11 @@ package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an int tag.
  */
-public final class LinIntTag extends LinNumberTag<@NotNull Integer> {
+public final class LinIntTag extends LinNumberTag<Integer> {
 
     /**
      * Create a new int tag.
@@ -33,7 +32,7 @@ public final class LinIntTag extends LinNumberTag<@NotNull Integer> {
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinIntTag of(int value) {
+    public static LinIntTag of(int value) {
         return new LinIntTag(value);
     }
 
@@ -44,12 +43,12 @@ public final class LinIntTag extends LinNumberTag<@NotNull Integer> {
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinIntTag> type() {
+    public LinTagType<LinIntTag> type() {
         return LinTagType.intTag();
     }
 
     @Override
-    public @NotNull Integer value() {
+    public Integer value() {
         return value;
     }
 
@@ -63,7 +62,7 @@ public final class LinIntTag extends LinNumberTag<@NotNull Integer> {
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return LinStream.of(new LinToken.Int(value));
     }
 }
