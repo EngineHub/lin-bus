@@ -29,6 +29,8 @@ import java.util.stream.Stream;
  * <p>
  * This is different from the plain {@link LinTagId}, because it offers generic methods for casting to tag types.
  * </p>
+ *
+ * @param <T> the type of the tag
  */
 public final class LinTagType<T extends LinTag<?>> {
     private static final LinTagType<LinEndTag> END_TAG = new LinTagType<>(

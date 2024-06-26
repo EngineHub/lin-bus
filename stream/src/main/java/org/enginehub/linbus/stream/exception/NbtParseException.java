@@ -28,14 +28,19 @@ public final class NbtParseException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     /**
-     * {@inheritDoc}
+     * Construct a new exception with the given message.
+     *
+     * @param message the message
      */
     public NbtParseException(String message) {
         super(message);
     }
 
     /**
-     * {@inheritDoc}
+     * Construct a new exception with the given message and cause.
+     *
+     * @param message the message
+     * @param cause the cause
      */
     public NbtParseException(String message, Throwable cause) {
         super(message, cause);

@@ -29,8 +29,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * Reads and writes NBT streams.
@@ -100,95 +103,110 @@ public class LinBinaryIO {
                     throw new NbtWriteException("Expected first token to be a name");
                 }
             }
-            if (token instanceof LinToken.Name name) {
-                // We need to hold this until we print the id
-                nextName = name.name();
-            } else if (token instanceof LinToken.ByteArrayStart byteArrayStart) {
-                writeIdAndNameIfNeeded(output, LinTagId.BYTE_ARRAY, nextName);
-                nextName = null;
+            switch (token) {
+                case LinToken.Name(String name, Optional<LinTagId> id) ->
+                    // We need to hold this until we print the id
+                    nextName = name;
+                case LinToken.ByteArrayStart(OptionalInt size) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.BYTE_ARRAY, nextName);
+                    nextName = null;
 
-                output.writeInt(byteArrayStart.size().orElseThrow());
-            } else if (token instanceof LinToken.ByteArrayContent byteArrayContent) {
-                var copy = new byte[byteArrayContent.buffer().remaining()];
-                byteArrayContent.buffer().get(copy);
-                output.write(copy);
-            } else if (token instanceof LinToken.ByteArrayEnd) {
-                // Nothing to do
-            } else if (token instanceof LinToken.Byte byteValue) {
-                writeIdAndNameIfNeeded(output, LinTagId.BYTE, nextName);
-                nextName = null;
-
-                output.writeByte(byteValue.value());
-            } else if (token instanceof LinToken.CompoundStart) {
-                writeIdAndNameIfNeeded(output, LinTagId.COMPOUND, nextName);
-                nextName = null;
-            } else if (token instanceof LinToken.CompoundEnd) {
-                output.writeByte(LinTagId.END.id());
-            } else if (token instanceof LinToken.Double doubleValue) {
-                writeIdAndNameIfNeeded(output, LinTagId.DOUBLE, nextName);
-                nextName = null;
-
-                output.writeDouble(doubleValue.value());
-            } else if (token instanceof LinToken.Float floatValue) {
-                writeIdAndNameIfNeeded(output, LinTagId.FLOAT, nextName);
-                nextName = null;
-
-                output.writeFloat(floatValue.value());
-            } else if (token instanceof LinToken.IntArrayStart intArrayStart) {
-                writeIdAndNameIfNeeded(output, LinTagId.INT_ARRAY, nextName);
-                nextName = null;
-
-                output.writeInt(intArrayStart.size().orElseThrow());
-            } else if (token instanceof LinToken.IntArrayContent intArrayContent) {
-                IntBuffer buffer = intArrayContent.buffer();
-                while (buffer.hasRemaining()) {
-                    output.writeInt(buffer.get());
+                    output.writeInt(size.orElseThrow());
                 }
-            } else if (token instanceof LinToken.IntArrayEnd) {
-                // Nothing to do
-            } else if (token instanceof LinToken.Int intValue) {
-                writeIdAndNameIfNeeded(output, LinTagId.INT, nextName);
-                nextName = null;
-
-                output.writeInt(intValue.value());
-            } else if (token instanceof LinToken.ListStart listStart) {
-                writeIdAndNameIfNeeded(output, LinTagId.LIST, nextName);
-                nextName = null;
-
-                output.writeByte(listStart.elementId().orElseThrow().id());
-                output.writeInt(listStart.size().orElseThrow());
-            } else if (token instanceof LinToken.ListEnd) {
-                // Nothing to do
-            } else if (token instanceof LinToken.LongArrayStart longArrayStart) {
-                writeIdAndNameIfNeeded(output, LinTagId.LONG_ARRAY, nextName);
-                nextName = null;
-
-                output.writeInt(longArrayStart.size().orElseThrow());
-            } else if (token instanceof LinToken.LongArrayContent longArrayContent) {
-                LongBuffer buffer = longArrayContent.buffer();
-                while (buffer.hasRemaining()) {
-                    output.writeLong(buffer.get());
+                case LinToken.ByteArrayContent(ByteBuffer buffer) -> {
+                    var copy = new byte[buffer.remaining()];
+                    buffer.get(copy);
+                    output.write(copy);
                 }
-            } else if (token instanceof LinToken.LongArrayEnd) {
-                // Nothing to do
-            } else if (token instanceof LinToken.Long longValue) {
-                writeIdAndNameIfNeeded(output, LinTagId.LONG, nextName);
-                nextName = null;
+                case LinToken.ByteArrayEnd byteArrayEnd -> {
+                    // Nothing to do
+                }
+                case LinToken.Byte(byte value) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.BYTE, nextName);
+                    nextName = null;
 
-                output.writeLong(longValue.value());
-            } else if (token instanceof LinToken.Short shortValue) {
-                writeIdAndNameIfNeeded(output, LinTagId.SHORT, nextName);
-                nextName = null;
+                    output.writeByte(value);
+                }
+                case LinToken.CompoundStart compoundStart -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.COMPOUND, nextName);
+                    nextName = null;
+                }
+                case LinToken.CompoundEnd compoundEnd -> output.writeByte(LinTagId.END.id());
+                case LinToken.Double(double value) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.DOUBLE, nextName);
+                    nextName = null;
 
-                output.writeShort(shortValue.value());
-            } else if (token instanceof LinToken.String stringValue) {
-                writeIdAndNameIfNeeded(output, LinTagId.STRING, nextName);
-                nextName = null;
+                    output.writeDouble(value);
+                }
+                case LinToken.Float(float value) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.FLOAT, nextName);
+                    nextName = null;
 
-                output.writeUTF(stringValue.value());
-            } else {
-                // switch patterns wen
-                throw new NbtWriteException("Unknown token: " + token);
+                    output.writeFloat(value);
+                }
+                case LinToken.IntArrayStart(OptionalInt size) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.INT_ARRAY, nextName);
+                    nextName = null;
+
+                    output.writeInt(size.orElseThrow());
+                }
+                case LinToken.IntArrayContent(IntBuffer buffer) -> {
+                    while (buffer.hasRemaining()) {
+                        output.writeInt(buffer.get());
+                    }
+                }
+                case LinToken.IntArrayEnd intArrayEnd -> {
+                    // Nothing to do
+                }
+                case LinToken.Int(int value) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.INT, nextName);
+                    nextName = null;
+
+                    output.writeInt(value);
+                }
+                case LinToken.ListStart(OptionalInt size, Optional<LinTagId> elementId) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.LIST, nextName);
+                    nextName = null;
+
+                    output.writeByte(elementId.orElseThrow().id());
+                    output.writeInt(size.orElseThrow());
+                }
+                case LinToken.ListEnd listEnd -> {
+                    // Nothing to do
+                }
+                case LinToken.LongArrayStart(OptionalInt size) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.LONG_ARRAY, nextName);
+                    nextName = null;
+
+                    output.writeInt(size.orElseThrow());
+                }
+                case LinToken.LongArrayContent(LongBuffer buffer) -> {
+                    while (buffer.hasRemaining()) {
+                        output.writeLong(buffer.get());
+                    }
+                }
+                case LinToken.LongArrayEnd longArrayEnd -> {
+                    // Nothing to do
+                }
+                case LinToken.Long(long value) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.LONG, nextName);
+                    nextName = null;
+
+                    output.writeLong(value);
+                }
+                case LinToken.Short(short value) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.SHORT, nextName);
+                    nextName = null;
+
+                    output.writeShort(value);
+                }
+                case LinToken.String(String value) -> {
+                    writeIdAndNameIfNeeded(output, LinTagId.STRING, nextName);
+                    nextName = null;
+
+                    output.writeUTF(value);
+                }
+                default -> throw new NbtWriteException("Unknown token: " + token);
             }
         }
     }

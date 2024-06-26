@@ -21,7 +21,7 @@ package org.enginehub.linbus.format.snbt.impl;
 /**
  * Escape helpers.
  */
-public class Elusion {
+public final class Elusion {
     /**
      * Is {@code c} a character than can be emitted without quotes?
      *
@@ -77,5 +77,8 @@ public class Elusion {
         }
         builder.append(quoteChar);
         return builder;
+    }
+
+    private Elusion() {
     }
 }

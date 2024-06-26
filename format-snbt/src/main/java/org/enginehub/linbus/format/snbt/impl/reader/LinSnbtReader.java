@@ -181,40 +181,33 @@ public class LinSnbtReader implements LinStream {
     }
 
     private void fillTokenStack(State state) {
-        if (state instanceof State.ReadValue rv) {
-            readValue(rv.mustBeCompound);
-        } else if (state instanceof State.InCompound) {
-            advanceCompound();
-        } else if (state instanceof State.CompoundEntryName) {
-            readName();
-        } else if (state instanceof State.InList) {
-            advanceList();
-        } else if (state instanceof State.InByteArray) {
-            advanceArray(
+        switch (state) {
+            case State.ReadValue(boolean mustBeCompound) -> readValue(mustBeCompound);
+            case State.InCompound inCompound -> advanceCompound();
+            case State.CompoundEntryName compoundEntryName -> readName();
+            case State.InList inList -> advanceList();
+            case State.InByteArray inByteArray -> advanceArray(
                 LinToken.Byte.class,
                 ByteBuffer::allocate,
                 (buffer, t) -> buffer.put(t.value()),
                 buffer -> new LinToken.ByteArrayContent(buffer.flip().asReadOnlyBuffer()),
                 LinToken.ByteArrayEnd::new
             );
-        } else if (state instanceof State.InIntArray) {
-            advanceArray(
+            case State.InIntArray inIntArray -> advanceArray(
                 LinToken.Int.class,
                 IntBuffer::allocate,
                 (buffer, t) -> buffer.put(t.value()),
                 buffer -> new LinToken.IntArrayContent(buffer.flip().asReadOnlyBuffer()),
                 LinToken.IntArrayEnd::new
             );
-        } else if (state instanceof State.InLongArray) {
-            advanceArray(
+            case State.InLongArray inLongArray -> advanceArray(
                 LinToken.Long.class,
                 LongBuffer::allocate,
                 (buffer, t) -> buffer.put(t.value()),
                 buffer -> new LinToken.LongArrayContent(buffer.flip().asReadOnlyBuffer()),
                 LinToken.LongArrayEnd::new
             );
-        } else {
-            throw new IllegalStateException(errorPrefix() + "Unknown state: " + state);
+            default -> throw new IllegalStateException(errorPrefix() + "Unknown state: " + state);
         }
     }
 
@@ -233,27 +226,25 @@ public class LinSnbtReader implements LinStream {
             throw unexpectedTokenSpecificError(token, SnbtToken.CompoundStart.INSTANCE.toString());
         }
 
-        if (token instanceof SnbtToken.ListLikeStart) {
-            prepareListLike();
-        } else if (token instanceof SnbtToken.Text text) {
-            var linToken = text.quoted()
-                ? new LinToken.String(text.content())
-                : getTokenFor(text.content());
-            tokenQueue.addLast(linToken);
-        } else {
-            throw unexpectedTokenError(token);
+        switch (token) {
+            case SnbtToken.ListLikeStart listLikeStart -> prepareListLike();
+            case SnbtToken.Text(boolean quoted, String content) -> {
+                var linToken = quoted ? new LinToken.String(content) : getTokenFor(content);
+                tokenQueue.addLast(linToken);
+            }
+            default -> throw unexpectedTokenError(token);
         }
     }
 
     private void advanceCompound() {
         var token = read().token();
-        if (token instanceof SnbtToken.CompoundEnd) {
-            stateStack.removeLast();
-            tokenQueue.addLast(new LinToken.CompoundEnd());
-        } else if (token instanceof SnbtToken.Separator) {
-            stateStack.addLast(new State.CompoundEntryName());
-        } else {
-            throw unexpectedTokenError(token);
+        switch (token) {
+            case SnbtToken.CompoundEnd compoundEnd -> {
+                stateStack.removeLast();
+                tokenQueue.addLast(new LinToken.CompoundEnd());
+            }
+            case SnbtToken.Separator separator -> stateStack.addLast(new State.CompoundEntryName());
+            default -> throw unexpectedTokenError(token);
         }
     }
 
@@ -274,13 +265,13 @@ public class LinSnbtReader implements LinStream {
 
     private void advanceList() {
         var token = read().token();
-        if (token instanceof SnbtToken.ListLikeEnd) {
-            stateStack.removeLast();
-            tokenQueue.addLast(new LinToken.ListEnd());
-        } else if (token instanceof SnbtToken.Separator) {
-            stateStack.addLast(new State.ReadValue(false));
-        } else {
-            throw unexpectedTokenError(token);
+        switch (token) {
+            case SnbtToken.ListLikeEnd listLikeEnd -> {
+                stateStack.removeLast();
+                tokenQueue.addLast(new LinToken.ListEnd());
+            }
+            case SnbtToken.Separator separator -> stateStack.addLast(new State.ReadValue(false));
+            default -> throw unexpectedTokenError(token);
         }
     }
 
