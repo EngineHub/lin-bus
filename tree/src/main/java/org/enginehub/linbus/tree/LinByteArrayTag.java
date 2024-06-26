@@ -21,8 +21,7 @@ package org.enginehub.linbus.tree;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -30,30 +29,30 @@ import java.util.Arrays;
 /**
  * Represents a byte array tag.
  */
-public final class LinByteArrayTag extends LinTag<byte @NotNull []> {
+public final class LinByteArrayTag extends LinTag<byte[]> {
     /**
      * Creates a new byte array tag from the given byte array. The array will be {@linkplain Object#clone() cloned}.
      *
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinByteArrayTag of(byte @NotNull ... value) {
+    public static LinByteArrayTag of(byte... value) {
         return new LinByteArrayTag(value.clone());
     }
 
     private final byte[] value;
 
-    private LinByteArrayTag(byte @NotNull [] value) {
+    private LinByteArrayTag(byte[] value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinByteArrayTag> type() {
+    public LinTagType<LinByteArrayTag> type() {
         return LinTagType.byteArrayTag();
     }
 
     @Override
-    public byte @NotNull [] value() {
+    public byte[] value() {
         return value.clone();
     }
 
@@ -63,12 +62,12 @@ public final class LinByteArrayTag extends LinTag<byte @NotNull []> {
      *
      * @return a read-only {@link ByteBuffer} providing view access to the contents of this tag
      */
-    public @NotNull ByteBuffer view() {
+    public ByteBuffer view() {
         return ByteBuffer.wrap(value).asReadOnlyBuffer();
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return new SurroundingLinStream(
             new LinToken.ByteArrayStart(value.length),
             new LinStream() {
@@ -91,7 +90,7 @@ public final class LinByteArrayTag extends LinTag<byte @NotNull []> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LinByteArrayTag that = (LinByteArrayTag) o;
@@ -106,7 +105,7 @@ public final class LinByteArrayTag extends LinTag<byte @NotNull []> {
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return getClass().getSimpleName() + Arrays.toString(value());
     }
 }

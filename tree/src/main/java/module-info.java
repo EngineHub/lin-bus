@@ -16,13 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * The tree module of lin-bus. Presents a standard tree structure of NBT. Internally, everything is parsed using the
  * streaming module.
  */
+@NullMarked
 module org.enginehub.linbus.tree {
     exports org.enginehub.linbus.tree;
-    requires static transitive org.jetbrains.annotations;
+    requires static transitive org.jspecify;
     requires transitive org.enginehub.linbus.common;
     requires transitive org.enginehub.linbus.stream;
 }

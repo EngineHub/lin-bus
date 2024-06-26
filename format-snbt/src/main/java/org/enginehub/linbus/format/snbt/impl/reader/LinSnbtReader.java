@@ -21,8 +21,7 @@ package org.enginehub.linbus.format.snbt.impl.reader;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.DataInput;
 import java.nio.Buffer;
@@ -114,7 +113,7 @@ public class LinSnbtReader implements LinStream {
 
     private static final int BUFFER_SIZE = 4096;
 
-    private final Iterator<? extends @NotNull SnbtTokenWithMetadata> input;
+    private final Iterator<? extends SnbtTokenWithMetadata> input;
     /**
      * The state stack. We're currently on the one that's LAST.
      */
@@ -126,7 +125,7 @@ public class LinSnbtReader implements LinStream {
     /**
      * The pushback token stack, which is used to push back tokens that we've read.
      */
-    private final Deque<@NotNull SnbtTokenWithMetadata> readAgainStack;
+    private final Deque<SnbtTokenWithMetadata> readAgainStack;
     private int charIndex;
 
     /**
@@ -134,14 +133,14 @@ public class LinSnbtReader implements LinStream {
      *
      * @param input the input to read from
      */
-    public LinSnbtReader(Iterator<? extends @NotNull SnbtTokenWithMetadata> input) {
+    public LinSnbtReader(Iterator<? extends SnbtTokenWithMetadata> input) {
         this.input = input;
         this.stateStack = new ArrayDeque<>(List.of(new State.ReadValue(true)));
         this.tokenQueue = new ArrayDeque<>();
         this.readAgainStack = new ArrayDeque<>();
     }
 
-    private @NotNull SnbtTokenWithMetadata read() {
+    private SnbtTokenWithMetadata read() {
         var token = readAgainStack.pollFirst();
         if (token != null) {
             return token;

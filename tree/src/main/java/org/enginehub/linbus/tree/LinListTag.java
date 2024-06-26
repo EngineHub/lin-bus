@@ -22,8 +22,6 @@ import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.internal.FlatteningLinStream;
 import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +33,7 @@ import java.util.Objects;
  *
  * @param <T> the type of the elements in the list
  */
-public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotNull List<T>> {
+public final class LinListTag<T extends LinTag<?>> extends LinTag<List<T>> {
 
     /**
      * Creates a new list tag.
@@ -49,8 +47,8 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
      * @param <T> the type of the elements in the list
      * @return the tag
      */
-    public static <T extends @NotNull LinTag<?>> @NotNull LinListTag<T> of(
-        @NotNull LinTagType<T> elementType, @NotNull List<T> value
+    public static <T extends LinTag<?>> LinListTag<T> of(
+        LinTagType<T> elementType, List<T> value
     ) {
         for (T t : value) {
             if (t.type() != elementType) {
@@ -68,7 +66,7 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
      * @param <T> the type of the elements in the list
      * @return an empty list
      */
-    public static <T extends @NotNull LinTag<?>> @NotNull LinListTag<T> empty(@NotNull LinTagType<T> elementType) {
+    public static <T extends LinTag<?>> LinListTag<T> empty(LinTagType<T> elementType) {
         return builder(elementType).build();
     }
 
@@ -79,7 +77,7 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
      * @param <T> the type of the elements in the list
      * @return a new builder
      */
-    public static <T extends @NotNull LinTag<?>> @NotNull Builder<T> builder(@NotNull LinTagType<T> elementType) {
+    public static <T extends LinTag<?>> Builder<T> builder(LinTagType<T> elementType) {
         return new Builder<>(elementType);
     }
 
@@ -88,7 +86,7 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
      *
      * @param <T> the type of the elements in the list
      */
-    public static final class Builder<T extends @NotNull LinTag<?>> {
+    public static final class Builder<T extends LinTag<?>> {
         private final LinTagType<T> elementType;
         private final List<T> collector;
 
@@ -108,8 +106,7 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
          * @param tag the element
          * @return this builder
          */
-        @Contract("_ -> this")
-        public @NotNull Builder<T> add(T tag) {
+        public Builder<T> add(T tag) {
             if (tag.type() != elementType) {
                 throw new IllegalArgumentException("Element is not of type " + elementType.name() + " but "
                     + tag.type().name());
@@ -124,8 +121,7 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
          * @param tags the elements
          * @return this builder
          */
-        @Contract("_ -> this")
-        public @NotNull Builder<T> addAll(@NotNull Collection<? extends T> tags) {
+        public Builder<T> addAll(Collection<? extends T> tags) {
             tags.forEach(this::add);
             return this;
         }
@@ -135,7 +131,7 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
          *
          * @return the built tag
          */
-        public @NotNull LinListTag<T> build() {
+        public LinListTag<T> build() {
             return new LinListTag<>(this.elementType, List.copyOf(this.collector));
         }
     }
@@ -153,14 +149,14 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinListTag<T>> type() {
+    public LinTagType<LinListTag<T>> type() {
         return LinTagType.listTag();
     }
 
     /**
      * {@return the element type of this list}
      */
-    public @NotNull LinTagType<T> elementType() {
+    public LinTagType<T> elementType() {
         return elementType;
     }
 
@@ -172,7 +168,7 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
      * @return the converted list
      * @throws IllegalStateException if the {@link #elementType()}  is not the same as the given type
      */
-    public <U extends @NotNull LinTag<?>> LinListTag<U> asTypeChecked(@NotNull LinTagType<U> elementType) {
+    public <U extends LinTag<?>> LinListTag<U> asTypeChecked(LinTagType<U> elementType) {
         if (elementType != this.elementType) {
             throw new IllegalStateException(
                 "List is of type " + this.elementType.name() + ", not " + elementType.name()
@@ -184,12 +180,12 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
     }
 
     @Override
-    public @NotNull List<T> value() {
+    public List<T> value() {
         return value;
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return new SurroundingLinStream(
             new LinToken.ListStart(value.size(), elementType.id()),
             new FlatteningLinStream(value.iterator()),
@@ -212,12 +208,12 @@ public final class LinListTag<T extends @NotNull LinTag<?>> extends LinTag<@NotN
      *
      * @return a new builder
      */
-    public @NotNull Builder<T> toBuilder() {
+    public Builder<T> toBuilder() {
         return new Builder<>(this);
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return getClass().getSimpleName() + value;
     }
 }

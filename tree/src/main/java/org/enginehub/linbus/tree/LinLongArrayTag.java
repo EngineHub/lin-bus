@@ -22,8 +22,7 @@ package org.enginehub.linbus.tree;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.LongBuffer;
 import java.util.Arrays;
@@ -31,7 +30,7 @@ import java.util.Arrays;
 /**
  * Represents a long array tag.
  */
-public final class LinLongArrayTag extends LinTag<long @NotNull []> {
+public final class LinLongArrayTag extends LinTag<long[]> {
 
     /**
      * Creates a new long array tag from the given long array. The array will be {@linkplain Object#clone() cloned}.
@@ -39,23 +38,23 @@ public final class LinLongArrayTag extends LinTag<long @NotNull []> {
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinLongArrayTag of(long @NotNull ... value) {
+    public static LinLongArrayTag of(long... value) {
         return new LinLongArrayTag(value.clone());
     }
 
     private final long[] value;
 
-    private LinLongArrayTag(long @NotNull [] value) {
+    private LinLongArrayTag(long[] value) {
         this.value = value;
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinLongArrayTag> type() {
+    public LinTagType<LinLongArrayTag> type() {
         return LinTagType.longArrayTag();
     }
 
     @Override
-    public long @NotNull [] value() {
+    public long[] value() {
         return value.clone();
     }
 
@@ -65,12 +64,12 @@ public final class LinLongArrayTag extends LinTag<long @NotNull []> {
      *
      * @return a read-only {@link LongBuffer} providing view access to the contents of this tag
      */
-    public @NotNull LongBuffer view() {
+    public LongBuffer view() {
         return LongBuffer.wrap(value).asReadOnlyBuffer();
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return new SurroundingLinStream(
             new LinToken.LongArrayStart(value.length),
             new LinStream() {
@@ -108,7 +107,7 @@ public final class LinLongArrayTag extends LinTag<long @NotNull []> {
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return getClass().getSimpleName() + Arrays.toString(value());
     }
 }

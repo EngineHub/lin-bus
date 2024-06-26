@@ -19,7 +19,6 @@
 package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.stream.LinStream;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an end tag.
@@ -40,7 +39,7 @@ public final class LinEndTag extends LinTag<Void> {
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinEndTag> type() {
+    public LinTagType<LinEndTag> type() {
         return LinTagType.endTag();
     }
 
@@ -50,7 +49,7 @@ public final class LinEndTag extends LinTag<Void> {
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return LinStream.of();
     }
 
@@ -60,7 +59,7 @@ public final class LinEndTag extends LinTag<Void> {
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return getClass().getSimpleName();
     }
 }

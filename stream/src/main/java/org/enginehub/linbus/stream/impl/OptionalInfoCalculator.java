@@ -22,8 +22,7 @@ import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -43,7 +42,7 @@ public class OptionalInfoCalculator implements LinStream {
     }
 
     private final LinStream original;
-    private Deque<LinToken> tokenBuffer;
+    private @Nullable Deque<LinToken> tokenBuffer;
 
     /**
      * Create a new {@link OptionalInfoCalculator}.
@@ -81,7 +80,7 @@ public class OptionalInfoCalculator implements LinStream {
         return this;
     }
 
-    private record TokenAndBuffer(@NotNull LinToken token, @Nullable Deque<LinToken> buffer) {
+    private record TokenAndBuffer(LinToken token, @Nullable Deque<LinToken> buffer) {
     }
 
     private TokenAndBuffer fillIfNeeded(LinToken token) throws IOException {
@@ -134,8 +133,8 @@ public class OptionalInfoCalculator implements LinStream {
 
     private static final class ListStartFill implements OptionalFill {
         private final int knownSize;
-        private final ValueCounter counter;
-        private LinTagId elementId;
+        private final @Nullable ValueCounter counter;
+        private @Nullable LinTagId elementId;
 
         public ListStartFill(LinToken.ListStart listStart) {
             if (listStart.size().isPresent()) {

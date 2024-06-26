@@ -18,8 +18,6 @@
 
 package org.enginehub.linbus.format.snbt.util;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -55,7 +53,7 @@ public class TracedReader extends Reader {
     }
 
     @Override
-    public int read(@NotNull CharBuffer target) throws IOException {
+    public int read(CharBuffer target) throws IOException {
         int result = delegate.read(target);
         System.err.println("read(" + target + "): " + result);
         printRelevantStack();
@@ -75,7 +73,7 @@ public class TracedReader extends Reader {
     }
 
     @Override
-    public int read(char @NotNull [] cbuf) throws IOException {
+    public int read(char[] cbuf) throws IOException {
         int result = delegate.read(cbuf);
         System.err.println("read(char[].length = " + cbuf.length + "): " + result);
         printRelevantStack();
@@ -83,7 +81,7 @@ public class TracedReader extends Reader {
     }
 
     @Override
-    public int read(char @NotNull [] cbuf, int off, int len) throws IOException {
+    public int read(char[] cbuf, int off, int len) throws IOException {
         int result = delegate.read(cbuf, off, len);
         System.err.println("read(char[].length = " + cbuf.length + ", off = " + off + ", len = " + len + "): " + result);
         printRelevantStack();

@@ -23,7 +23,6 @@ import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.LinStreamable;
 import org.enginehub.linbus.stream.exception.NbtWriteException;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -55,7 +54,7 @@ public class LinSnbtWriter {
      * @param tokens the tokens
      * @throws IOException if an I/O error occurs
      */
-    public void write(@NotNull Appendable output, @NotNull LinStream tokens) throws IOException {
+    public void write(Appendable output, LinStream tokens) throws IOException {
         while (true) {
             var state = stateStack.peekLast();
             LinToken token = tokens.nextOrNull();

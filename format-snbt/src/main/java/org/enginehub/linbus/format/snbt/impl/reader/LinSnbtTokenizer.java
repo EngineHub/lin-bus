@@ -22,7 +22,7 @@ import org.enginehub.linbus.common.internal.AbstractIterator;
 import org.enginehub.linbus.format.snbt.impl.Elusion;
 import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.io.UncheckedIOException;
 /**
  * But not like, a tokenizer into {@link LinToken}s. But like our own internal {@link SnbtToken}. Sigh.
  */
-public class LinSnbtTokenizer extends AbstractIterator<@NotNull SnbtTokenWithMetadata> {
+public class LinSnbtTokenizer extends AbstractIterator<SnbtTokenWithMetadata> {
     private final Reader input;
     private int charIndex = -1;
     private boolean eatAllWhitespaceAfter;
@@ -42,7 +42,7 @@ public class LinSnbtTokenizer extends AbstractIterator<@NotNull SnbtTokenWithMet
      *
      * @param input the input to read from
      */
-    public LinSnbtTokenizer(@NotNull Reader input) {
+    public LinSnbtTokenizer(Reader input) {
         this.input = input.markSupported() ? input : new BufferedReader(input);
     }
 
@@ -67,7 +67,7 @@ public class LinSnbtTokenizer extends AbstractIterator<@NotNull SnbtTokenWithMet
     }
 
     @Override
-    protected SnbtTokenWithMetadata computeNext() {
+    protected @Nullable SnbtTokenWithMetadata computeNext() {
         try {
             skipWhitespace();
             input.mark(1);

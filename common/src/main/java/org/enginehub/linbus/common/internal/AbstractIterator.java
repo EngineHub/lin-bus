@@ -18,7 +18,7 @@
 
 package org.enginehub.linbus.common.internal;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  *
  * @param <T> the type of items returned by this iterator
  */
-public abstract class AbstractIterator<T> implements Iterator<T> {
+public abstract class AbstractIterator<T extends @Nullable Object> implements Iterator<T> {
     private boolean needNext = true;
     private boolean end;
     private T next;

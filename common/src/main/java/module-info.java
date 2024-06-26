@@ -16,12 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * The common module of lin-bus, shared between the streaming and tree modules.
  */
+@NullMarked
 module org.enginehub.linbus.common {
     exports org.enginehub.linbus.common;
     exports org.enginehub.linbus.common.internal to org.enginehub.linbus.stream, org.enginehub.linbus.tree,
         org.enginehub.linbus.format.snbt;
-    requires static org.jetbrains.annotations;
+    requires static transitive org.jspecify;
 }

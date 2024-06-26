@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    compileOnlyApi(libs.jetbrains.annotations)
+    compileOnlyApi(libs.jspecify.annotations)
 
     api(project(":common"))
 
@@ -14,10 +14,7 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
 
-    testImplementation(libs.truth.asProvider()) {
-        exclude(group = "junit")
-    }
-    testImplementation(libs.truth.extensions.java8) {
+    testImplementation(libs.truth) {
         exclude(group = "junit")
     }
 }

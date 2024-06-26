@@ -32,7 +32,6 @@ import com.google.common.truth.PrimitiveIntArraySubject;
 import com.google.common.truth.PrimitiveLongArraySubject;
 import com.google.common.truth.StringSubject;
 import com.google.common.truth.Subject;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.enginehub.linbus.tree.LinByteArrayTag;
 import org.enginehub.linbus.tree.LinByteTag;
 import org.enginehub.linbus.tree.LinCompoundTag;
@@ -48,6 +47,7 @@ import org.enginehub.linbus.tree.LinShortTag;
 import org.enginehub.linbus.tree.LinStringTag;
 import org.enginehub.linbus.tree.LinTag;
 import org.enginehub.linbus.tree.LinTagType;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.truth.Truth.assertAbout;
 
@@ -60,7 +60,7 @@ public class LinTagSubject extends Subject {
         return assertAbout(linTags()).that(tag);
     }
 
-    private final LinTag<?> tag;
+    private final @Nullable LinTag<?> tag;
 
     protected LinTagSubject(FailureMetadata metadata, @Nullable LinTag<?> actual) {
         super(metadata, actual);
@@ -69,6 +69,7 @@ public class LinTagSubject extends Subject {
 
     public void isOfType(LinTagType<?> type) {
         isNotNull();
+        assert tag != null : "checked by isNotNull()";
         if (this.tag.type() != type) {
             failWithActual(
                 Fact.fact("expected", type),
@@ -79,71 +80,85 @@ public class LinTagSubject extends Subject {
 
     public PrimitiveByteArraySubject byteArrayValue() {
         isOfType(LinTagType.byteArrayTag());
+        assert tag != null : "checked by isOfType()";
         return check("byteArrayValue()").that(((LinByteArrayTag) tag).value());
     }
 
     public ComparableSubject<Byte> byteValue() {
         isOfType(LinTagType.byteTag());
+        assert tag != null : "checked by isOfType()";
         return check("byteValue()").that(((LinByteTag) tag).value());
     }
 
     public MapSubject compoundValue() {
         isOfType(LinTagType.compoundTag());
+        assert tag != null : "checked by isOfType()";
         return check("compoundValue()").that(((LinCompoundTag) tag).value());
     }
 
     public DoubleSubject doubleValue() {
         isOfType(LinTagType.doubleTag());
+        assert tag != null : "checked by isOfType()";
         return check("doubleValue()").that(((LinDoubleTag) tag).value());
     }
 
     public Subject endValue() {
         isOfType(LinTagType.endTag());
+        assert tag != null : "checked by isOfType()";
         return check("endValue()").that(((LinEndTag) tag).value());
     }
 
     public FloatSubject floatValue() {
         isOfType(LinTagType.floatTag());
+        assert tag != null : "checked by isOfType()";
         return check("floatValue()").that(((LinFloatTag) tag).value());
     }
 
     public PrimitiveIntArraySubject intArrayValue() {
         isOfType(LinTagType.intArrayTag());
+        assert tag != null : "checked by isOfType()";
         return check("intArrayValue()").that(((LinIntArrayTag) tag).value());
     }
 
     public IntegerSubject intValue() {
         isOfType(LinTagType.intTag());
+        assert tag != null : "checked by isOfType()";
         return check("intValue()").that(((LinIntTag) tag).value());
     }
 
     public IterableSubject listValue() {
         isOfType(LinTagType.listTag());
+        assert tag != null : "checked by isOfType()";
         return check("listValue()").that(((LinListTag<?>) tag).value());
     }
 
     public PrimitiveLongArraySubject longArrayValue() {
         isOfType(LinTagType.longArrayTag());
+        assert tag != null : "checked by isOfType()";
         return check("longArrayValue()").that(((LinLongArrayTag) tag).value());
     }
 
     public LongSubject longValue() {
         isOfType(LinTagType.longTag());
+        assert tag != null : "checked by isOfType()";
         return check("longValue()").that(((LinLongTag) tag).value());
     }
 
     public ComparableSubject<Short> shortValue() {
         isOfType(LinTagType.shortTag());
+        assert tag != null : "checked by isOfType()";
         return check("shortValue()").that(((LinShortTag) tag).value());
     }
 
     public StringSubject stringValue() {
         isOfType(LinTagType.stringTag());
+        assert tag != null : "checked by isOfType()";
         return check("stringValue()").that(((LinStringTag) tag).value());
     }
 
     public LinTagSubject getTagByKey(String key) {
         isOfType(LinTagType.compoundTag());
+        assert tag != null : "checked by isOfType()";
         return check("[%s]", key)
             .about(linTags())
             .that(((LinCompoundTag) tag).value().get(key));
@@ -151,6 +166,7 @@ public class LinTagSubject extends Subject {
 
     public LinTagSubject getTagByIndex(int index) {
         isOfType(LinTagType.listTag());
+        assert tag != null : "checked by isOfType()";
         return check("[%s]", index)
             .about(linTags())
             .that(((LinListTag<?>) tag).value().get(index));

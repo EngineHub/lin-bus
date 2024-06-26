@@ -20,12 +20,11 @@ package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a short tag.
  */
-public final class LinShortTag extends LinNumberTag<@NotNull Short> {
+public final class LinShortTag extends LinNumberTag<Short> {
 
     /**
      * Create a new short tag.
@@ -33,7 +32,7 @@ public final class LinShortTag extends LinNumberTag<@NotNull Short> {
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinShortTag of(short value) {
+    public static LinShortTag of(short value) {
         return new LinShortTag(value);
     }
 
@@ -44,12 +43,12 @@ public final class LinShortTag extends LinNumberTag<@NotNull Short> {
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinShortTag> type() {
+    public LinTagType<LinShortTag> type() {
         return LinTagType.shortTag();
     }
 
     @Override
-    public @NotNull Short value() {
+    public Short value() {
         return value;
     }
 
@@ -63,7 +62,7 @@ public final class LinShortTag extends LinNumberTag<@NotNull Short> {
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return LinStream.of(new LinToken.Short(value));
     }
 }

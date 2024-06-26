@@ -24,7 +24,6 @@ import org.enginehub.linbus.format.snbt.impl.reader.LinSnbtReader;
 import org.enginehub.linbus.format.snbt.impl.reader.LinSnbtTokenizer;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.LinStreamable;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -54,7 +53,7 @@ public class LinStringIO {
      * @param input the input to read from
      * @return the stream of NBT tokens
      */
-    public static @NotNull LinStream read(@NotNull Reader input) {
+    public static LinStream read(Reader input) {
         return new LinSnbtReader(new LinSnbtTokenizer(input));
     }
 
@@ -64,7 +63,7 @@ public class LinStringIO {
      * @param input the input to read from
      * @return the stream of NBT tokens
      */
-    public static @NotNull LinStream readFromString(@NotNull String input) {
+    public static LinStream readFromString(String input) {
         return read(new StringReader(input));
     }
 
@@ -86,7 +85,7 @@ public class LinStringIO {
      * @return the result
      * @throws IOException if an I/O error occurs
      */
-    public static <R> R readUsing(@NotNull Reader input, @NotNull IOFunction<? super @NotNull LinStream, R> transform) throws IOException {
+    public static <R> R readUsing(Reader input, IOFunction<? super LinStream, R> transform) throws IOException {
         return transform.apply(read(input));
     }
 
@@ -98,7 +97,7 @@ public class LinStringIO {
      * @param <R> the type of the result
      * @return the stream of NBT tokens
      */
-    public static <R> R readFromStringUsing(@NotNull String input, @NotNull IOFunction<? super @NotNull LinStream, R> transform) {
+    public static <R> R readFromStringUsing(String input, IOFunction<? super LinStream, R> transform) {
         try {
             return transform.apply(readFromString(input));
         } catch (IOException e) {
@@ -117,7 +116,7 @@ public class LinStringIO {
      * @param tokens the stream of NBT tokens
      * @throws IOException if an I/O error occurs
      */
-    public static void write(@NotNull Appendable output, @NotNull LinStreamable tokens) throws IOException {
+    public static void write(Appendable output, LinStreamable tokens) throws IOException {
         new LinSnbtWriter().write(output, tokens.linStream());
     }
 
@@ -131,7 +130,7 @@ public class LinStringIO {
      * @param tokens the stream of NBT tokens
      * @return the string
      */
-    public static String writeToString(@NotNull LinStreamable tokens) {
+    public static String writeToString(LinStreamable tokens) {
         var builder = new StringBuilder();
         try {
             write(builder, tokens);

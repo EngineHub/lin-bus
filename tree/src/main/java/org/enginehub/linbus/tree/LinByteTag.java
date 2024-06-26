@@ -20,12 +20,11 @@ package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.token.LinToken;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a byte tag.
  */
-public final class LinByteTag extends LinNumberTag<@NotNull Byte> {
+public final class LinByteTag extends LinNumberTag<Byte> {
 
     /**
      * Creates a new byte tag from the given integer, which will be cast to a byte.
@@ -33,7 +32,7 @@ public final class LinByteTag extends LinNumberTag<@NotNull Byte> {
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinByteTag fromInt(int value) {
+    public static LinByteTag fromInt(int value) {
         return of((byte) value);
     }
 
@@ -43,7 +42,7 @@ public final class LinByteTag extends LinNumberTag<@NotNull Byte> {
      * @param value the value
      * @return the tag
      */
-    public static @NotNull LinByteTag of(byte value) {
+    public static LinByteTag of(byte value) {
         return new LinByteTag(value);
     }
 
@@ -54,12 +53,12 @@ public final class LinByteTag extends LinNumberTag<@NotNull Byte> {
     }
 
     @Override
-    public @NotNull LinTagType<@NotNull LinByteTag> type() {
+    public LinTagType<LinByteTag> type() {
         return LinTagType.byteTag();
     }
 
     @Override
-    public @NotNull Byte value() {
+    public Byte value() {
         return value;
     }
 
@@ -73,7 +72,7 @@ public final class LinByteTag extends LinNumberTag<@NotNull Byte> {
     }
 
     @Override
-    public @NotNull LinStream linStream() {
+    public LinStream linStream() {
         return LinStream.of(new LinToken.Byte(value));
     }
 }

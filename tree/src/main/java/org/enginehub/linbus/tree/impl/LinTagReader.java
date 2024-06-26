@@ -38,8 +38,7 @@ import org.enginehub.linbus.tree.LinShortTag;
 import org.enginehub.linbus.tree.LinStringTag;
 import org.enginehub.linbus.tree.LinTag;
 import org.enginehub.linbus.tree.LinTagType;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -61,7 +60,7 @@ public class LinTagReader {
      * @return the root entry
      * @throws IOException if an I/O error occurs
      */
-    public static LinRootEntry readRoot(@NotNull LinStream tokens) throws IOException {
+    public static LinRootEntry readRoot(LinStream tokens) throws IOException {
         tokens = tokens.calculateOptionalInfo();
         if (!(tokens.nextOrNull() instanceof LinToken.Name name)) {
             throw new NbtParseException("Expected root name");
@@ -84,7 +83,7 @@ public class LinTagReader {
      * @return the compound tag
      * @throws IOException if an I/O error occurs
      */
-    public static LinCompoundTag readCompound(@NotNull LinStream tokens) throws IOException {
+    public static LinCompoundTag readCompound(LinStream tokens) throws IOException {
         tokens = tokens.calculateOptionalInfo();
         if (!(tokens.nextOrNull() instanceof LinToken.CompoundStart)) {
             throw new NbtParseException("Expected compound start");
@@ -179,7 +178,7 @@ public class LinTagReader {
         throw new NbtParseException("Expected long array end");
     }
 
-    private static <T extends @NotNull LinTag<?>> LinListTag<T> readList(LinStream tokens) throws IOException {
+    private static <T extends LinTag<?>> LinListTag<T> readList(LinStream tokens) throws IOException {
         if (!(tokens.nextOrNull() instanceof LinToken.ListStart start)) {
             throw new NbtParseException("Expected list start");
         }
@@ -195,7 +194,7 @@ public class LinTagReader {
         return builder.build();
     }
 
-    private static <T extends @NotNull LinTag<?>> T readValue(@NotNull LinStream tokens, @Nullable LinTagType<T> id) throws IOException {
+    private static <T extends LinTag<?>> T readValue(LinStream tokens, @Nullable LinTagType<T> id) throws IOException {
         if (id == null) {
             var next = tokens.nextOrNull();
             if (next == null) {
@@ -221,7 +220,7 @@ public class LinTagReader {
         });
     }
 
-    private static LinToken requireNextToken(@NotNull LinStream tokens) throws IOException {
+    private static LinToken requireNextToken(LinStream tokens) throws IOException {
         LinToken linToken = tokens.nextOrNull();
         if (linToken == null) {
             throw new NbtParseException("Unexpected end of stream");

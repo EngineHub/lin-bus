@@ -16,14 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * The streaming module of lin-bus. Features a Jackson-like API for decoding and encoding NBT.
  */
+@NullMarked
 module org.enginehub.linbus.stream {
     exports org.enginehub.linbus.stream;
     exports org.enginehub.linbus.stream.exception;
     exports org.enginehub.linbus.stream.token;
     exports org.enginehub.linbus.stream.internal to org.enginehub.linbus.tree;
-    requires static transitive org.jetbrains.annotations;
+    requires static transitive org.jspecify;
     requires transitive org.enginehub.linbus.common;
 }

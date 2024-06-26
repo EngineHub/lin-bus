@@ -19,7 +19,6 @@
 package org.enginehub.linbus.tree;
 
 import org.enginehub.linbus.common.LinTagId;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.stream.Stream;
@@ -31,103 +30,103 @@ import java.util.stream.Stream;
  * This is different from the plain {@link LinTagId}, because it offers generic methods for casting to tag types.
  * </p>
  */
-public final class LinTagType<T extends @NotNull LinTag<?>> {
-    private static final LinTagType<@NotNull LinEndTag> END_TAG = new LinTagType<>(
+public final class LinTagType<T extends LinTag<?>> {
+    private static final LinTagType<LinEndTag> END_TAG = new LinTagType<>(
         LinTagId.END, LinEndTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the end tag}
      */
-    public static @NotNull LinTagType<@NotNull LinEndTag> endTag() {
+    public static LinTagType<LinEndTag> endTag() {
         return END_TAG;
     }
 
-    private static final LinTagType<@NotNull LinByteTag> BYTE_TAG = new LinTagType<>(
+    private static final LinTagType<LinByteTag> BYTE_TAG = new LinTagType<>(
         LinTagId.BYTE, LinByteTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the byte tag}
      */
-    public static @NotNull LinTagType<@NotNull LinByteTag> byteTag() {
+    public static LinTagType<LinByteTag> byteTag() {
         return BYTE_TAG;
     }
 
-    private static final LinTagType<@NotNull LinShortTag> SHORT_TAG = new LinTagType<>(
+    private static final LinTagType<LinShortTag> SHORT_TAG = new LinTagType<>(
         LinTagId.SHORT, LinShortTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the short tag}
      */
-    public static @NotNull LinTagType<@NotNull LinShortTag> shortTag() {
+    public static LinTagType<LinShortTag> shortTag() {
         return SHORT_TAG;
     }
 
-    private static final LinTagType<@NotNull LinIntTag> INT_TAG = new LinTagType<>(
+    private static final LinTagType<LinIntTag> INT_TAG = new LinTagType<>(
         LinTagId.INT, LinIntTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the int tag}
      */
-    public static @NotNull LinTagType<@NotNull LinIntTag> intTag() {
+    public static LinTagType<LinIntTag> intTag() {
         return INT_TAG;
     }
 
-    private static final LinTagType<@NotNull LinLongTag> LONG_TAG = new LinTagType<>(
+    private static final LinTagType<LinLongTag> LONG_TAG = new LinTagType<>(
         LinTagId.LONG, LinLongTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the long tag}
      */
-    public static @NotNull LinTagType<@NotNull LinLongTag> longTag() {
+    public static LinTagType<LinLongTag> longTag() {
         return LONG_TAG;
     }
 
-    private static final LinTagType<@NotNull LinFloatTag> FLOAT_TAG = new LinTagType<>(
+    private static final LinTagType<LinFloatTag> FLOAT_TAG = new LinTagType<>(
         LinTagId.FLOAT, LinFloatTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the float tag}
      */
-    public static @NotNull LinTagType<@NotNull LinFloatTag> floatTag() {
+    public static LinTagType<LinFloatTag> floatTag() {
         return FLOAT_TAG;
     }
 
-    private static final LinTagType<@NotNull LinDoubleTag> DOUBLE_TAG = new LinTagType<>(
+    private static final LinTagType<LinDoubleTag> DOUBLE_TAG = new LinTagType<>(
         LinTagId.DOUBLE, LinDoubleTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the double tag}
      */
-    public static @NotNull LinTagType<@NotNull LinDoubleTag> doubleTag() {
+    public static LinTagType<LinDoubleTag> doubleTag() {
         return DOUBLE_TAG;
     }
 
-    private static final LinTagType<@NotNull LinByteArrayTag> BYTE_ARRAY_TAG = new LinTagType<>(
+    private static final LinTagType<LinByteArrayTag> BYTE_ARRAY_TAG = new LinTagType<>(
         LinTagId.BYTE_ARRAY, LinByteArrayTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the byte array tag}
      */
-    public static @NotNull LinTagType<@NotNull LinByteArrayTag> byteArrayTag() {
+    public static LinTagType<LinByteArrayTag> byteArrayTag() {
         return BYTE_ARRAY_TAG;
     }
 
-    private static final LinTagType<@NotNull LinStringTag> STRING_TAG = new LinTagType<>(
+    private static final LinTagType<LinStringTag> STRING_TAG = new LinTagType<>(
         LinTagId.STRING, LinStringTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the string tag}
      */
-    public static @NotNull LinTagType<@NotNull LinStringTag> stringTag() {
+    public static LinTagType<LinStringTag> stringTag() {
         return STRING_TAG;
     }
 
@@ -141,47 +140,47 @@ public final class LinTagType<T extends @NotNull LinTag<?>> {
      *
      * @param <T> the type of the list elements
      */
-    public static <T extends @NotNull LinTag<?>> @NotNull LinTagType<@NotNull LinListTag<T>> listTag() {
+    public static <T extends LinTag<?>> LinTagType<LinListTag<T>> listTag() {
         @SuppressWarnings("unchecked")
-        var cast = (LinTagType<@NotNull LinListTag<T>>) LIST_TAG;
+        var cast = (LinTagType<LinListTag<T>>) LIST_TAG;
         return cast;
     }
 
-    private static final LinTagType<@NotNull LinCompoundTag> COMPOUND_TAG = new LinTagType<>(
+    private static final LinTagType<LinCompoundTag> COMPOUND_TAG = new LinTagType<>(
         LinTagId.COMPOUND, LinCompoundTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the compound tag}
      */
-    public static @NotNull LinTagType<@NotNull LinCompoundTag> compoundTag() {
+    public static LinTagType<LinCompoundTag> compoundTag() {
         return COMPOUND_TAG;
     }
 
-    private static final LinTagType<@NotNull LinIntArrayTag> INT_ARRAY_TAG = new LinTagType<>(
+    private static final LinTagType<LinIntArrayTag> INT_ARRAY_TAG = new LinTagType<>(
         LinTagId.INT_ARRAY, LinIntArrayTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the int array tag}
      */
-    public static @NotNull LinTagType<@NotNull LinIntArrayTag> intArrayTag() {
+    public static LinTagType<LinIntArrayTag> intArrayTag() {
         return INT_ARRAY_TAG;
     }
 
-    private static final LinTagType<@NotNull LinLongArrayTag> LONG_ARRAY_TAG = new LinTagType<>(
+    private static final LinTagType<LinLongArrayTag> LONG_ARRAY_TAG = new LinTagType<>(
         LinTagId.LONG_ARRAY, LinLongArrayTag.class
     );
 
     /**
      * {@return the {@link LinTagType} for the long array tag}
      */
-    public static @NotNull LinTagType<@NotNull LinLongArrayTag> longArrayTag() {
+    public static LinTagType<LinLongArrayTag> longArrayTag() {
         return LONG_ARRAY_TAG;
     }
 
     @SuppressWarnings("rawtypes")
-    private static final @NotNull LinTagType<?>[] LIN_TAG_TYPES =
+    private static final LinTagType<?>[] LIN_TAG_TYPES =
         Stream.of(
                 END_TAG,
                 BYTE_TAG,
@@ -207,7 +206,7 @@ public final class LinTagType<T extends @NotNull LinTag<?>> {
      * @param <T> the type of the tag
      * @return the {@link LinTagType} for the given {@link LinTagId}
      */
-    public static <T extends @NotNull LinTag<?>> @NotNull LinTagType<T> fromId(LinTagId id) {
+    public static <T extends LinTag<?>> LinTagType<T> fromId(LinTagId id) {
         @SuppressWarnings("unchecked")
         var cast = (LinTagType<T>) LIN_TAG_TYPES[id.id()];
         return cast;
@@ -224,14 +223,14 @@ public final class LinTagType<T extends @NotNull LinTag<?>> {
     /**
      * {@return the name of this tag type}
      */
-    public @NotNull String name() {
+    public String name() {
         return id.name();
     }
 
     /**
      * {@return the id of this tag type}
      */
-    public @NotNull LinTagId id() {
+    public LinTagId id() {
         return id;
     }
 
