@@ -34,7 +34,9 @@ object Build : BuildType({
             vcsRootExtId = "${DslContext.settingsRoot.id}"
             publisher = github {
                 githubUrl = "https://api.github.com"
-                authType = vcsRoot()
+                authType = storedToken {
+                    tokenId = "git.github.token.commit-status.lin-bus"
+                }
             }
         }
     }
@@ -103,15 +105,13 @@ object Release : BuildType({
         }
     }
 
-    steps {
-        script {
-            name = "Setup git for push"
-            scriptContent = """
-                set -e
-                git config --global credential.helper store
-                echo "https://git:%git.github.token.push%@github.com" > ~/.git-credentials
-            """.trimIndent()
+    features {
+        sshAgent {
+            teamcitySshKey = "github-deploy-lin-bus"
         }
+    }
+
+    steps {
         configuredGradle {
             name = "Switch to release version"
             tasks = "changeSnapshotToRelease"
