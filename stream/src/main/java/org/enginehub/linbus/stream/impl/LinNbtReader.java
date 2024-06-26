@@ -107,102 +107,109 @@ public class LinNbtReader implements LinStream {
     @Override
     public @Nullable LinToken nextOrNull() throws IOException {
         var state = stateStack.pollLast();
-        if (state == null) {
-            return null;
-        }
-        if (state instanceof State.ListEntry entry) {
-            if (entry.remaining == 0) {
-                return new LinToken.ListEnd();
+        return switch (state) {
+            case null -> null;
+            case State.Initial initial -> {
+                if (input.readUnsignedByte() != LinTagId.COMPOUND.id()) {
+                    throw new NbtParseException("NBT stream does not start with a compound tag");
+                }
+                stateStack.addLast(new State.CompoundStart());
+                yield new LinToken.Name(input.readUTF(), LinTagId.COMPOUND);
             }
-            stateStack.addLast(new State.ListEntry(entry.remaining - 1, entry.elementId));
-            state = new State.ReadValue(entry.elementId);
-        }
-        if (state instanceof State.Initial) {
-            if (input.readUnsignedByte() != LinTagId.COMPOUND.id()) {
-                throw new NbtParseException("NBT stream does not start with a compound tag");
+            case State.CompoundStart compoundStart -> {
+                stateStack.addLast(new State.CompoundEntryName());
+                yield new LinToken.CompoundStart();
             }
-            stateStack.addLast(new State.CompoundStart());
-            return new LinToken.Name(input.readUTF(), LinTagId.COMPOUND);
-        } else if (state instanceof State.CompoundStart) {
-            stateStack.addLast(new State.CompoundEntryName());
-            return new LinToken.CompoundStart();
-        } else if (state instanceof State.CompoundEntryName) {
-            var id = LinTagId.fromId(input.readUnsignedByte());
-            if (id == LinTagId.END) {
-                return new LinToken.CompoundEnd();
-            }
+            case State.CompoundEntryName compoundEntryName -> {
+                var id = LinTagId.fromId(input.readUnsignedByte());
+                if (id == LinTagId.END) {
+                    yield new LinToken.CompoundEnd();
+                }
 
-            // After we read the value, we'll be back at reading the name.
-            stateStack.addLast(new State.CompoundEntryName());
-            stateStack.addLast(new State.ReadValue(id));
-            return new LinToken.Name(input.readUTF(), id);
-        } else if (state instanceof State.ReadValue rv) {
-            return switch (rv.id()) {
-                case BYTE -> new LinToken.Byte(input.readByte());
-                case SHORT -> new LinToken.Short(input.readShort());
-                case INT -> new LinToken.Int(input.readInt());
-                case LONG -> new LinToken.Long(input.readLong());
-                case FLOAT -> new LinToken.Float(input.readFloat());
-                case DOUBLE -> new LinToken.Double(input.readDouble());
-                case BYTE_ARRAY -> {
-                    int size = input.readInt();
-                    stateStack.addLast(new State.ReadByteArray(size));
-                    yield new LinToken.ByteArrayStart(size);
-                }
-                case STRING -> new LinToken.String(input.readUTF());
-                case LIST -> {
-                    var elementId = LinTagId.fromId(input.readUnsignedByte());
-                    int size = input.readInt();
-                    stateStack.addLast(new State.ListEntry(size, elementId));
-                    yield new LinToken.ListStart(size, elementId);
-                }
-                case COMPOUND -> {
-                    stateStack.addLast(new State.CompoundEntryName());
-                    yield new LinToken.CompoundStart();
-                }
-                case INT_ARRAY -> {
-                    int size = input.readInt();
-                    stateStack.addLast(new State.ReadIntArray(size));
-                    yield new LinToken.IntArrayStart(size);
-                }
-                case LONG_ARRAY -> {
-                    int size = input.readInt();
-                    stateStack.addLast(new State.ReadLongArray(size));
-                    yield new LinToken.LongArrayStart(size);
-                }
-                case END -> throw new NbtParseException("Invalid id: " + rv.id());
-            };
-        } else if (state instanceof State.ReadByteArray rba) {
-            if (rba.remaining == 0) {
-                // We're done reading the array. Return the end token.
-                // This will also implicitly return to the state in the stack below the array.
-                return new LinToken.ByteArrayEnd();
+                // After we read the value, we'll be back at reading the name.
+                stateStack.addLast(new State.CompoundEntryName());
+                stateStack.addLast(new State.ReadValue(id));
+                yield new LinToken.Name(input.readUTF(), id);
             }
-            ByteBuffer buffer = ByteBuffer.allocate(Math.min(8192, rba.remaining));
-            input.readFully(buffer.array(), buffer.position(), buffer.remaining());
-            stateStack.addLast(new State.ReadByteArray(rba.remaining - buffer.remaining()));
-            return new LinToken.ByteArrayContent(buffer.asReadOnlyBuffer());
-        } else if (state instanceof State.ReadIntArray ria) {
-            if (ria.remaining == 0) {
-                // We're done reading the array. Return the end token.
-                // This will also implicitly return to the state in the stack below the array.
-                return new LinToken.IntArrayEnd();
+            case State.ReadValue(LinTagId id) -> handleReadValue(id);
+            case State.ReadByteArray(int remaining) -> {
+                if (remaining == 0) {
+                    // We're done reading the array. Return the end token.
+                    // This will also implicitly return to the state in the stack below the array.
+                    yield new LinToken.ByteArrayEnd();
+                }
+                ByteBuffer buffer = ByteBuffer.allocate(Math.min(8192, remaining));
+                input.readFully(buffer.array(), buffer.position(), buffer.remaining());
+                stateStack.addLast(new State.ReadByteArray(remaining - buffer.remaining()));
+                yield new LinToken.ByteArrayContent(buffer.asReadOnlyBuffer());
             }
-            ByteBuffer buffer = ByteBuffer.allocate(Math.min(8192, ria.remaining * 4));
-            input.readFully(buffer.array(), buffer.position(), buffer.remaining());
-            stateStack.addLast(new State.ReadIntArray(ria.remaining - buffer.remaining() / 4));
-            return new LinToken.IntArrayContent(buffer.asIntBuffer().asReadOnlyBuffer());
-        } else if (state instanceof State.ReadLongArray rla) {
-            if (rla.remaining == 0) {
-                // We're done reading the array. Return the end token.
-                // This will also implicitly return to the state in the stack below the array.
-                return new LinToken.LongArrayEnd();
+            case State.ReadIntArray(int remaining) -> {
+                if (remaining == 0) {
+                    // We're done reading the array. Return the end token.
+                    // This will also implicitly return to the state in the stack below the array.
+                    yield new LinToken.IntArrayEnd();
+                }
+                ByteBuffer buffer = ByteBuffer.allocate(Math.min(8192, remaining * 4));
+                input.readFully(buffer.array(), buffer.position(), buffer.remaining());
+                stateStack.addLast(new State.ReadIntArray(remaining - buffer.remaining() / 4));
+                yield new LinToken.IntArrayContent(buffer.asIntBuffer().asReadOnlyBuffer());
             }
-            ByteBuffer buffer = ByteBuffer.allocate(Math.min(8192, rla.remaining * 8));
-            input.readFully(buffer.array(), buffer.position(), buffer.remaining());
-            stateStack.addLast(new State.ReadLongArray(rla.remaining - buffer.remaining() / 8));
-            return new LinToken.LongArrayContent(buffer.asLongBuffer().asReadOnlyBuffer());
-        }
-        throw new AssertionError("Missing state handler (switch patterns wen)");
+            case State.ReadLongArray(int remaining) -> {
+                if (remaining == 0) {
+                    // We're done reading the array. Return the end token.
+                    // This will also implicitly return to the state in the stack below the array.
+                    yield new LinToken.LongArrayEnd();
+                }
+                ByteBuffer buffer = ByteBuffer.allocate(Math.min(8192, remaining * 8));
+                input.readFully(buffer.array(), buffer.position(), buffer.remaining());
+                stateStack.addLast(new State.ReadLongArray(remaining - buffer.remaining() / 8));
+                yield new LinToken.LongArrayContent(buffer.asLongBuffer().asReadOnlyBuffer());
+            }
+            case State.ListEntry(int remaining, LinTagId elementId) -> {
+                if (remaining == 0) {
+                    yield new LinToken.ListEnd();
+                }
+                stateStack.addLast(new State.ListEntry(remaining - 1, elementId));
+                yield handleReadValue(elementId);
+            }
+        };
+    }
+
+    private LinToken handleReadValue(LinTagId id) throws IOException {
+        return switch (id) {
+            case BYTE -> new LinToken.Byte(input.readByte());
+            case SHORT -> new LinToken.Short(input.readShort());
+            case INT -> new LinToken.Int(input.readInt());
+            case LONG -> new LinToken.Long(input.readLong());
+            case FLOAT -> new LinToken.Float(input.readFloat());
+            case DOUBLE -> new LinToken.Double(input.readDouble());
+            case BYTE_ARRAY -> {
+                int size = input.readInt();
+                stateStack.addLast(new State.ReadByteArray(size));
+                yield new LinToken.ByteArrayStart(size);
+            }
+            case STRING -> new LinToken.String(input.readUTF());
+            case LIST -> {
+                var elementId = LinTagId.fromId(input.readUnsignedByte());
+                int size = input.readInt();
+                stateStack.addLast(new State.ListEntry(size, elementId));
+                yield new LinToken.ListStart(size, elementId);
+            }
+            case COMPOUND -> {
+                stateStack.addLast(new State.CompoundEntryName());
+                yield new LinToken.CompoundStart();
+            }
+            case INT_ARRAY -> {
+                int size = input.readInt();
+                stateStack.addLast(new State.ReadIntArray(size));
+                yield new LinToken.IntArrayStart(size);
+            }
+            case LONG_ARRAY -> {
+                int size = input.readInt();
+                stateStack.addLast(new State.ReadLongArray(size));
+                yield new LinToken.LongArrayStart(size);
+            }
+            case END -> throw new NbtParseException("Invalid id: " + id);
+        };
     }
 }

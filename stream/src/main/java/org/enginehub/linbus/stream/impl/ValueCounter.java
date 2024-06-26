@@ -50,55 +50,58 @@ public class ValueCounter {
             count++;
             return;
         }
-        if (token instanceof LinToken.CompoundStart) {
-            compounds++;
-        } else if (token instanceof LinToken.CompoundEnd) {
-            compounds--;
-            if (compounds < 0) {
-                throw new NbtParseException("Compound end without start");
+        switch (token) {
+            case LinToken.CompoundStart compoundStart -> compounds++;
+            case LinToken.CompoundEnd compoundEnd -> {
+                compounds--;
+                if (compounds < 0) {
+                    throw new NbtParseException("Compound end without start");
+                }
+                if (!isNested()) {
+                    count++;
+                }
             }
-            if (!isNested()) {
-                count++;
+            case LinToken.ListStart listStart -> lists++;
+            case LinToken.ListEnd listEnd -> {
+                lists--;
+                if (lists < 0) {
+                    throw new NbtParseException("List end without start");
+                }
+                if (!isNested()) {
+                    count++;
+                }
             }
-        } else if (token instanceof LinToken.ListStart) {
-            lists++;
-        } else if (token instanceof LinToken.ListEnd) {
-            lists--;
-            if (lists < 0) {
-                throw new NbtParseException("List end without start");
+            case LinToken.ByteArrayStart byteArrayStart -> arrayType = BYTE_ARRAY;
+            case LinToken.ByteArrayEnd byteArrayEnd -> {
+                if (arrayType != BYTE_ARRAY) {
+                    throw new NbtParseException("Byte array end without start");
+                }
+                arrayType = 0;
+                if (!isNested()) {
+                    count++;
+                }
             }
-            if (!isNested()) {
-                count++;
+            case LinToken.IntArrayStart intArrayStart -> arrayType = INT_ARRAY;
+            case LinToken.IntArrayEnd intArrayEnd -> {
+                if (arrayType != INT_ARRAY) {
+                    throw new NbtParseException("Int array end without start");
+                }
+                arrayType = 0;
+                if (!isNested()) {
+                    count++;
+                }
             }
-        } else if (token instanceof LinToken.ByteArrayStart) {
-            arrayType = BYTE_ARRAY;
-        } else if (token instanceof LinToken.ByteArrayEnd) {
-            if (arrayType != BYTE_ARRAY) {
-                throw new NbtParseException("Byte array end without start");
+            case LinToken.LongArrayStart longArrayStart -> arrayType = LONG_ARRAY;
+            case LinToken.LongArrayEnd longArrayEnd -> {
+                if (arrayType != LONG_ARRAY) {
+                    throw new NbtParseException("Long array end without start");
+                }
+                arrayType = 0;
+                if (!isNested()) {
+                    count++;
+                }
             }
-            arrayType = 0;
-            if (!isNested()) {
-                count++;
-            }
-        } else if (token instanceof LinToken.IntArrayStart) {
-            arrayType = INT_ARRAY;
-        } else if (token instanceof LinToken.IntArrayEnd) {
-            if (arrayType != INT_ARRAY) {
-                throw new NbtParseException("Int array end without start");
-            }
-            arrayType = 0;
-            if (!isNested()) {
-                count++;
-            }
-        } else if (token instanceof LinToken.LongArrayStart) {
-            arrayType = LONG_ARRAY;
-        } else if (token instanceof LinToken.LongArrayEnd) {
-            if (arrayType != LONG_ARRAY) {
-                throw new NbtParseException("Long array end without start");
-            }
-            arrayType = 0;
-            if (!isNested()) {
-                count++;
+            default -> {
             }
         }
     }

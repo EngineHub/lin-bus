@@ -27,6 +27,8 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * Implementation of {@link LinStream#calculateOptionalInfo()}.
@@ -84,24 +86,25 @@ public class OptionalInfoCalculator implements LinStream {
     }
 
     private TokenAndBuffer fillIfNeeded(LinToken token) throws IOException {
-        if (token instanceof LinToken.ListStart listStart && (listStart.size().isEmpty() || listStart.elementId().isEmpty())) {
-            return getFilled(new ListStartFill(listStart));
-        } else if (token instanceof LinToken.ByteArrayStart byteArrayStart) {
-            if (byteArrayStart.size().isPresent()) {
-                return new TokenAndBuffer(token, null);
+        return switch (token) {
+            case LinToken.ListStart listStart when (listStart.size().isEmpty() || listStart.elementId().isEmpty()) ->
+                getFilled(new ListStartFill(listStart));
+            case LinToken.ByteArrayStart byteArrayStart -> {
+                if (byteArrayStart.size().isPresent()) {
+                    yield new TokenAndBuffer(token, null);
+                }
+                yield getFilled(new ByteArrayStartFill());
             }
-            return getFilled(new ByteArrayStartFill());
-        } else if (token instanceof LinToken.IntArrayStart intArrayStart) {
-            if (intArrayStart.size().isPresent()) {
-                return new TokenAndBuffer(token, null);
+            case LinToken.IntArrayStart(OptionalInt size) -> {
+                if (size.isPresent()) {
+                    yield new TokenAndBuffer(token, null);
+                }
+                yield getFilled(new IntArrayStartFill());
             }
-            return getFilled(new IntArrayStartFill());
-        } else if (token instanceof LinToken.LongArrayStart longArrayStart && longArrayStart.size().isEmpty()) {
-            return getFilled(new LongArrayStartFill());
-        } else if (token instanceof LinToken.Name name && name.id().isEmpty()) {
-            return getFilled(new NameFill(name.name()));
-        }
-        return new TokenAndBuffer(token, null);
+            case LinToken.LongArrayStart(OptionalInt size) when size.isEmpty() -> getFilled(new LongArrayStartFill());
+            case LinToken.Name(String name, Optional<LinTagId> id) when id.isEmpty() -> getFilled(new NameFill(name));
+            default -> new TokenAndBuffer(token, null);
+        };
     }
 
     private TokenAndBuffer getFilled(OptionalFill fill) throws IOException {
