@@ -34,7 +34,9 @@ object Build : BuildType({
             vcsRootExtId = "${DslContext.settingsRoot.id}"
             publisher = github {
                 githubUrl = "https://api.github.com"
-                authType = vcsRoot()
+                authType = storedToken {
+                    tokenId = "git.github.token.commit-status.lin-bus"
+                }
             }
         }
     }
