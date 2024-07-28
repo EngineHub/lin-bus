@@ -21,7 +21,6 @@ package org.enginehub.linbus.gui.javafx;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.TableSelectionModel;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableRow;
@@ -41,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiPredicate;
-import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -179,7 +177,7 @@ public final class NbtTreeView {
 
             // Also re-select the appropriate item
             treeView.getSelectionModel().clearSelection(currentSelection);
-            treeView.getSelectionModel().select(currentSelection + moveControl.offset);
+            treeView.getSelectionModel().select(selectedItem);
         } else if (parentEntry.tag() instanceof LinCompoundTag compoundTag) {
             // This is a bit more complicated, as we need to actually re-order the whole map.
             // First, swap the relevant keys in the order
@@ -204,7 +202,7 @@ public final class NbtTreeView {
 
             // Also re-select the appropriate item
             treeView.getSelectionModel().clearSelection(currentSelection);
-            treeView.getSelectionModel().select(currentSelection + moveControl.offset);
+            treeView.getSelectionModel().select(selectedItem);
         }
     }
 
