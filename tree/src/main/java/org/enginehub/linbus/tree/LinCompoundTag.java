@@ -145,7 +145,7 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
          * @return this builder
          */
         public Builder putCompound(String name, Map<String, ? extends LinTag<?>> value) {
-            return put(name, new LinCompoundTag(value, true));
+            return put(name, new LinCompoundTag(copyImmutable(value), true));
         }
 
         /**
@@ -263,9 +263,9 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
         return Collections.unmodifiableMap(new LinkedHashMap<>(value));
     }
 
-    private final Map<String, ? extends LinTag<?>> value;
+    private final Map<String, LinTag<?>> value;
 
-    private LinCompoundTag(Map<String, ? extends LinTag<?>> value, boolean check) {
+    private LinCompoundTag(Map<String, LinTag<?>> value, boolean check) {
         if (check) {
             for (LinTag<?> tag : value.values()) {
                 if (tag.type().id() == LinTagId.END) {
@@ -282,7 +282,7 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
     }
 
     @Override
-    public Map<String, ? extends LinTag<?>> value() {
+    public Map<String, LinTag<?>> value() {
         return value;
     }
 

@@ -2,14 +2,15 @@ plugins {
     java
     application
     id("com.google.osdetector") version "1.7.0"
+    id("org.enginehub.lin-bus.jvm")
+    id("org.enginehub.lin-bus.publishing")
 }
 
 java {
-     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 application {
-    mainClass.set("org.enginehub.linbus.gui.LinBusGui")
     mainModule.set("org.enginehub.linbus.gui")
 }
 
@@ -17,38 +18,44 @@ repositories {
     maven {
         name = "Sonatype Snapshots"
         url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-    }
-}
-
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        val injectApi = libs.jakarta.injectApi.get()
-        substitute(module("javax.inject:javax.inject:1"))
-            .using(module(
-                "${injectApi.module.group}:${injectApi.module.name}:${injectApi.versionConstraint.requiredVersion}"
-            ))
+        mavenContent {
+            snapshotsOnly()
+        }
     }
 }
 
 dependencies {
-    compileOnly(libs.jetbrains.annotations)
-    compileOnly(libs.polymerization.annotations)
+    compileOnly(libs.jspecify.annotations)
 
-    annotationProcessor(libs.dagger.compiler)
-    annotationProcessor(libs.polymerization.processor)
-
-    implementation(project(":core"))
-    implementation(libs.dagger.core)
+    implementation(project(":tree"))
     implementation(libs.guava)
+    implementation(libs.tinylog.api)
+    runtimeOnly(libs.tinylog.impl)
+    runtimeOnly(libs.tinylog.slf4j.impl)
 
     for (lib in listOf(libs.javafx.base, libs.javafx.controls, libs.javafx.graphics)) {
         implementation(lib)
         implementation(variantOf(lib) {
             classifier(
                 when (osdetector.os) {
-                    "osx" -> "mac"
-                    "windows" -> "win"
-                    else -> "linux"
+                    "osx" -> when (osdetector.arch) {
+                        "x86_64" -> "mac"
+                        "aarch_64" -> "mac-aarch64"
+                        else -> error("Unsupported architecture: ${osdetector.arch}")
+                    }
+
+                    "windows" -> when (osdetector.arch) {
+                        "x86_64" -> "win"
+                        else -> error("Unsupported architecture: ${osdetector.arch}")
+                    }
+
+                    "linux" -> when (osdetector.arch) {
+                        "x86_64" -> "linux"
+                        "aarch_64" -> "linux-aarch64"
+                        else -> error("Unsupported architecture: ${osdetector.arch}")
+                    }
+
+                    else -> error("Unsupported OS: ${osdetector.os}")
                 }
             )
         })
@@ -67,15 +74,19 @@ dependencies {
     }
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    options.compilerArgs.add("--enable-preview")
+tasks.compileJava {
+    options.javaModuleMainClass = "org.enginehub.linbus.gui.LinBusGui"
+}
+
+tasks.javadoc {
+    (options as CoreJavadocOptions).addBooleanOption("Xdoclint:-missing").value = true
 }
 
 tasks.test {
     useJUnitPlatform()
-    jvmArgs("-Dglass.disableThreadChecks=true", "--enable-preview")
 }
 
-tasks.named<JavaExec>("run").configure {
-    jvmArgs("-Dglass.disableThreadChecks=true", "--enable-preview")
+tasks.named<JavaExec>("run") {
+    // Allow scenic-view hooking
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
 }

@@ -1,7 +1,40 @@
+[versions]
+javafx = "22.0.2"
+tinylog = "2.7.0"
+
 [libraries]
 jspecify-annotations = "org.jspecify:jspecify:0.3.0"
 guava = "com.google.guava:guava:31.0.1-jre"
-junit-bom = "org.junit:junit-bom:5.10.2"
+
+ikonli-bom = "org.kordamp.ikonli:ikonli-bom:12.3.1"
+ikonli-javafx.module = "org.kordamp.ikonli:ikonli-javafx"
+ikonli-fontawesome5.module = "org.kordamp.ikonli:ikonli-fontawesome5-pack"
+
+junit-bom = "org.junit:junit-bom:5.10.3"
 junit-jupiter-api.module = "org.junit.jupiter:junit-jupiter-api"
 junit-jupiter-engine.module = "org.junit.jupiter:junit-jupiter-engine"
-truth = "com.google.truth:truth:1.4.2"
+truth = "com.google.truth:truth:1.4.4"
+
+[libraries.tinylog-api]
+module = "org.tinylog:tinylog-api"
+version.ref = "tinylog"
+
+[libraries.tinylog-impl]
+module = "org.tinylog:tinylog-impl"
+version.ref = "tinylog"
+
+[libraries.tinylog-slf4j-impl]
+module = "org.tinylog:slf4j-tinylog"
+version.ref = "tinylog"
+
+[libraries.javafx-base]
+module = "org.openjfx:javafx-base"
+version.ref = "javafx"
+
+[libraries.javafx-controls]
+module = "org.openjfx:javafx-controls"
+version.ref = "javafx"
+
+[libraries.javafx-graphics]
+module = "org.openjfx:javafx-graphics"
+version.ref = "javafx"

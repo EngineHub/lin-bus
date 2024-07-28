@@ -6,5 +6,4 @@ include("common")
 include("stream")
 include("tree")
 include("format-snbt")
-// Pending a lot of work, ignoring for now
-// include("gui")
+include("gui")

@@ -106,6 +106,6 @@ public final class LinByteArrayTag extends LinTag<byte[]> {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + Arrays.toString(value());
+        return getClass().getSimpleName() + Arrays.toString(value);
     }
 }

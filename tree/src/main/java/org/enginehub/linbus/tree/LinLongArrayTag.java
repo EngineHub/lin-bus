@@ -108,6 +108,6 @@ public final class LinLongArrayTag extends LinTag<long[]> {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + Arrays.toString(value());
+        return getClass().getSimpleName() + Arrays.toString(value);
     }
 }

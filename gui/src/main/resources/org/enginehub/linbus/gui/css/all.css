@@ -1,0 +1,7 @@
+.tree-table-view.zebra .sheet > .tree-table-row-cell.unselected:even {
+    -fx-background-color: #f9f9f9;
+}
+
+.tree-table-view.zebra .sheet > .tree-table-row-cell.unselected:odd {
+    -fx-background-color: #e9e9e9;
+}

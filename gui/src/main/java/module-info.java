@@ -1,3 +1,5 @@
+import org.jspecify.annotations.NullMarked;
+
 /*
  * Copyright (c) EngineHub <https://enginehub.org>
  * Copyright (c) contributors
@@ -15,17 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
+@NullMarked
 module org.enginehub.linbus.gui {
-    exports org.enginehub.linbus.gui;
-    requires static java.inject;
-    requires static net.octyl.polymer.annotations;
-    requires dagger;
+    exports org.enginehub.linbus.gui to javafx.graphics;
+
     requires com.google.common;
     requires java.base;
     requires javafx.controls;
-    requires org.enginehub.linbus.core;
+    requires org.enginehub.linbus.stream;
+    requires org.enginehub.linbus.tree;
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.fontawesome5;
+    requires org.tinylog.api;
 }

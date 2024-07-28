@@ -127,6 +127,22 @@ public final class LinListTag<T extends LinTag<?>> extends LinTag<List<T>> {
         }
 
         /**
+         * Set the element at the given index. There must already be an element at the index.
+         *
+         * @param index the index
+         * @param tag the element
+         * @return this builder
+         */
+        public Builder<T> set(int index, T tag) {
+            if (tag.type() != elementType) {
+                throw new IllegalArgumentException("Element is not of type " + elementType.name() + " but "
+                    + tag.type().name());
+            }
+            this.collector.set(index, tag);
+            return this;
+        }
+
+        /**
          * Finish building the list tag.
          *
          * @return the built tag
