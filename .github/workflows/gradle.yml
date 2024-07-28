@@ -33,3 +33,45 @@ jobs:
         with:
           name: reports for ${{ matrix.os }}
           path: '**/build/reports/**'
+
+  build-all-distributions:
+    name: Build lin-bus NBT Editor distribtions on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: [ build ]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest, macos-12 ] # macos-12 for x86 support
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build jpackage distributions
+        run: ./gradlew jpackage -s
+
+      - name: "Kill Daemons Because Apparently GitHub Won't Do It For You"
+        run: ./gradlew --stop
+
+      - uses: actions/upload-artifact@v4
+        name: Archive Distributions
+        with:
+          name: distributions for ${{ matrix.os }}
+          path: 'gui/build/jpackage/*.*'
+
+      - uses: actions/upload-artifact@v4
+        name: Archive Reports
+        if: always()
+        with:
+          name: reports for ${{ matrix.os }}
+          path: '**/build/reports/**'
+

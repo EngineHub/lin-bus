@@ -2,6 +2,7 @@ plugins {
     java
     application
     id("com.google.osdetector") version "1.7.0"
+    id("org.beryx.jlink") version "3.0.1"
     id("org.enginehub.lin-bus.jvm")
     id("org.enginehub.lin-bus.publishing")
 }
@@ -74,8 +75,10 @@ dependencies {
     }
 }
 
+val mainClassValue = "org.enginehub.linbus.gui.LinBusGui"
+
 tasks.compileJava {
-    options.javaModuleMainClass = "org.enginehub.linbus.gui.LinBusGui"
+    options.javaModuleMainClass = mainClassValue
 }
 
 tasks.javadoc {
@@ -89,4 +92,23 @@ tasks.test {
 tasks.named<JavaExec>("run") {
     // Allow scenic-view hooking
     jvmArgs("-XX:+EnableDynamicAgentLoading")
+}
+
+jlink {
+    moduleName = "org.enginehub.linbus.gui"
+    mainClass = mainClassValue
+    options = listOf(
+        "--strip-debug",
+        "--compress=zip-9",
+        "--no-header-files",
+        "--no-man-pages"
+    )
+    launcher {
+        name = "lin-bus"
+    }
+    jpackage {
+        options = listOf("--verbose")
+        installerOptions = listOf("--verbose")
+        appVersion = project.version.toString().replace("-SNAPSHOT", "+dev")
+    }
 }
