@@ -51,6 +51,20 @@ public class LinListTagTest {
     }
 
     @Test
+    void setOnBuilder() {
+        var initial = LinListTag.of(LinTagType.stringTag(), List.of(
+            LinStringTag.of("Hello"),
+            LinStringTag.of("World!")
+        ));
+        assertThat(
+            LinListTag.of(LinTagType.stringTag(), List.of(
+                LinStringTag.of("Goodbye..."),
+                LinStringTag.of("World!")
+            ))
+        ).isEqualTo(initial.toBuilder().set(0, LinStringTag.of("Goodbye...")).build());
+    }
+
+    @Test
     void emptyImplementation() {
         var empty = LinListTag.empty(LinTagType.stringTag());
         assertThat(empty).listValue().isEmpty();

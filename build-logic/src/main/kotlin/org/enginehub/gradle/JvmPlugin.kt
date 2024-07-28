@@ -68,6 +68,9 @@ class JvmPlugin : Plugin<Project> {
                 executionData(jacocoExecData)
                 sourceSets(src)
                 dependsOn(project.tasks.named("test"))
+                // Add this dependency, not because it's necessary, but because it helps when figuring out
+                // what is wrong with the coverage
+                dependsOn(project.tasks.named("jacocoTestReport"))
             }
         tasks.named("check") {
             dependsOn(jacocoTestCoverageVerification)
