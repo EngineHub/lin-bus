@@ -27,6 +27,27 @@ repositories {
     }
 }
 
+val classifierValue = when (osdetector.os) {
+    "osx" -> when (osdetector.arch) {
+        "x86_64" -> "mac"
+        "aarch_64" -> "mac-aarch64"
+        else -> error("Unsupported architecture: ${osdetector.arch}")
+    }
+
+    "windows" -> when (osdetector.arch) {
+        "x86_64" -> "win"
+        else -> error("Unsupported architecture: ${osdetector.arch}")
+    }
+
+    "linux" -> when (osdetector.arch) {
+        "x86_64" -> "linux"
+        "aarch_64" -> "linux-aarch64"
+        else -> error("Unsupported architecture: ${osdetector.arch}")
+    }
+
+    else -> error("Unsupported OS: ${osdetector.os}")
+}
+
 dependencies {
     compileOnly(libs.jspecify.annotations)
 
@@ -39,28 +60,7 @@ dependencies {
     for (lib in listOf(libs.javafx.base, libs.javafx.controls, libs.javafx.graphics)) {
         implementation(lib)
         implementation(variantOf(lib) {
-            classifier(
-                when (osdetector.os) {
-                    "osx" -> when (osdetector.arch) {
-                        "x86_64" -> "mac"
-                        "aarch_64" -> "mac-aarch64"
-                        else -> error("Unsupported architecture: ${osdetector.arch}")
-                    }
-
-                    "windows" -> when (osdetector.arch) {
-                        "x86_64" -> "win"
-                        else -> error("Unsupported architecture: ${osdetector.arch}")
-                    }
-
-                    "linux" -> when (osdetector.arch) {
-                        "x86_64" -> "linux"
-                        "aarch_64" -> "linux-aarch64"
-                        else -> error("Unsupported architecture: ${osdetector.arch}")
-                    }
-
-                    else -> error("Unsupported OS: ${osdetector.os}")
-                }
-            )
+            classifier(classifierValue)
         })
     }
 
@@ -127,5 +127,5 @@ tasks.register<B2Upload>("uploadDistributions") {
     dependsOn(tasks.jpackage)
     inputDir = tasks.jpackage.map { it.jpackageData.installerOutputDir }
     bucketName = providers.environmentVariable("B2_BUCKET_NAME")
-    prefix = providers.environmentVariable("B2_PREFIX").map { "$it/$appVersionValue" }
+    prefix = providers.environmentVariable("B2_PREFIX").map { "$it/$appVersionValue/$classifierValue" }
 }
