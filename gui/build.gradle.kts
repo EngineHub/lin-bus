@@ -109,6 +109,11 @@ jlink {
     jpackage {
         options = listOf("--verbose")
         installerOptions = listOf("--verbose")
-        appVersion = project.version.toString().replace("-SNAPSHOT", "+dev")
+        // Separate version system since packages require it to be major.minor.build only
+        val runNumber = providers.environmentVariable("GITHUB_RUN_NUMBER")
+            .orElse("0")
+            .map { it.toInt() }
+            .get()
+        appVersion = "1.0.$runNumber"
     }
 }
