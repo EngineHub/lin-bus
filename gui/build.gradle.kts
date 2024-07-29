@@ -1,3 +1,5 @@
+import org.enginehub.gradle.b2.B2Upload
+
 plugins {
     java
     application
@@ -94,6 +96,13 @@ tasks.named<JavaExec>("run") {
     jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
+// Separate version system since packages require it to be major.minor.build only
+val runNumber = providers.environmentVariable("GITHUB_RUN_NUMBER")
+    .orElse("0")
+    .map { it.toInt() }
+    .get()
+val appVersionValue = "1.0.$runNumber"
+
 jlink {
     moduleName = "org.enginehub.linbus.gui"
     mainClass = mainClassValue
@@ -109,11 +118,14 @@ jlink {
     jpackage {
         options = listOf("--verbose")
         installerOptions = listOf("--verbose")
-        // Separate version system since packages require it to be major.minor.build only
-        val runNumber = providers.environmentVariable("GITHUB_RUN_NUMBER")
-            .orElse("0")
-            .map { it.toInt() }
-            .get()
-        appVersion = "1.0.$runNumber"
+        appVersion = appVersionValue
+        installerOutputDir = layout.buildDirectory.dir("installers").get().asFile
     }
+}
+
+tasks.register<B2Upload>("uploadDistributions") {
+    dependsOn(tasks.jpackage)
+    inputDir = tasks.jpackage.map { it.jpackageData.installerOutputDir }
+    bucketName = providers.environmentVariable("B2_BUCKET_NAME")
+    prefix = providers.environmentVariable("B2_PREFIX").map { "$it/$appVersionValue" }
 }

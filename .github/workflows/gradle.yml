@@ -35,6 +35,7 @@ jobs:
           path: '**/build/reports/**'
 
   build-all-distributions:
+    if: ${{ github.event_name == 'push' }}
     name: Build lin-bus NBT Editor distribtions on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     needs: [ build ]
@@ -56,22 +57,15 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build jpackage distributions
-        run: ./gradlew jpackage -s
+      - name: Publish distributions
+        env:
+          B2_APPLICATION_KEY_ID: ${{ secrets.B2_KEY_ID }}
+          B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
+          B2_BUCKET_NAME: octy-enginehub
+          B2_PREFIX: ${{ github.ref_name == github.event.repository.default_branch && 'lin-bus-distributions' || format('lin-bus-distributions/{0}', github.ref_name) }}
+        run: ./gradlew :gui:uploadDistributions -s
 
       - name: "Kill Daemons Because Apparently GitHub Won't Do It For You"
         run: ./gradlew --stop
 
-      - uses: actions/upload-artifact@v4
-        name: Archive Distributions
-        with:
-          name: distributions for ${{ matrix.os }}
-          path: 'gui/build/jpackage/*.*'
-
-      - uses: actions/upload-artifact@v4
-        name: Archive Reports
-        if: always()
-        with:
-          name: reports for ${{ matrix.os }}
-          path: '**/build/reports/**'
 

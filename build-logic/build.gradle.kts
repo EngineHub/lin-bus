@@ -13,6 +13,9 @@ dependencies {
     implementation(gradleApi())
     implementation("gradle.plugin.org.cadixdev.gradle:licenser:0.6.1")
     implementation("org.jfrog.buildinfo:build-info-extractor-gradle:4.33.1")
+    val b2Version = "6.2.1"
+    implementation("com.backblaze.b2:b2-sdk-core:$b2Version")
+    implementation("com.backblaze.b2:b2-sdk-httpclient:$b2Version")
 }
 
 configure<JavaPluginExtension> {
