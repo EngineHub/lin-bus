@@ -62,7 +62,7 @@ jobs:
           B2_APPLICATION_KEY_ID: ${{ secrets.B2_KEY_ID }}
           B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
           B2_BUCKET_NAME: octy-enginehub
-          B2_PREFIX: ${{ github.ref_name == github.event.repository.default_branch && 'lin-bus-distributions' || format('lin-bus-distributions/{0}', github.ref_name) }}
+          B2_PREFIX: ${{ github.ref_type == 'tag' && 'lin-bus-distributions/@APP_VERSION@' || format('lin-bus-distributions/{0}', github.ref_name) }}
         run: ./gradlew :gui:uploadDistributions -s
 
       - name: "Kill Daemons Because Apparently GitHub Won't Do It For You"

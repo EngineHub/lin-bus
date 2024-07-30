@@ -127,5 +127,7 @@ tasks.register<B2Upload>("uploadDistributions") {
     dependsOn(tasks.jpackage)
     inputDir = tasks.jpackage.map { it.jpackageData.installerOutputDir }
     bucketName = providers.environmentVariable("B2_BUCKET_NAME")
-    prefix = providers.environmentVariable("B2_PREFIX").map { "$it/$appVersionValue/$classifierValue" }
+    prefix = providers.environmentVariable("B2_PREFIX").map {
+        "${it.replace("@APP_VERSION@", appVersionValue)}/$classifierValue"
+    }
 }
