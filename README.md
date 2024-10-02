@@ -1,11 +1,11 @@
 lin-bus (Library Inhabited by NBT, Bringing Useful Streaming)
 ============================================================
 A simple and concise library for reading, writing, and working with the
-[Named Binary Tag format](https://minecraft.fandom.com/wiki/NBT_format).
+[Named Binary Tag format](https://minecraft.wiki/w/NBT_format).
 
 Supports streaming NBT for upcoming streaming NBT file formats.
 
-Also supports [SNBT](https://minecraft.fandom.com/wiki/NBT_format#SNBT_format), a human-readable NBT format.
+Also supports [SNBT](https://minecraft.wiki/w/NBT_format#SNBT_format), a human-readable NBT format.
 
 ## License
 The license is GPLv3 or later, plus the Mojang Exception. By contributing to this project, you agree
