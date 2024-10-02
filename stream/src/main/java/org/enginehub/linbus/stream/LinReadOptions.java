@@ -37,24 +37,25 @@ public final class LinReadOptions {
      * Builder for {@link LinReadOptions}.
      */
     public static final class Builder {
-        private boolean allowJnbtStringEncoding = false;
+        private boolean allowNormalUtf8Encoding = false;
 
         private Builder() {
         }
 
         /**
-         * Set whether to allow the string encoding used by JNBT. It is not compliant with the NBT specification and
-         * uses normal UTF-8 encoding instead of the modified UTF-8 encoding of {@link java.io.DataInput}.
+         * Set whether to allow normal UTF-8 encoding instead of the modified UTF-8 encoding of
+         * {@link java.io.DataInput}.
          *
          * <p>
          * Note that this option will force checking the bytes to select the correct encoding, which will be slower.
+         * It will still accept the modified UTF-8 encoding, but will do its best to disallow mixed encodings.
          * </p>
          *
-         * @param allowJnbtStringEncoding whether to allow the string encoding used by JNBT
+         * @param allowNormalUtf8Encoding whether to allow normal UTF-8 string encoding
          * @return this builder
          */
-        public Builder allowJnbtStringEncoding(boolean allowJnbtStringEncoding) {
-            this.allowJnbtStringEncoding = allowJnbtStringEncoding;
+        public Builder allowNormalUtf8Encoding(boolean allowNormalUtf8Encoding) {
+            this.allowNormalUtf8Encoding = allowNormalUtf8Encoding;
             return this;
         }
 
@@ -70,33 +71,34 @@ public final class LinReadOptions {
         @Override
         public String toString() {
             return "LinReadOptions.Builder{" +
-                "allowJnbtStringEncoding=" + allowJnbtStringEncoding +
+                "allowNormalUtf8Encoding=" + allowNormalUtf8Encoding +
                 '}';
         }
     }
 
-    private final boolean allowJnbtStringEncoding;
+    private final boolean allowNormalUtf8Encoding;
 
     private LinReadOptions(Builder builder) {
-        this.allowJnbtStringEncoding = builder.allowJnbtStringEncoding;
+        this.allowNormalUtf8Encoding = builder.allowNormalUtf8Encoding;
     }
 
     /**
-     * {@return whether to allow the string encoding used by JNBT} It is not compliant with the NBT specification and
-     * uses normal UTF-8 encoding instead of the modified UTF-8 encoding of {@link java.io.DataInput}.
+     * {@return whether to allow normal UTF-8 encoding instead of the modified UTF-8 encoding of
+     * {@link java.io.DataInput}}
      *
      * <p>
      * Note that this option will force checking the bytes to select the correct encoding, which will be slower.
+     * It will still accept the modified UTF-8 encoding, but will do its best to disallow mixed encodings.
      * </p>
      */
-    public boolean allowJnbtStringEncoding() {
-        return allowJnbtStringEncoding;
+    public boolean allowNormalUtf8Encoding() {
+        return allowNormalUtf8Encoding;
     }
 
     @Override
     public String toString() {
         return "LinReadOptions{" +
-            "allowJnbtStringEncoding=" + allowJnbtStringEncoding +
+            "allowNormalUtf8Encoding=" + allowNormalUtf8Encoding +
             '}';
     }
 }
