@@ -50,7 +50,22 @@ public class LinBinaryIO {
      * @return the stream of NBT tokens
      */
     public static LinStream read(DataInput input) {
-        return new LinNbtReader(input);
+        return read(input, LinReadOptions.builder().build());
+    }
+
+    /**
+     * Read a stream of NBT tokens from a {@link DataInput}.
+     *
+     * <p>
+     * The input will not be closed by the iterator. The caller is responsible for managing the lifetime of the input.
+     * </p>
+     *
+     * @param input the input to read from
+     * @param options the options for reading
+     * @return the stream of NBT tokens
+     */
+    public static LinStream read(DataInput input, LinReadOptions options) {
+        return new LinNbtReader(input, options);
     }
 
     /**
@@ -69,6 +84,25 @@ public class LinBinaryIO {
     public static <R extends @Nullable Object> R readUsing(DataInput input, IOFunction<? super LinStream, ? extends R> transform)
         throws IOException {
         return transform.apply(read(input));
+    }
+
+    /**
+     * Read a result using a stream of NBT tokens from a {@link DataInput}.
+     *
+     * <p>
+     * The input will not be closed by this method. The caller is responsible for managing the lifetime of the input.
+     * </p>
+     *
+     * @param input the input to read from
+     * @param options the options for reading
+     * @param transform the function to transform the stream of NBT tokens into the result
+     * @param <R> the type of the result
+     * @return the result
+     * @throws IOException if an I/O error occurs ({@link UncheckedIOException} is unwrapped)
+     */
+    public static <R extends @Nullable Object> R readUsing(DataInput input, LinReadOptions options, IOFunction<? super LinStream, ? extends R> transform)
+        throws IOException {
+        return transform.apply(read(input, options));
     }
 
     /**

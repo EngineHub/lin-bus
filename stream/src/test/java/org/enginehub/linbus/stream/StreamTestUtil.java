@@ -45,7 +45,11 @@ public class StreamTestUtil {
     }
 
     public static <T> T convertNbtStream(String name, Function<LinStream, T> converter) throws IOException {
-        return loadResource(name, stream -> converter.apply(LinBinaryIO.read(new DataInputStream(stream))));
+        return convertNbtStream(name, LinReadOptions.builder().build(), converter);
+    }
+
+    public static <T> T convertNbtStream(String name, LinReadOptions options, Function<LinStream, T> converter) throws IOException {
+        return loadResource(name, stream -> converter.apply(LinBinaryIO.read(new DataInputStream(stream), options)));
     }
 
     public static LinStream streamFromIterator(Iterator<LinToken> tokens) {

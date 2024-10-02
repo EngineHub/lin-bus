@@ -47,12 +47,14 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.enginehub.linbus.gui.LinBusGui;
 import org.enginehub.linbus.gui.util.ErrorReporter;
+import org.enginehub.linbus.stream.LinReadOptions;
 import org.jspecify.annotations.Nullable;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UTFDataFormatException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -106,28 +108,7 @@ public class MainSceneSetup {
                 return;
             }
             Path path = file.toPath();
-            backgroundExecutor.submit(new Task<TreeItem<NbtTreeView.TagEntry>>() {
-
-                @Override
-                protected TreeItem<NbtTreeView.TagEntry> call() throws Exception {
-                    return NbtTreeView.loadTreeItem(path);
-                }
-
-                @Override
-                protected void succeeded() {
-                    openPath.set(path);
-                    TreeItem<NbtTreeView.TagEntry> value = getValue();
-                    originalTag.set(value.getValue());
-                    treeTableView.setRoot(value);
-                }
-
-                @Override
-                protected void failed() {
-                    ErrorReporter.reportError(
-                        ErrorReporter.Level.INFORM, "Failed to open file " + path, getException()
-                    );
-                }
-            });
+            backgroundExecutor.submit(new LoadTreeItemTask(path, backgroundExecutor, false));
         });
         return openFile;
     }
@@ -239,15 +220,6 @@ public class MainSceneSetup {
     public final Scene mainScene;
 
     public MainSceneSetup(Stage stage, ExecutorService backgroundExecutor) {
-        openPath.addListener((__, oldPath, newPath) -> {
-            if (newPath != null) {
-                try {
-                    treeTableView.setRoot(NbtTreeView.loadTreeItem(newPath));
-                } catch (IOException e) {
-                    ErrorReporter.reportError(ErrorReporter.Level.INFORM, "Failed to open file " + newPath, e);
-                }
-            }
-        });
         ObservableValue<NbtTreeView.TagEntry> rootTagEntry = treeTableView.rootProperty().flatMap(TreeItem::valueProperty);
         isModified = originalTag.isNotEqualTo(
             // Promote ObservableValue to ObjectBinding
@@ -267,4 +239,65 @@ public class MainSceneSetup {
         VBox.setVgrow(treeTableView, Priority.ALWAYS);
         mainScene = new Scene(mainPane, 900, 600);
     }
+
+    private class LoadTreeItemTask extends Task<TreeItem<NbtTreeView.TagEntry>> {
+
+        private final Path path;
+        private final ExecutorService backgroundExecutor;
+        private final boolean tryingLegacyCompat;
+
+        public LoadTreeItemTask(Path path, ExecutorService backgroundExecutor, boolean tryingLegacyCompat) {
+            this.path = path;
+            this.backgroundExecutor = backgroundExecutor;
+            this.tryingLegacyCompat = tryingLegacyCompat;
+        }
+
+        @Override
+        protected TreeItem<NbtTreeView.TagEntry> call() throws Exception {
+            LinReadOptions.Builder options = LinReadOptions.builder();
+            if (tryingLegacyCompat) {
+                options.allowJnbtStringEncoding(true);
+            }
+            return NbtTreeView.loadTreeItem(path, options.build());
+        }
+
+        @Override
+        protected void succeeded() {
+            TreeItem<NbtTreeView.TagEntry> value = getValue();
+            openPath.set(path);
+            originalTag.set(value.getValue());
+            treeTableView.setRoot(value);
+        }
+
+        @Override
+        protected void failed() {
+            Throwable ex = getException();
+            if (ex instanceof UTFDataFormatException && !tryingLegacyCompat) {
+                Alert alert = createUtfAlert();
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.YES) {
+                    backgroundExecutor.submit(new LoadTreeItemTask(path, backgroundExecutor, true));
+                    return;
+                }
+            }
+            ErrorReporter.reportError(
+                ErrorReporter.Level.INFORM, "Failed to open file " + path, getException()
+            );
+        }
+
+        private static Alert createUtfAlert() {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(LinBusGui.TITLE_BASE + " - Invalid File");
+            alert.setHeaderText("File contained invalid modified UTF-8");
+            alert.setContentText("The file you tried to open contained invalid modified UTF-8, " +
+                "but may be a legacy JNBT file. Would you like to try opening it with JNBT compatibility?\n" +
+                "Saving the file will convert it to standard NBT format.");
+            alert.getButtonTypes().setAll(
+                ButtonType.YES,
+                ButtonType.NO
+            );
+            return alert;
+        }
+    }
+
 }

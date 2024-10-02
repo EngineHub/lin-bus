@@ -19,14 +19,19 @@
 package org.enginehub.linbus.stream.impl;
 
 import org.enginehub.linbus.common.LinTagId;
+import org.enginehub.linbus.stream.LinReadOptions;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.exception.NbtParseException;
 import org.enginehub.linbus.stream.token.LinToken;
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -35,6 +40,72 @@ import java.util.List;
  * Reads a stream of tokens from a {@link DataInput}.
  */
 public class LinNbtReader implements LinStream {
+
+    /**
+     * The start of a 2-byte null character in modified UTF-8.
+     */
+    private static final byte TWO_BYTE_NULL_START = (byte) 0b1100_0000;
+    /**
+     * The end of a 2-byte null character in modified UTF-8.
+     */
+    public static final byte TWO_BYTE_NULL_END = (byte) 0b10000000;
+    private static final int TOP_5_BITS = 0b1111_1000;
+    /**
+     * The start of a 4-byte character in UTF-8 (top 5 bits).
+     */
+    private static final int FOUR_BYTE_START = 0b1111_0000;
+    /**
+     * The 3-byte start {@code 1110} plus {@code 1101}, the start of the surrogate indicator bits.
+     */
+    private static final byte THREE_BYTE_SURROGATE_START = (byte) 0b1110_1101;
+    private static final int TOP_3_BITS = 0b1110_0000;
+    /**
+     * The continuation from {@link #THREE_BYTE_SURROGATE_START} for the surrogate indicator bits, with the
+     * {@code 10} bits for the second byte of a 3-byte character (top 3 bits).
+     */
+    private static final int THREE_BYTE_SURROGATE_CONTINUATION = 0b1010_0000;
+
+    private static StringEncoding getGuaranteedStringEncoding(byte[] bytes) {
+        // The differences between the modified UTF-8 format and the standard UTF-8 format are the following:
+        // The null byte '\u0000' is encoded in 2-byte format rather than 1-byte, so that the encoded strings never have embedded nulls.
+        // Only the 1-byte, 2-byte, and 3-byte formats are used.
+        // Supplementary characters are represented in the form of surrogate pairs.
+
+        // However, the DataInputStream will accept a null-byte.
+        // So we can't use those as a definitive indicator of modified UTF-8 or not.
+        boolean sawTwoByteNullStart = false;
+        boolean sawThreeByteSurrogateStart = false;
+        for (byte b : bytes) {
+            if (b == TWO_BYTE_NULL_START) {
+                sawTwoByteNullStart = true;
+            } else if (sawTwoByteNullStart) {
+                if (b == TWO_BYTE_NULL_END) {
+                    return StringEncoding.MODIFIED_UTF_8;
+                } else {
+                    sawTwoByteNullStart = false;
+                }
+            }
+
+            if ((b & TOP_5_BITS) == FOUR_BYTE_START) {
+                // 4-byte start
+                return StringEncoding.NORMAL_UTF_8;
+            }
+
+            if (b == THREE_BYTE_SURROGATE_START) {
+                sawThreeByteSurrogateStart = true;
+            } else if (sawThreeByteSurrogateStart) {
+                if ((b & TOP_3_BITS) == THREE_BYTE_SURROGATE_CONTINUATION) {
+                    // Assume this is a properly encoded surrogate, and that this is modified UTF-8
+                    // Any errors will be caught by the UTF-8 decoder.
+                    return StringEncoding.MODIFIED_UTF_8;
+                } else {
+                    sawThreeByteSurrogateStart = false;
+                }
+            }
+        }
+        return StringEncoding.UNKNOWN;
+    }
+
     private sealed interface State {
         /**
          * We need to initialize and return the root name.
@@ -88,20 +159,31 @@ public class LinNbtReader implements LinStream {
         }
     }
 
+    private enum StringEncoding {
+        MODIFIED_UTF_8,
+        NORMAL_UTF_8,
+        UNKNOWN,
+    }
+
     private final DataInput input;
     /**
      * The state stack. We're currently on the one that's LAST.
      */
     private final Deque<State> stateStack;
+    private StringEncoding stringEncoding;
 
     /**
      * Creates a new reader.
      *
      * @param input the input to read from
+     * @param options the options to use when reading
      */
-    public LinNbtReader(DataInput input) {
+    public LinNbtReader(DataInput input, LinReadOptions options) {
         this.input = input;
         this.stateStack = new ArrayDeque<>(List.of(new State.Initial()));
+        // We only need to check strings if we're allowing JNBT encoding.
+        this.stringEncoding = options.allowJnbtStringEncoding()
+            ? StringEncoding.UNKNOWN : StringEncoding.MODIFIED_UTF_8;
     }
 
     @Override
@@ -114,7 +196,7 @@ public class LinNbtReader implements LinStream {
                     throw new NbtParseException("NBT stream does not start with a compound tag");
                 }
                 stateStack.addLast(new State.CompoundStart());
-                yield new LinToken.Name(input.readUTF(), LinTagId.COMPOUND);
+                yield new LinToken.Name(readUtf(), LinTagId.COMPOUND);
             }
             case State.CompoundStart compoundStart -> {
                 stateStack.addLast(new State.CompoundEntryName());
@@ -129,7 +211,7 @@ public class LinNbtReader implements LinStream {
                 // After we read the value, we'll be back at reading the name.
                 stateStack.addLast(new State.CompoundEntryName());
                 stateStack.addLast(new State.ReadValue(id));
-                yield new LinToken.Name(input.readUTF(), id);
+                yield new LinToken.Name(readUtf(), id);
             }
             case State.ReadValue(LinTagId id) -> handleReadValue(id);
             case State.ReadByteArray(int remaining) -> {
@@ -188,7 +270,7 @@ public class LinNbtReader implements LinStream {
                 stateStack.addLast(new State.ReadByteArray(size));
                 yield new LinToken.ByteArrayStart(size);
             }
-            case STRING -> new LinToken.String(input.readUTF());
+            case STRING -> new LinToken.String(readUtf());
             case LIST -> {
                 var elementId = LinTagId.fromId(input.readUnsignedByte());
                 int size = input.readInt();
@@ -211,5 +293,44 @@ public class LinNbtReader implements LinStream {
             }
             case END -> throw new NbtParseException("Invalid id: " + id);
         };
+    }
+
+    private String readUtf() throws IOException {
+        return switch (stringEncoding) {
+            case MODIFIED_UTF_8 -> input.readUTF();
+            case NORMAL_UTF_8 -> {
+                int length = input.readUnsignedShort();
+                byte[] bytes = new byte[length];
+                input.readFully(bytes);
+                yield decodeNormalUtf8(bytes);
+            }
+            case UNKNOWN -> {
+                int length = input.readUnsignedShort();
+                byte[] bytes = new byte[length];
+                input.readFully(bytes);
+                StringEncoding knownEncoding = getGuaranteedStringEncoding(bytes);
+                yield switch (knownEncoding) {
+                    case MODIFIED_UTF_8 -> {
+                        stringEncoding = knownEncoding;
+                        byte[] withLength = new byte[bytes.length + 2];
+                        withLength[0] = (byte) (length >> 8);
+                        withLength[1] = (byte) length;
+                        System.arraycopy(bytes, 0, withLength, 2, bytes.length);
+                        yield new DataInputStream(new ByteArrayInputStream(withLength)).readUTF();
+                    }
+                    case NORMAL_UTF_8 -> {
+                        stringEncoding = knownEncoding;
+                        yield decodeNormalUtf8(bytes);
+                    }
+                    // These are valid UTF-8 bytes that fit either encoding. Just read them as normal UTF-8,
+                    // but don't change the encoding.
+                    case UNKNOWN -> decodeNormalUtf8(bytes);
+                };
+            }
+        };
+    }
+
+    private static String decodeNormalUtf8(byte[] bytes) throws CharacterCodingException {
+        return StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(bytes)).toString();
     }
 }

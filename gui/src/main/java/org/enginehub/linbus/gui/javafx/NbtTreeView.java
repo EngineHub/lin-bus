@@ -26,6 +26,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
 import org.enginehub.linbus.stream.LinBinaryIO;
+import org.enginehub.linbus.stream.LinReadOptions;
 import org.enginehub.linbus.tree.LinCompoundTag;
 import org.enginehub.linbus.tree.LinListTag;
 import org.enginehub.linbus.tree.LinRootEntry;
@@ -97,10 +98,10 @@ public final class NbtTreeView {
         return valueCol;
     }
 
-    public static TreeItem<TagEntry> loadTreeItem(Path file) throws IOException {
+    public static TreeItem<TagEntry> loadTreeItem(Path file, LinReadOptions options) throws IOException {
         LinRootEntry root;
         try (var dataInput = new DataInputStream(new GZIPInputStream(Files.newInputStream(file)))) {
-            root = LinBinaryIO.readUsing(dataInput, LinRootEntry::readFrom);
+            root = LinBinaryIO.readUsing(dataInput, options, LinRootEntry::readFrom);
         }
         assert root != null;
         return new TagEntryTreeItem(root.name(), root.value());
