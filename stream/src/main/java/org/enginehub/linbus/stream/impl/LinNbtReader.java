@@ -248,8 +248,8 @@ public class LinNbtReader implements LinStream {
     public LinNbtReader(DataInput input, LinReadOptions options) {
         this.input = input;
         this.stateStack = new ArrayDeque<>(List.of(new State.Initial()));
-        // We only need to check strings if we're allowing JNBT encoding.
-        this.stringEncoding = options.allowJnbtStringEncoding()
+        // We only need to check strings if we're allowing normal UTF-8 encoding.
+        this.stringEncoding = options.allowNormalUtf8Encoding()
             ? StringEncoding.UNKNOWN : StringEncoding.MODIFIED_UTF_8;
     }
 

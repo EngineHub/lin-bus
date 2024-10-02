@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class JnbtCompatibilityIntegrationTest {
 
-    private static final LinReadOptions OPTIONS = LinReadOptions.builder().allowJnbtStringEncoding(true).build();
+    private static final LinReadOptions OPTIONS = LinReadOptions.builder().allowNormalUtf8Encoding(true).build();
 
     private static final String NULL_BYTE_TEST_STRING = "Null: \0";
     private static final String TWO_BYTE_TEST_STRING = "2-byte: Ø";
@@ -195,7 +195,7 @@ public class JnbtCompatibilityIntegrationTest {
         var tokens = ImmutableList.copyOf(
             LinBinaryIO.read(
                 new DataInputStream(new ByteArrayInputStream(bytes)),
-                LinReadOptions.builder().allowJnbtStringEncoding(true).build()
+                LinReadOptions.builder().allowNormalUtf8Encoding(true).build()
             ).asIterator()
         );
         assertThat(tokens).containsExactly(

@@ -256,7 +256,7 @@ public class MainSceneSetup {
         protected TreeItem<NbtTreeView.TagEntry> call() throws Exception {
             LinReadOptions.Builder options = LinReadOptions.builder();
             if (tryingLegacyCompat) {
-                options.allowJnbtStringEncoding(true);
+                options.allowNormalUtf8Encoding(true);
             }
             return NbtTreeView.loadTreeItem(path, options.build());
         }
@@ -289,9 +289,15 @@ public class MainSceneSetup {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle(LinBusGui.TITLE_BASE + " - Invalid File");
             alert.setHeaderText("File contained invalid modified UTF-8");
-            alert.setContentText("The file you tried to open contained invalid modified UTF-8, " +
-                "but may be a legacy JNBT file. Would you like to try opening it with JNBT compatibility?\n" +
-                "Saving the file will convert it to standard NBT format.");
+            alert.setContentText(
+                """
+                The file you tried to open contained invalid modified UTF-8, \
+                but may be valid with (non-standard) normal UTF-8.
+                Would you like to try opening it with that enabled?
+
+                Note: Saving the file will convert it to standard NBT format.
+                """
+            );
             alert.getButtonTypes().setAll(
                 ButtonType.YES,
                 ButtonType.NO
