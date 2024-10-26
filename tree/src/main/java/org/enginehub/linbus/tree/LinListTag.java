@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Represents a list of {@link LinTag LinTags}.
@@ -217,6 +218,19 @@ public final class LinListTag<T extends LinTag<?>> extends LinTag<List<T>> {
      */
     public T get(int index) {
         return value.get(index);
+    }
+
+    /**
+     * Transform the tag at the given index.
+     *
+     * @param index the index of the tag to transform
+     * @param transformer the function to transform the tag
+     * @return the new list tag
+     */
+    public LinListTag<T> transformTag(int index, Function<T, T> transformer) {
+        var newValue = new ArrayList<>(value);
+        newValue.set(index, transformer.apply(value.get(index)));
+        return new LinListTag<>(elementType, List.copyOf(newValue));
     }
 
     /**

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -133,6 +134,183 @@ public class LinCompoundTagTest {
             assertThat(thrown).hasMessageThat().isEqualTo(
                 "No tag under the name 'this key does not exist' exists"
             );
+        }
+    }
+
+    @Test
+    void transformByName() {
+        var tag = LinCompoundTag.of(Map.of(
+            "Hello", LinStringTag.of("World!"),
+            "Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE)
+        ));
+        var transformed = tag.transformTag("Hello", LinTagType.stringTag(), t -> LinStringTag.of("New World!"));
+        assertThat(transformed).isEqualTo(LinCompoundTag.of(Map.of(
+            "Hello", LinStringTag.of("New World!"),
+            "Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE)
+        )));
+
+        var transformedToNewType = tag.transformTag("Hello", LinTagType.stringTag(), t -> LinIntArrayTag.of(0xDEAD, 0xBEEF));
+        assertThat(transformedToNewType).isEqualTo(LinCompoundTag.of(Map.of(
+            "Hello", LinIntArrayTag.of(0xDEAD, 0xBEEF),
+            "Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE)
+        )));
+    }
+
+    @Test
+    void transformByNameThrows() {
+        var tag = LinCompoundTag.of(Map.of("Hello", LinStringTag.of("World!")));
+        {
+            var ex = assertThrows(
+                NoSuchElementException.class,
+                () -> tag.transformTag("Nope", LinTagType.stringTag(), t -> t)
+            );
+            assertThat(ex).hasMessageThat().isEqualTo("No tag under the name 'Nope' exists");
+        }
+        {
+            var ex = assertThrows(
+                IllegalStateException.class,
+                () -> tag.transformTag("Hello", LinTagType.intTag(), t -> t)
+            );
+            assertThat(ex).hasMessageThat().isEqualTo("Tag under 'Hello' exists, but is a STRING instead of INT");
+        }
+    }
+
+    @Test
+    void transformRejectsEndTag() {
+        var tag = LinCompoundTag.of(Map.of("Hello", LinStringTag.of("World!")));
+        var ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> tag.transformTag("Hello", LinTagType.stringTag(), t -> LinEndTag.instance())
+        );
+        assertThat(ex).hasMessageThat().isEqualTo("Cannot add END tag to compound tag");
+    }
+
+    @Test
+    void transformRejectsNullResult() {
+        var tag = LinCompoundTag.of(Map.of("Hello", LinStringTag.of("World!")));
+        assertThrows(
+            NullPointerException.class,
+            () -> tag.transformTag("Hello", LinTagType.stringTag(), t -> null)
+        );
+    }
+
+    @Test
+    void transformListByName() {
+        var tag = LinCompoundTag.of(Map.of(
+            "list", LinListTag.of(LinTagType.stringTag(), List.of(LinStringTag.of("a")))
+        ));
+        var transformed = tag.transformListTag(
+            "list", LinTagType.stringTag(), l -> l.toBuilder().add(LinStringTag.of("b")).build()
+        );
+        assertThat(transformed).getTagByKey("list").listValue().containsExactly(
+            LinStringTag.of("a"), LinStringTag.of("b")
+        ).inOrder();
+        {
+            var ex = assertThrows(
+                IllegalStateException.class,
+                () -> tag.transformListTag("list", LinTagType.intTag(), l -> l)
+            );
+            assertThat(ex).hasMessageThat().isEqualTo(
+                "Tag under 'list' exists, but is a STRING list instead of a INT list"
+            );
+        }
+        {
+            var ex = assertThrows(
+                NoSuchElementException.class,
+                () -> tag.transformListTag("nope", LinTagType.stringTag(), l -> l)
+            );
+            assertThat(ex).hasMessageThat().isEqualTo("No tag under the name 'nope' exists");
+        }
+    }
+
+    @Test
+    void transformIfPresentByName() {
+        var tag = LinCompoundTag.of(Map.of("Hello", LinStringTag.of("World!")));
+        var transformed = tag.transformTagIfPresent(
+            "Hello", LinTagType.stringTag(), t -> LinStringTag.of("New World!")
+        );
+        assertThat(transformed).getTagByKey("Hello").stringValue().isEqualTo("New World!");
+
+        assertThat(tag.transformTagIfPresent("Nope", LinTagType.stringTag(), t -> LinStringTag.of("x")))
+            .isSameInstanceAs(tag);
+
+        var ex = assertThrows(
+            IllegalStateException.class,
+            () -> tag.transformTagIfPresent("Hello", LinTagType.intTag(), t -> t)
+        );
+        assertThat(ex).hasMessageThat().isEqualTo("Tag under 'Hello' exists, but is a STRING instead of INT");
+    }
+
+    @Test
+    void transformOrInsertByName() {
+        var tag = LinCompoundTag.of(Map.of("Hello", LinStringTag.of("World!")));
+
+        var updated = tag.transformTagOrInsert("Hello", LinTagType.stringTag(), t -> {
+            assertThat(t).isNotNull();
+            return LinStringTag.of("New World!");
+        });
+        assertThat(updated).getTagByKey("Hello").stringValue().isEqualTo("New World!");
+
+        var inserted = tag.transformTagOrInsert("Added", LinTagType.stringTag(), t -> {
+            assertThat(t).isNull();
+            return LinStringTag.of("brand new");
+        });
+        assertThat(inserted).compoundValue().containsExactly(
+            "Hello", LinStringTag.of("World!"),
+            "Added", LinStringTag.of("brand new")
+        ).inOrder();
+
+        {
+            var ex = assertThrows(
+                IllegalStateException.class,
+                () -> tag.transformTagOrInsert("Hello", LinTagType.intTag(), t -> t)
+            );
+            assertThat(ex).hasMessageThat().isEqualTo("Tag under 'Hello' exists, but is a STRING instead of INT");
+        }
+        assertThrows(
+            NullPointerException.class,
+            () -> tag.transformTagOrInsert("Hello", LinTagType.stringTag(), t -> null)
+        );
+    }
+
+    @Test
+    void transformListIfPresentAndOrInsert() {
+        var tag = LinCompoundTag.of(Map.of(
+            "list", LinListTag.of(LinTagType.stringTag(), List.of(LinStringTag.of("a"))),
+            "notList", LinStringTag.of("x")
+        ));
+
+        var appended = tag.transformListTagIfPresent(
+            "list", LinTagType.stringTag(), l -> l.toBuilder().add(LinStringTag.of("b")).build()
+        );
+        assertThat(appended).getTagByKey("list").listValue().containsExactly(
+            LinStringTag.of("a"), LinStringTag.of("b")
+        ).inOrder();
+
+        assertThat(tag.transformListTagIfPresent("nope", LinTagType.stringTag(), l -> l))
+            .isSameInstanceAs(tag);
+
+        var inserted = tag.transformListTagOrInsert("added", LinTagType.stringTag(), l -> {
+            assertThat(l).isNull();
+            return LinListTag.of(LinTagType.stringTag(), List.of(LinStringTag.of("new")));
+        });
+        assertThat(inserted).getTagByKey("added").listValue().containsExactly(LinStringTag.of("new"));
+
+        {
+            var ex = assertThrows(
+                IllegalStateException.class,
+                () -> tag.transformListTagIfPresent("list", LinTagType.intTag(), l -> l)
+            );
+            assertThat(ex).hasMessageThat().isEqualTo(
+                "Tag under 'list' exists, but is a STRING list instead of a INT list"
+            );
+        }
+        {
+            var ex = assertThrows(
+                IllegalStateException.class,
+                () -> tag.transformListTagIfPresent("notList", LinTagType.stringTag(), l -> l)
+            );
+            assertThat(ex).hasMessageThat().isEqualTo("Tag under 'notList' exists, but is a STRING instead of LIST");
         }
     }
 

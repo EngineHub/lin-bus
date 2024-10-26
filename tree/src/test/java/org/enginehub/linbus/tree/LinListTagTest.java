@@ -65,6 +65,32 @@ public class LinListTagTest {
     }
 
     @Test
+    void transformByIndex() {
+        var initial = LinListTag.of(LinTagType.stringTag(), List.of(
+            LinStringTag.of("Hello"),
+            LinStringTag.of("World!")
+        ));
+        assertThat(
+            LinListTag.of(LinTagType.stringTag(), List.of(
+                LinStringTag.of("Hello"),
+                LinStringTag.of("Goodbye...")
+            ))
+        ).isEqualTo(initial.transformTag(1, s -> LinStringTag.of("Goodbye...")));
+    }
+
+    @Test
+    void transformByIndexOutOfRange() {
+        var initial = LinListTag.of(LinTagType.stringTag(), List.of(
+            LinStringTag.of("Hello"),
+            LinStringTag.of("World!")
+        ));
+        assertThrows(
+            IndexOutOfBoundsException.class,
+            () -> initial.transformTag(2, s -> LinStringTag.of("Goodbye..."))
+        );
+    }
+
+    @Test
     void emptyImplementation() {
         var empty = LinListTag.empty(LinTagType.stringTag());
         assertThat(empty).listValue().isEmpty();
