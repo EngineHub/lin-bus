@@ -225,7 +225,6 @@ public class LinSnbtReader implements LinStream {
         var token = read().token();
         if (token instanceof SnbtToken.CompoundStart) {
             stateStack.addLast(State.InCompound.INSTANCE);
-            stateStack.addLast(State.CompoundEntryName.INSTANCE);
             tokenQueue.addLast(new LinToken.CompoundStart());
             return;
         }
@@ -245,8 +244,13 @@ public class LinSnbtReader implements LinStream {
     }
 
     private void advanceCompound() {
-        var token = read().token();
+        var typing = read();
+        var token = typing.token();
         switch (token) {
+            case SnbtToken.Text text -> {
+                readAgainStack.addLast(typing);
+                stateStack.addLast(State.CompoundEntryName.INSTANCE);
+            }
             case SnbtToken.CompoundEnd compoundEnd -> {
                 stateStack.removeLast();
                 tokenQueue.addLast(new LinToken.CompoundEnd());
