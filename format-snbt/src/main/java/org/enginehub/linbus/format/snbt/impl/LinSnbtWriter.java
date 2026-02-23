@@ -41,10 +41,17 @@ public class LinSnbtWriter {
         record List(int remainingValues) implements WriteState {
         }
 
-        record Compound(boolean hasPrevious) implements WriteState {
+        enum Compound implements WriteState {
+            DEFAULT,
+            /**
+             * Indicates that an entry was just finished, so when a new name is encountered, a comma should be emitted
+             * first.
+             */
+            HAS_PREVIOUS_ENTRY,
         }
 
-        record WritingArray() implements WriteState {
+        enum WritingArray implements WriteState {
+            INSTANCE
         }
     }
 
@@ -72,13 +79,14 @@ public class LinSnbtWriter {
             }
             switch (token) {
                 case LinToken.Name(String name, Optional<LinTagId> id) -> {
-                    if (!(state instanceof WriteState.Compound compound)) {
+                    if (!(state instanceof WriteState.Compound)) {
                         throw new NbtWriteException("Names can only appear inside compounds");
                     }
-                    if (compound.hasPrevious) {
+                    if (state == WriteState.Compound.HAS_PREVIOUS_ENTRY) {
                         output.append(',');
                         // Kill the previous flag
-                        replaceLast(new WriteState.Compound(false));
+                        stateStack.removeLast();
+                        stateStack.addLast(WriteState.Compound.DEFAULT);
                     }
                     output.append(Elusion.escapeIfNeeded(name)).append(':');
                 }
@@ -87,7 +95,7 @@ public class LinSnbtWriter {
                     if (state instanceof WriteState.WritingArray) {
                         output.append(',');
                     } else {
-                        stateStack.addLast(new WriteState.WritingArray());
+                        stateStack.addLast(WriteState.WritingArray.INSTANCE);
                     }
                     while (buffer.hasRemaining()) {
                         output.append(String.valueOf(buffer.get())).append('B');
@@ -112,7 +120,7 @@ public class LinSnbtWriter {
                 case LinToken.CompoundStart compoundStart -> {
                     output.append('{');
 
-                    stateStack.addLast(new WriteState.Compound(false));
+                    stateStack.addLast(WriteState.Compound.DEFAULT);
                 }
                 case LinToken.CompoundEnd compoundEnd -> {
                     output.append('}');
@@ -135,7 +143,7 @@ public class LinSnbtWriter {
                     if (state instanceof WriteState.WritingArray) {
                         output.append(',');
                     } else {
-                        stateStack.addLast(new WriteState.WritingArray());
+                        stateStack.addLast(WriteState.WritingArray.INSTANCE);
                     }
                     while (buffer.hasRemaining()) {
                         output.append(String.valueOf(buffer.get()));
@@ -173,7 +181,7 @@ public class LinSnbtWriter {
                     if (state instanceof WriteState.WritingArray) {
                         output.append(',');
                     } else {
-                        stateStack.addLast(new WriteState.WritingArray());
+                        stateStack.addLast(WriteState.WritingArray.INSTANCE);
                     }
                     while (buffer.hasRemaining()) {
                         output.append(String.valueOf(buffer.get())).append('L');
@@ -221,13 +229,9 @@ public class LinSnbtWriter {
                     output.append(',');
                 }
             }
-            case WriteState.Compound compound -> stateStack.addLast(new WriteState.Compound(true));
+            case WriteState.Compound compound -> stateStack.addLast(WriteState.Compound.HAS_PREVIOUS_ENTRY);
             default -> throw new NbtWriteException("Unexpected state: " + state);
         }
     }
 
-    private void replaceLast(WriteState state) {
-        stateStack.removeLast();
-        stateStack.addLast(state);
-    }
 }
