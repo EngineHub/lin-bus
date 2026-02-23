@@ -50,7 +50,8 @@ public class LinSnbtReader implements LinStream {
          * The cursor should either point to a comma or a closing brace.
          * </p>
          */
-        record InCompound() implements State {
+        enum InCompound implements State {
+            INSTANCE
         }
 
         /**
@@ -60,7 +61,8 @@ public class LinSnbtReader implements LinStream {
          * After this, the cursor will be one character after the colon.
          * </p>
          */
-        record CompoundEntryName() implements State {
+        enum CompoundEntryName implements State {
+            INSTANCE
         }
 
         /**
@@ -70,7 +72,8 @@ public class LinSnbtReader implements LinStream {
          * The cursor should either point to a comma or a closing bracket.
          * </p>
          */
-        record InList() implements State {
+        enum InList implements State {
+            INSTANCE
         }
 
         /**
@@ -80,7 +83,8 @@ public class LinSnbtReader implements LinStream {
          * The cursor should always point to the start of a value.
          * </p>
          */
-        record InByteArray() implements State {
+        enum InByteArray implements State {
+            INSTANCE
         }
 
         /**
@@ -90,7 +94,8 @@ public class LinSnbtReader implements LinStream {
          * The cursor should always point to the start of a value.
          * </p>
          */
-        record InIntArray() implements State {
+        enum InIntArray implements State {
+            INSTANCE
         }
 
         /**
@@ -100,14 +105,17 @@ public class LinSnbtReader implements LinStream {
          * The cursor should always point to the start of a value.
          * </p>
          */
-        record InLongArray() implements State {
+        enum InLongArray implements State {
+            INSTANCE
         }
 
         /**
          * We need to read a value. Usually, we'll just return the value, and not push a new state, unless we need to
          * read a complex value such as a compound or list.
          */
-        record ReadValue(boolean mustBeCompound) implements State {
+        enum ReadValue implements State {
+            ANY,
+            COMPOUND_ONLY,
         }
     }
 
@@ -135,7 +143,7 @@ public class LinSnbtReader implements LinStream {
      */
     public LinSnbtReader(Iterator<? extends SnbtTokenWithMetadata> input) {
         this.input = input;
-        this.stateStack = new ArrayDeque<>(List.of(new State.ReadValue(true)));
+        this.stateStack = new ArrayDeque<>(List.of(State.ReadValue.COMPOUND_ONLY));
         this.tokenQueue = new ArrayDeque<>();
         this.readAgainStack = new ArrayDeque<>();
     }
@@ -182,7 +190,7 @@ public class LinSnbtReader implements LinStream {
 
     private void fillTokenStack(State state) {
         switch (state) {
-            case State.ReadValue(boolean mustBeCompound) -> readValue(mustBeCompound);
+            case State.ReadValue readValue -> readValue(readValue);
             case State.InCompound inCompound -> advanceCompound();
             case State.CompoundEntryName compoundEntryName -> readName();
             case State.InList inList -> advanceList();
@@ -211,18 +219,18 @@ public class LinSnbtReader implements LinStream {
         }
     }
 
-    private void readValue(boolean mustBeCompound) {
+    private void readValue(State.ReadValue readValue) {
         // Remove the ReadValue
         stateStack.removeLast();
         var token = read().token();
         if (token instanceof SnbtToken.CompoundStart) {
-            stateStack.addLast(new State.InCompound());
-            stateStack.addLast(new State.CompoundEntryName());
+            stateStack.addLast(State.InCompound.INSTANCE);
+            stateStack.addLast(State.CompoundEntryName.INSTANCE);
             tokenQueue.addLast(new LinToken.CompoundStart());
             return;
         }
 
-        if (mustBeCompound) {
+        if (readValue == State.ReadValue.COMPOUND_ONLY) {
             throw unexpectedTokenSpecificError(token, SnbtToken.CompoundStart.INSTANCE.toString());
         }
 
@@ -243,7 +251,7 @@ public class LinSnbtReader implements LinStream {
                 stateStack.removeLast();
                 tokenQueue.addLast(new LinToken.CompoundEnd());
             }
-            case SnbtToken.Separator separator -> stateStack.addLast(new State.CompoundEntryName());
+            case SnbtToken.Separator separator -> stateStack.addLast(State.CompoundEntryName.INSTANCE);
             default -> throw unexpectedTokenError(token);
         }
     }
@@ -259,7 +267,7 @@ public class LinSnbtReader implements LinStream {
         if (!(token instanceof SnbtToken.EntrySeparator)) {
             throw unexpectedTokenSpecificError(token, SnbtToken.EntrySeparator.INSTANCE.toString());
         }
-        stateStack.addLast(new State.ReadValue(false));
+        stateStack.addLast(State.ReadValue.ANY);
         tokenQueue.addLast(new LinToken.Name(text.content()));
     }
 
@@ -270,7 +278,7 @@ public class LinSnbtReader implements LinStream {
                 stateStack.removeLast();
                 tokenQueue.addLast(new LinToken.ListEnd());
             }
-            case SnbtToken.Separator separator -> stateStack.addLast(new State.ReadValue(false));
+            case SnbtToken.Separator separator -> stateStack.addLast(State.ReadValue.ANY);
             default -> throw unexpectedTokenError(token);
         }
     }
@@ -324,23 +332,23 @@ public class LinSnbtReader implements LinStream {
     private void prepareListLike() {
         int initialCharIndex = charIndex;
         var typing = read();
-        if (typing.token() instanceof SnbtToken.Text text && !text.quoted() && text.content().length() == 1) {
+        if (typing.token() instanceof SnbtToken.Text(boolean quoted, String content) && !quoted && content.length() == 1) {
             var separatorCheck = read();
             if (separatorCheck.token() instanceof SnbtToken.ListTypeSeparator) {
-                switch (text.content().charAt(0)) {
+                switch (content.charAt(0)) {
                     case 'B' -> {
-                        stateStack.addLast(new State.InByteArray());
+                        stateStack.addLast(State.InByteArray.INSTANCE);
                         tokenQueue.addLast(new LinToken.ByteArrayStart());
                     }
                     case 'I' -> {
-                        stateStack.addLast(new State.InIntArray());
+                        stateStack.addLast(State.InIntArray.INSTANCE);
                         tokenQueue.addLast(new LinToken.IntArrayStart());
                     }
                     case 'L' -> {
-                        stateStack.addLast(new State.InLongArray());
+                        stateStack.addLast(State.InLongArray.INSTANCE);
                         tokenQueue.addLast(new LinToken.LongArrayStart());
                     }
-                    default -> throw new NbtParseException(errorPrefix() + "Invalid array type: " + text.content());
+                    default -> throw new NbtParseException(errorPrefix() + "Invalid array type: " + content);
                 }
                 return;
             }
@@ -349,8 +357,8 @@ public class LinSnbtReader implements LinStream {
         readAgainStack.addFirst(typing);
         charIndex = initialCharIndex;
 
-        stateStack.addLast(new State.InList());
-        stateStack.addLast(new State.ReadValue(false));
+        stateStack.addLast(State.InList.INSTANCE);
+        stateStack.addLast(State.ReadValue.ANY);
         tokenQueue.addLast(new LinToken.ListStart());
     }
 

@@ -114,19 +114,22 @@ public class LinNbtReader implements LinStream {
         /**
          * We need to initialize and return the root name.
          */
-        record Initial() implements State {
+        enum Initial implements State {
+            INSTANCE
         }
 
         /**
          * We need to return {@link LinToken.CompoundStart}.
          */
-        record CompoundStart() implements State {
+        enum CompoundStart implements State {
+            INSTANCE
         }
 
         /**
          * We need to give the name of the next entry. We'll load the ID here too.
          */
-        record CompoundEntryName() implements State {
+        enum CompoundEntryName implements State {
+            INSTANCE
         }
 
         /**
@@ -247,7 +250,7 @@ public class LinNbtReader implements LinStream {
      */
     public LinNbtReader(DataInput input, LinReadOptions options) {
         this.input = input;
-        this.stateStack = new ArrayDeque<>(List.of(new State.Initial()));
+        this.stateStack = new ArrayDeque<>(List.of(State.Initial.INSTANCE));
         // We only need to check strings if we're allowing normal UTF-8 encoding.
         this.stringEncoding = options.allowNormalUtf8Encoding()
             ? StringEncoding.UNKNOWN : StringEncoding.MODIFIED_UTF_8;
@@ -262,11 +265,11 @@ public class LinNbtReader implements LinStream {
                 if (input.readUnsignedByte() != LinTagId.COMPOUND.id()) {
                     throw new NbtParseException("NBT stream does not start with a compound tag");
                 }
-                stateStack.addLast(new State.CompoundStart());
+                stateStack.addLast(State.CompoundStart.INSTANCE);
                 yield new LinToken.Name(readUtf(), LinTagId.COMPOUND);
             }
             case State.CompoundStart compoundStart -> {
-                stateStack.addLast(new State.CompoundEntryName());
+                stateStack.addLast(State.CompoundEntryName.INSTANCE);
                 yield new LinToken.CompoundStart();
             }
             case State.CompoundEntryName compoundEntryName -> {
@@ -276,7 +279,7 @@ public class LinNbtReader implements LinStream {
                 }
 
                 // After we read the value, we'll be back at reading the name.
-                stateStack.addLast(new State.CompoundEntryName());
+                stateStack.addLast(State.CompoundEntryName.INSTANCE);
                 stateStack.addLast(new State.ReadValue(id));
                 yield new LinToken.Name(readUtf(), id);
             }
@@ -345,7 +348,7 @@ public class LinNbtReader implements LinStream {
                 yield new LinToken.ListStart(size, elementId);
             }
             case COMPOUND -> {
-                stateStack.addLast(new State.CompoundEntryName());
+                stateStack.addLast(State.CompoundEntryName.INSTANCE);
                 yield new LinToken.CompoundStart();
             }
             case INT_ARRAY -> {
