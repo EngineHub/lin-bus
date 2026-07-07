@@ -26,6 +26,7 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LinTokenTest {
     @Test
@@ -72,5 +73,32 @@ public class LinTokenTest {
         assertThat(new LinToken.Long(1).tagId()).hasValue(LinTagId.LONG);
         assertThat(new LinToken.Short((short) 1).tagId()).hasValue(LinTagId.SHORT);
         assertThat(new LinToken.String("").tagId()).hasValue(LinTagId.STRING);
+    }
+
+    @Test
+    void byteArrayContentMustBeReadOnly() {
+        var ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> new LinToken.ByteArrayContent(ByteBuffer.allocate(0))
+        );
+        assertThat(ex).hasMessageThat().isEqualTo("buffer must be read-only");
+    }
+
+    @Test
+    void intArrayContentMustBeReadOnly() {
+        var ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> new LinToken.IntArrayContent(IntBuffer.allocate(0))
+        );
+        assertThat(ex).hasMessageThat().isEqualTo("buffer must be read-only");
+    }
+
+    @Test
+    void longArrayContentMustBeReadOnly() {
+        var ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> new LinToken.LongArrayContent(LongBuffer.allocate(0))
+        );
+        assertThat(ex).hasMessageThat().isEqualTo("buffer must be read-only");
     }
 }

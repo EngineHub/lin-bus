@@ -22,6 +22,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.exception.NbtParseException;
+import org.enginehub.linbus.stream.exception.NbtWriteException;
+import org.enginehub.linbus.stream.token.LinToken;
 import org.junit.jupiter.api.Test;
 
 import java.io.DataInputStream;
@@ -61,5 +63,14 @@ public class LinBinaryIOTest {
         assertThrows(EOFException.class, () ->
             LinBinaryIO.readUsing(new DataInputStream(InputStream.nullInputStream()), LinStream::nextOrNull)
         );
+    }
+
+    @Test
+    void writeRequiresNameFirst() {
+        var output = ByteStreams.newDataOutput();
+        var ex = assertThrows(NbtWriteException.class, () ->
+            LinBinaryIO.write(output, LinStream.of(new LinToken.Int(1)))
+        );
+        assertThat(ex).hasMessageThat().isEqualTo("Expected first token to be a name");
     }
 }

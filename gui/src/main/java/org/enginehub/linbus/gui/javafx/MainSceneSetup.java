@@ -111,7 +111,7 @@ public class MainSceneSetup {
             Path path = file.toPath();
             // the task reports its own outcome via succeeded()/failed(), so the submit future is unused
             @SuppressWarnings("FutureReturnValueIgnored")
-            Future<?> unused = backgroundExecutor.submit(new LoadTreeItemTask(path, backgroundExecutor, false));
+            Future<?> _ = backgroundExecutor.submit(new LoadTreeItemTask(path, backgroundExecutor, false));
         });
         return openFile;
     }
@@ -281,7 +281,7 @@ public class MainSceneSetup {
                 if (result.isPresent() && result.get() == ButtonType.YES) {
                     // the retry task reports its own outcome via succeeded()/failed(), so the submit future is unused
                     @SuppressWarnings("FutureReturnValueIgnored")
-                    Future<?> unused = backgroundExecutor.submit(new LoadTreeItemTask(path, backgroundExecutor, true));
+                    Future<?> _ = backgroundExecutor.submit(new LoadTreeItemTask(path, backgroundExecutor, true));
                     return;
                 }
             }

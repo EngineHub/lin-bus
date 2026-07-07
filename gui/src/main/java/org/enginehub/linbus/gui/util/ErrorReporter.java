@@ -60,7 +60,7 @@ public final class ErrorReporter {
         var cf = new CompletableFuture<@Nullable Void>();
         // the whenComplete callback handles display errors and exit, so the returned future is unused
         @SuppressWarnings("FutureReturnValueIgnored")
-        CompletableFuture<@Nullable Void> unused = cf.whenComplete((value, t2) -> {
+        CompletableFuture<@Nullable Void> _ = cf.whenComplete((value, t2) -> {
             if (t2 != null) {
                 Logger.warn("Error displaying error to user", t2);
             }

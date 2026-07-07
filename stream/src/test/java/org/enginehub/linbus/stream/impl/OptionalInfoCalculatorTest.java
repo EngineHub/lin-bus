@@ -46,6 +46,12 @@ public class OptionalInfoCalculatorTest {
     }
 
     @Test
+    void calculateOptionalInfoReturnsSelf() {
+        var calculator = LinStream.of(new LinToken.Int(1)).calculateOptionalInfo();
+        assertThat(calculator.calculateOptionalInfo()).isSameInstanceAs(calculator);
+    }
+
+    @Test
     void failToFill() {
         var ex = assertThrows(NbtParseException.class, () ->
             LinStream.of(new LinToken.Name("foo")).calculateOptionalInfo().nextOrNull()

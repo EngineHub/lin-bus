@@ -3,17 +3,20 @@ import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 
 plugins {
     id("org.enginehub.crankcase.java")
+    jacoco
 }
 
 crankcaseJava {
-    javaRelease = 21
+    javaRelease = 25
     disabledLints.add("module")
+}
+
+jacoco {
+    toolVersion = "0.8.15"
 }
 
 val sourceSets = extensions.getByType(SourceSetContainer::class.java)
 sourceSets["test"].resources.srcDir("../shared-test-resources")
-
-apply(plugin = "jacoco")
 
 val mainSourceSet = sourceSets["main"]
 val jacocoExecData = fileTree(layout.buildDirectory.dir("jacoco")).include("*.exec")

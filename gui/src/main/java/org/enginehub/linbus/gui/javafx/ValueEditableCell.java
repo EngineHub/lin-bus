@@ -247,7 +247,7 @@ class ValueEditableCell extends TreeTableCell<NbtTreeView.TagEntry, NbtTreeView.
                             };
                             // the thenAccept continuation applies the update, so the returned future is unused
                             @SuppressWarnings("FutureReturnValueIgnored")
-                            CompletableFuture<Void> unused = new ArrayEditSetup<>(buffer).showForUpdate().thenAccept(changesAccepted -> {
+                            CompletableFuture<Void> _ = new ArrayEditSetup<>(buffer).showForUpdate().thenAccept(changesAccepted -> {
                                 if (!changesAccepted) {
                                     return;
                                 }
