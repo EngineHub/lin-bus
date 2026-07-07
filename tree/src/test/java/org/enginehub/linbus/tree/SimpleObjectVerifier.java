@@ -25,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Helper for verifying equals and hashCode implementations.
  */
 public class SimpleObjectVerifier {
+    // deliberately verifies the equals(null) contract
+    @SuppressWarnings("EqualsNull")
     public static <T> void assertEqualsHashCodeImplementation(T base, T equal, T alsoEqual, T notEqual) {
         // Reflexive
         assertTrue(base.equals(base));

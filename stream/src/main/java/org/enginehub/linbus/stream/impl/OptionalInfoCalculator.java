@@ -139,7 +139,7 @@ public class OptionalInfoCalculator implements LinStream {
         private final @Nullable ValueCounter counter;
         private @Nullable LinTagId elementId;
 
-        public ListStartFill(LinToken.ListStart listStart) {
+        ListStartFill(LinToken.ListStart listStart) {
             if (listStart.size().isPresent()) {
                 this.knownSize = listStart.size().getAsInt();
                 this.counter = null;

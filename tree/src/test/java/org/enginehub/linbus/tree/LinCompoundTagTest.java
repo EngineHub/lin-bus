@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -35,10 +34,10 @@ public class LinCompoundTagTest {
     @Test
     void roundTrip() throws IOException {
         TagTestUtil.assertRoundTrip(LinCompoundTag.of(Collections.emptyMap()));
-        TagTestUtil.assertRoundTrip(LinCompoundTag.of(new LinkedHashMap<>() {{
-            put("Hello", LinStringTag.of("World!"));
-            put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE));
-        }}));
+        TagTestUtil.assertRoundTrip(LinCompoundTag.builder()
+            .put("Hello", LinStringTag.of("World!"))
+            .put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE))
+            .build());
     }
 
     @Test
@@ -81,10 +80,10 @@ public class LinCompoundTagTest {
 
     @Test
     void toStringImplementation() {
-        assertThat(LinCompoundTag.of(new LinkedHashMap<>() {{
-            put("Hello", LinStringTag.of("World!"));
-            put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE));
-        }}).toString())
+        assertThat(LinCompoundTag.builder()
+            .put("Hello", LinStringTag.of("World!"))
+            .put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE))
+            .build().toString())
             .isEqualTo("LinCompoundTag{Hello=LinStringTag[World!], Goodbye=LinIntArrayTag[51966, 47806]}");
     }
 
@@ -106,10 +105,10 @@ public class LinCompoundTagTest {
 
     @Test
     void getByName() {
-        var tag = LinCompoundTag.of(new LinkedHashMap<>() {{
-            put("Hello", LinStringTag.of("World!"));
-            put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE));
-        }});
+        var tag = LinCompoundTag.builder()
+            .put("Hello", LinStringTag.of("World!"))
+            .put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE))
+            .build();
         assertThat(tag.getTag("Hello", LinTagType.stringTag()))
             .stringValue()
             .isEqualTo("World!");
@@ -139,10 +138,10 @@ public class LinCompoundTagTest {
 
     @Test
     void findByName() {
-        var tag = LinCompoundTag.of(new LinkedHashMap<>() {{
-            put("Hello", LinStringTag.of("World!"));
-            put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE));
-        }});
+        var tag = LinCompoundTag.builder()
+            .put("Hello", LinStringTag.of("World!"))
+            .put("Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE))
+            .build();
         assertThat(tag.findTag("Hello", LinTagType.stringTag()))
             .stringValue()
             .isEqualTo("World!");

@@ -19,7 +19,6 @@
 package org.enginehub.linbus.format.snbt;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import org.enginehub.linbus.stream.LinBinaryIO;
 import org.enginehub.linbus.stream.LinStream;
@@ -58,7 +57,6 @@ public class LinStringIOIntegrationTest {
     }
 
     private static void assertThroughSnbt(String name) throws IOException {
-        var bytes = loadResource(name, ByteStreams::toByteArray);
         var original = convertNbtStream(name, s -> ImmutableList.copyOf(s.asIterator()));
         var throughSnbt = LinStringIO.readFromStringUsing(
             convertNbtStream(name, LinStringIO::writeToString),

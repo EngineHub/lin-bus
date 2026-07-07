@@ -60,6 +60,8 @@ public sealed abstract class LinTag<T> implements ToLinTag<LinTag<T>>, LinStream
     }
 
     @Override
+    // distinct concrete tag types must never be equal
+    @SuppressWarnings("EqualsGetClass")
     public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

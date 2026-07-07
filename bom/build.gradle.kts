@@ -1,6 +1,6 @@
 plugins {
     `java-platform`
-    id("org.enginehub.lin-bus.publishing")
+    alias(libs.plugins.crankcase.publishing)
 }
 
 dependencies {

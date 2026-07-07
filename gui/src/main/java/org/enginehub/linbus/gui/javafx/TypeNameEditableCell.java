@@ -60,7 +60,10 @@ class TypeNameEditableCell extends TreeTableCell<NbtTreeView.TagEntry, NbtTreeVi
 
     @Override
     protected void updateItem(NbtTreeView.@Nullable TagEntry item, boolean empty) {
-        if (item == getItem()) {
+        // intentional identity check: skip when handed the same instance
+        @SuppressWarnings("ReferenceEquality")
+        boolean sameItem = item == getItem();
+        if (sameItem) {
             return;
         }
 

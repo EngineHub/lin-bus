@@ -58,6 +58,7 @@ import java.io.UTFDataFormatException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class MainSceneSetup {
 
@@ -108,7 +109,9 @@ public class MainSceneSetup {
                 return;
             }
             Path path = file.toPath();
-            backgroundExecutor.submit(new LoadTreeItemTask(path, backgroundExecutor, false));
+            // the task reports its own outcome via succeeded()/failed(), so the submit future is unused
+            @SuppressWarnings("FutureReturnValueIgnored")
+            Future<?> unused = backgroundExecutor.submit(new LoadTreeItemTask(path, backgroundExecutor, false));
         });
         return openFile;
     }
@@ -246,7 +249,7 @@ public class MainSceneSetup {
         private final ExecutorService backgroundExecutor;
         private final boolean tryingLegacyCompat;
 
-        public LoadTreeItemTask(Path path, ExecutorService backgroundExecutor, boolean tryingLegacyCompat) {
+        LoadTreeItemTask(Path path, ExecutorService backgroundExecutor, boolean tryingLegacyCompat) {
             this.path = path;
             this.backgroundExecutor = backgroundExecutor;
             this.tryingLegacyCompat = tryingLegacyCompat;
@@ -276,7 +279,9 @@ public class MainSceneSetup {
                 Alert alert = createUtfAlert();
                 Optional<ButtonType> result = alert.showAndWait();
                 if (result.isPresent() && result.get() == ButtonType.YES) {
-                    backgroundExecutor.submit(new LoadTreeItemTask(path, backgroundExecutor, true));
+                    // the retry task reports its own outcome via succeeded()/failed(), so the submit future is unused
+                    @SuppressWarnings("FutureReturnValueIgnored")
+                    Future<?> unused = backgroundExecutor.submit(new LoadTreeItemTask(path, backgroundExecutor, true));
                     return;
                 }
             }

@@ -50,6 +50,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -186,7 +187,10 @@ class ValueEditableCell extends TreeTableCell<NbtTreeView.TagEntry, NbtTreeView.
 
     @Override
     protected void updateItem(NbtTreeView.@Nullable TagEntry item, boolean empty) {
-        if (item == getItem()) {
+        // intentional identity check: skip when handed the same instance
+        @SuppressWarnings("ReferenceEquality")
+        boolean sameItem = item == getItem();
+        if (sameItem) {
             return;
         }
 
@@ -241,7 +245,9 @@ class ValueEditableCell extends TreeTableCell<NbtTreeView.TagEntry, NbtTreeView.
                                 );
                                 default -> throw new AssertionError("Unreachable");
                             };
-                            new ArrayEditSetup<>(buffer).showForUpdate().thenAccept(changesAccepted -> {
+                            // the thenAccept continuation applies the update, so the returned future is unused
+                            @SuppressWarnings("FutureReturnValueIgnored")
+                            CompletableFuture<Void> unused = new ArrayEditSetup<>(buffer).showForUpdate().thenAccept(changesAccepted -> {
                                 if (!changesAccepted) {
                                     return;
                                 }

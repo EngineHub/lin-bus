@@ -35,7 +35,6 @@ import java.io.UncheckedIOException;
 public class LinSnbtTokenizer extends AbstractIterator<SnbtTokenWithMetadata> {
     private final Reader input;
     private int charIndex = -1;
-    private boolean eatAllWhitespaceAfter;
 
     /**
      * Create a new tokenizer.

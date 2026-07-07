@@ -77,7 +77,7 @@ object DeployNormal : BuildType({
     steps {
         configuredGradle {
             name = "Publish"
-            tasks = "publishToMavenLocal artifactoryPublish"
+            tasks = "publishToMavenLocal publish"
             gradleParams = ARTIFACTORY_PARAMS
         }
     }
@@ -118,7 +118,7 @@ object Release : BuildType({
         }
         configuredGradle {
             name = "Publish release version"
-            tasks = "publishToMavenLocal artifactoryPublish"
+            tasks = "publishToMavenLocal publish"
             gradleParams = ARTIFACTORY_PARAMS
         }
         configuredGradle {

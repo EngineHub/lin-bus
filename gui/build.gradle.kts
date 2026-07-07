@@ -1,27 +1,19 @@
 plugins {
-    java
     application
-    id("com.google.osdetector") version "1.7.0"
-    id("org.enginehub.lin-bus.jvm")
-    id("org.enginehub.lin-bus.publishing")
+    id("org.enginehub.lin-bus.java-conventions")
+    alias(libs.plugins.crankcase.licensing)
+    alias(libs.plugins.osdetector)
 }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+crankcaseJava {
+    // guava is an automatic module
+    disabledLints.add("requires-automatic")
+    // guava's class files reference Error Prone annotations not on the module graph
+    disabledLints.add("classfile")
 }
 
 application {
     mainModule.set("org.enginehub.linbus.gui")
-}
-
-repositories {
-    maven {
-        name = "Sonatype Snapshots"
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-        mavenContent {
-            snapshotsOnly()
-        }
-    }
 }
 
 dependencies {
@@ -65,10 +57,6 @@ dependencies {
     implementation(libs.ikonli.javafx)
     implementation(libs.ikonli.fontawesome5)
 
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
-
     testImplementation(libs.truth) {
         exclude(group = "junit")
     }
@@ -80,10 +68,6 @@ tasks.compileJava {
 
 tasks.javadoc {
     (options as CoreJavadocOptions).addBooleanOption("Xdoclint:-missing").value = true
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 tasks.named<JavaExec>("run") {

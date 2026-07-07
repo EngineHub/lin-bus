@@ -283,18 +283,6 @@ public class LinSnbtReader implements LinStream {
         }
     }
 
-    private interface ArrayAdvancer<T extends Buffer, L extends LinToken> {
-        Class<L> tagType();
-
-        T allocate();
-
-        void put(T array, L token);
-
-        LinToken produceContent(T array);
-
-        LinToken produceEnd();
-    }
-
     private <T extends Buffer, L extends LinToken> void advanceArray(
         Class<L> tagType,
         IntFunction<T> allocator,

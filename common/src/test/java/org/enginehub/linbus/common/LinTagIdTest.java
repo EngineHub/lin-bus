@@ -37,6 +37,8 @@ public class LinTagIdTest {
     }
 
     @Test
+    // ensuring ids match declaration order
+    @SuppressWarnings("EnumOrdinal")
     void idIsOrdinal() {
         for (var value : LinTagId.values()) {
             assertThat(value.id()).isEqualTo(value.ordinal());

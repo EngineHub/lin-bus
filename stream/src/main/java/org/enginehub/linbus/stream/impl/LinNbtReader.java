@@ -200,7 +200,7 @@ public class LinNbtReader implements LinStream {
             }
         }
 
-        public String decode() throws CharacterCodingException {
+        String decode() throws CharacterCodingException {
             int n = (int) (sourceBuffer.remaining() * decoder.averageCharsPerByte());
             ensureCharBufferCapacity(n);
 

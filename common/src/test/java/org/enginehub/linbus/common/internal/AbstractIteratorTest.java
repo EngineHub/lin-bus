@@ -82,7 +82,7 @@ public class AbstractIteratorTest {
     void forEachRemainingAfterHasNext() {
         var iterator = new CountToTen();
 
-        iterator.hasNext();
+        assertTrue(iterator.hasNext());
 
         var collected = new ArrayList<String>();
         iterator.forEachRemaining(collected::add);

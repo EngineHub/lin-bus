@@ -33,6 +33,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.enginehub.linbus.tree.truth.LinTagSubject.linTags;
 
 public class LinTagIntegrationTest {
+    // we just use this as a data holder, so having an array is fine
+    @SuppressWarnings("ArrayRecordComponent")
     private record TestTagData(
         LinRootEntry root,
         byte[] serializedForm
@@ -53,6 +55,8 @@ public class LinTagIntegrationTest {
     }
 
     @Test
+    // exact expected values from the bigtest fixture
+    @SuppressWarnings("FloatingPointLiteralPrecision")
     void bigtest() throws IOException {
         TestTagData tagData = load("bigtest.nbt.gz");
         var tagSubject = assertAbout(linTags()).that(tagData.root().toLinTag());

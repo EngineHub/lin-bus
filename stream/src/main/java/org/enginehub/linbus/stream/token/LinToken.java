@@ -29,6 +29,8 @@ import java.util.OptionalInt;
 /**
  * A token from an NBT stream.
  */
+// token types deliberately mirror the NBT type names
+@SuppressWarnings("JavaLangClash")
 public sealed interface LinToken {
     /**
      * Check if this token represents a whole value on its own, i.e. there are no following tokens.

@@ -26,6 +26,7 @@ import org.enginehub.linbus.tree.LinTag;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -43,7 +44,7 @@ public class Icons {
 
     private static Image initImage(LinTagId linTagId) {
         URL resource = Icons.class.getResource(
-            "/nbt/" + linTagId.name().toLowerCase().replace('_', '-') + ".png"
+            "/nbt/" + linTagId.name().toLowerCase(Locale.ROOT).replace('_', '-') + ".png"
         );
         if (resource == null) {
             throw new IllegalStateException("No image found for " + linTagId);

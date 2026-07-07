@@ -25,55 +25,55 @@ public enum LinTagId {
     /**
      * The {@code END} tag ID.
      */
-    END,
+    END(0),
     /**
      * The {@code BYTE} tag ID.
      */
-    BYTE,
+    BYTE(1),
     /**
      * The {@code SHORT} tag ID.
      */
-    SHORT,
+    SHORT(2),
     /**
      * The {@code INT} tag ID.
      */
-    INT,
+    INT(3),
     /**
      * The {@code LONG} tag ID.
      */
-    LONG,
+    LONG(4),
     /**
      * The {@code FLOAT} tag ID.
      */
-    FLOAT,
+    FLOAT(5),
     /**
      * The {@code DOUBLE} tag ID.
      */
-    DOUBLE,
+    DOUBLE(6),
     /**
      * The {@code BYTE_ARRAY} tag ID.
      */
-    BYTE_ARRAY,
+    BYTE_ARRAY(7),
     /**
      * The {@code STRING} tag ID.
      */
-    STRING,
+    STRING(8),
     /**
      * The {@code LIST} tag ID.
      */
-    LIST,
+    LIST(9),
     /**
      * The {@code COMPOUND} tag ID.
      */
-    COMPOUND,
+    COMPOUND(10),
     /**
      * The {@code INT_ARRAY} tag ID.
      */
-    INT_ARRAY,
+    INT_ARRAY(11),
     /**
      * The {@code LONG_ARRAY} tag ID.
      */
-    LONG_ARRAY,
+    LONG_ARRAY(12),
     ;
 
     /**
@@ -89,9 +89,10 @@ public enum LinTagId {
         return LinTagId.values()[id];
     }
 
-    private final int id = ordinal();
+    private final int id;
 
-    LinTagId() {
+    LinTagId(int id) {
+        this.id = id;
     }
 
     /**

@@ -1,8 +1,20 @@
 [versions]
 javafx = "22.0.2"
 tinylog = "2.7.0"
+crankcase = "0.1.0"
+
+[plugins]
+crankcase-java = { id = "org.enginehub.crankcase.java", version.ref = "crankcase" }
+crankcase-javaLibrary = { id = "org.enginehub.crankcase.java-library", version.ref = "crankcase" }
+crankcase-licensing = { id = "org.enginehub.crankcase.licensing", version.ref = "crankcase" }
+crankcase-publishing = { id = "org.enginehub.crankcase.publishing", version.ref = "crankcase" }
+crankcase-release = { id = "org.enginehub.crankcase.release", version.ref = "crankcase" }
+osdetector = { id = "com.google.osdetector", version = "1.7.3" }
 
 [libraries]
+crankcase-java = { module = "org.enginehub.crankcase:java", version.ref = "crankcase" }
+crankcase-javaLibrary = { module = "org.enginehub.crankcase:java-library", version.ref = "crankcase" }
+
 jspecify-annotations = "org.jspecify:jspecify:0.3.0"
 guava = "com.google.guava:guava:31.0.1-jre"
 
@@ -10,10 +22,6 @@ ikonli-bom = "org.kordamp.ikonli:ikonli-bom:12.3.1"
 ikonli-javafx.module = "org.kordamp.ikonli:ikonli-javafx"
 ikonli-fontawesome5.module = "org.kordamp.ikonli:ikonli-fontawesome5-pack"
 
-junit-bom = "org.junit:junit-bom:5.10.3"
-junit-jupiter-api.module = "org.junit.jupiter:junit-jupiter-api"
-junit-jupiter-engine.module = "org.junit.jupiter:junit-jupiter-engine"
-junit-jupiter-params.module = "org.junit.jupiter:junit-jupiter-params"
 truth = "com.google.truth:truth:1.4.4"
 
 [libraries.tinylog-api]
