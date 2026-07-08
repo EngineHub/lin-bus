@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Represents a compound tag.
@@ -378,6 +379,10 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
             throw new NoSuchElementException("No tag under the name '" + name + "' exists");
         }
 
+        return requireType(name, tag, type);
+    }
+
+    private <T extends LinTag<?>> T requireType(String name, LinTag<?> tag, LinTagType<T> type) {
         if (type != tag.type()) {
             throw new IllegalStateException("Tag under '" + name + "' exists, but is a " + tag.type().name()
                 + " instead of " + type.name());
@@ -407,6 +412,149 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
         @SuppressWarnings("unchecked")
         LinListTag<T> cast = (LinListTag<T>) listTag;
         return cast;
+    }
+
+    private LinCompoundTag withChangedTag(String name, LinTag<?> value) {
+        Objects.requireNonNull(value, "transformer returned a null tag");
+        if (value.type().id() == LinTagId.END) {
+            throw new IllegalArgumentException("Cannot add END tag to compound tag");
+        }
+        LinkedHashMap<String, LinTag<?>> newMap = new LinkedHashMap<>(this.value);
+        newMap.put(name, value);
+        return new LinCompoundTag(Collections.unmodifiableMap(newMap), false);
+    }
+
+    /**
+     * Transform a value in the compound tag. You may change the type of the tag.
+     *
+     * <p>
+     * This uses {@link #getTag(String, LinTagType)}, so it will throw an exception if the tag does not exist
+     * or is of the wrong type.
+     * </p>
+     *
+     * @param name the name of the tag to transform
+     * @param type the type of the tag to transform
+     * @param transformer the function to transform the tag
+     * @return the new compound tag
+     */
+    public <T extends LinTag<?>> LinCompoundTag transformTag(
+        String name, LinTagType<T> type, Function<T, ? extends LinTag<?>> transformer
+    ) {
+        T tag = getTag(name, type);
+        LinTag<?> transformed = transformer.apply(tag);
+        return withChangedTag(name, transformed);
+    }
+
+    /**
+     * Transform a value in the compound tag, if it is present. You may change the type of the tag.
+     *
+     * <p>
+     * If there is no tag under the given name, this returns {@code this} unchanged. If a tag is present but is of
+     * the wrong type, an exception is thrown.
+     * </p>
+     *
+     * @param name the name of the tag to transform
+     * @param type the type of the tag to transform
+     * @param transformer the function to transform the tag
+     * @return the new compound tag, or {@code this} if there was no tag under the given name
+     */
+    public <T extends LinTag<?>> LinCompoundTag transformTagIfPresent(
+        String name, LinTagType<T> type, Function<T, ? extends LinTag<?>> transformer
+    ) {
+        LinTag<?> existing = value.get(name);
+        if (existing == null) {
+            return this;
+        }
+        T tag = requireType(name, existing, type);
+        return withChangedTag(name, transformer.apply(tag));
+    }
+
+    /**
+     * Transform a value in the compound tag, inserting it if it is absent. You may change the type of the tag.
+     *
+     * <p>
+     * If there is no tag under the given name, the transformer is called with {@code null} and its result is
+     * inserted. If a tag is present but is of the wrong type, an exception is thrown. The transformer must not
+     * return {@code null}.
+     * </p>
+     *
+     * @param name the name of the tag to transform
+     * @param type the type of the tag to transform
+     * @param transformer the function to transform the tag, receiving {@code null} if it is absent
+     * @return the new compound tag
+     */
+    public <T extends LinTag<?>> LinCompoundTag transformTagOrInsert(
+        String name, LinTagType<T> type, Function<@Nullable T, ? extends LinTag<?>> transformer
+    ) {
+        LinTag<?> existing = value.get(name);
+        T tag = existing == null ? null : requireType(name, existing, type);
+        return withChangedTag(name, transformer.apply(tag));
+    }
+
+    /**
+     * Transform a list value in the compound tag. You may change the type of the tag.
+     *
+     * <p>
+     * This uses {@link #getListTag(String, LinTagType)}, so it will throw an exception if the tag does not exist
+     * or is of the wrong type.
+     * </p>
+     *
+     * @param name the name of the tag to transform
+     * @param elementType the element type of the list tag to transform
+     * @param transformer the function to transform the tag
+     * @return the new compound tag
+     */
+    public <T extends LinTag<?>> LinCompoundTag transformListTag(
+        String name, LinTagType<T> elementType, Function<LinListTag<T>, ? extends LinTag<?>> transformer
+    ) {
+        LinListTag<T> tag = getListTag(name, elementType);
+        LinTag<?> transformed = transformer.apply(tag);
+        return withChangedTag(name, transformed);
+    }
+
+    /**
+     * Transform a list value in the compound tag, if it is present. You may change the type of the tag.
+     *
+     * <p>
+     * If there is no tag under the given name, this returns {@code this} unchanged. If a tag is present but is not
+     * a list of the given element type, an exception is thrown.
+     * </p>
+     *
+     * @param name the name of the tag to transform
+     * @param elementType the element type of the list tag to transform
+     * @param transformer the function to transform the tag
+     * @return the new compound tag, or {@code this} if there was no tag under the given name
+     */
+    public <T extends LinTag<?>> LinCompoundTag transformListTagIfPresent(
+        String name, LinTagType<T> elementType, Function<LinListTag<T>, ? extends LinTag<?>> transformer
+    ) {
+        if (value.get(name) == null) {
+            return this;
+        }
+        LinListTag<T> tag = getListTag(name, elementType);
+        return withChangedTag(name, transformer.apply(tag));
+    }
+
+    /**
+     * Transform a list value in the compound tag, inserting it if it is absent. You may change the type of the
+     * tag.
+     *
+     * <p>
+     * If there is no tag under the given name, the transformer is called with {@code null} and its result is
+     * inserted. If a tag is present but is not a list of the given element type, an exception is thrown. The
+     * transformer must not return {@code null}.
+     * </p>
+     *
+     * @param name the name of the tag to transform
+     * @param elementType the element type of the list tag to transform
+     * @param transformer the function to transform the tag, receiving {@code null} if it is absent
+     * @return the new compound tag
+     */
+    public <T extends LinTag<?>> LinCompoundTag transformListTagOrInsert(
+        String name, LinTagType<T> elementType, Function<@Nullable LinListTag<T>, ? extends LinTag<?>> transformer
+    ) {
+        LinListTag<T> tag = value.get(name) == null ? null : getListTag(name, elementType);
+        return withChangedTag(name, transformer.apply(tag));
     }
 
     /**

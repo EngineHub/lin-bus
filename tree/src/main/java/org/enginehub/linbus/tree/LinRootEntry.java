@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Represents the root implicit-compound-tag entry.
@@ -63,6 +64,26 @@ public record LinRootEntry(
     public LinRootEntry {
         Objects.requireNonNull(name);
         Objects.requireNonNull(value);
+    }
+
+    /**
+     * Transform the name of this entry.
+     *
+     * @param nameTransformer the function to transform the name
+     * @return the new entry
+     */
+    public LinRootEntry transformName(Function<String, String> nameTransformer) {
+        return new LinRootEntry(nameTransformer.apply(name), value);
+    }
+
+    /**
+     * Transform the value of this entry.
+     *
+     * @param valueTransformer the function to transform the value
+     * @return the new entry
+     */
+    public LinRootEntry transformValue(Function<LinCompoundTag, LinCompoundTag> valueTransformer) {
+        return new LinRootEntry(name, valueTransformer.apply(value));
     }
 
     /**
