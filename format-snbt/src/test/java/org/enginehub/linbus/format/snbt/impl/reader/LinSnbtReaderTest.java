@@ -75,6 +75,27 @@ public class LinSnbtReaderTest {
     }
 
     @Test
+    void emptyRootCompound() {
+        var list = ImmutableList.copyOf(ezStringRead("{}").asIterator());
+        assertThat(list).containsExactly(new LinToken.CompoundStart(), new LinToken.CompoundEnd()).inOrder();
+
+        list = ImmutableList.copyOf(ezStringRead("{         }").asIterator());
+        assertThat(list).containsExactly(new LinToken.CompoundStart(), new LinToken.CompoundEnd()).inOrder();
+    }
+
+    @Test
+    void emptyNestedCompound() {
+        var list = ImmutableList.copyOf(ezStringRead("{nested:{}}").asIterator());
+        assertThat(list).containsExactly(
+            new LinToken.CompoundStart(),
+            new LinToken.Name("nested"),
+                new LinToken.CompoundStart(),
+                new LinToken.CompoundEnd(),
+            new LinToken.CompoundEnd()
+        ).inOrder();
+    }
+
+    @Test
     void simpleValueWithWhitespace() {
         var list = ImmutableList.copyOf(ezStringRead("{a:b      }").asIterator());
         assertThat(list).containsExactly(
@@ -168,7 +189,7 @@ public class LinSnbtReaderTest {
         var reader = ezStringRead("{;");
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.CompoundStart());
         var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
-        assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(1) + "Unexpected token: ';', expected Text");
+        assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(1) + "Unexpected token: ';'");
     }
 
     @Test
@@ -186,7 +207,7 @@ public class LinSnbtReaderTest {
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.Name("a"));
         assertThat(reader.nextOrNull()).isEqualTo(new LinToken.String("@"));
         var ex = assertThrows(NbtParseException.class, reader::nextOrNull);
-        assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(6) + "Unexpected token: Text[quoted=false, content=b]");
+        assertThat(ex).hasMessageThat().isEqualTo(atCharacterIndex(6) + "Unexpected end of input");
     }
 
     @Test
