@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -190,6 +191,19 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
          */
         public Builder putInt(String name, int value) {
             return put(name, LinIntTag.of(value));
+        }
+
+        /**
+         * Add a list to the compound tag.
+         *
+         * @param name the name of the tag
+         * @param elementType the element type of the list
+         * @param value the value to add
+         * @param <T> the type of the elements in the list
+         * @return this builder
+         */
+        public <T extends LinTag<?>> Builder putList(String name, LinTagType<T> elementType, List<T> value) {
+            return put(name, LinListTag.of(elementType, value));
         }
 
         /**

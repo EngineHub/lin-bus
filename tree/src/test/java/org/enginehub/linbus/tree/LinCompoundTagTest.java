@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -203,6 +204,7 @@ public class LinCompoundTagTest {
             .putFloat("float", 1.0f)
             .putIntArray("intArray", new int[]{0xCAFE, 0xBABE})
             .putInt("int", 0xCAFE)
+            .putList("list", LinTagType.stringTag(), List.of(LinStringTag.of("a"), LinStringTag.of("b")))
             .putLongArray("longArray", new long[]{0xCAFEBABE, 0xBAEB1ADE})
             .putLong("long", 0xCAFEBABE)
             .putShort("short", (short) 0xCAFE)
@@ -215,6 +217,8 @@ public class LinCompoundTagTest {
         assertThat(tag).getTagByKey("float").floatValue().isEqualTo(1.0f);
         assertThat(tag).getTagByKey("intArray").intArrayValue().isEqualTo(new int[]{0xCAFE, 0xBABE});
         assertThat(tag).getTagByKey("int").intValue().isEqualTo(0xCAFE);
+        assertThat(tag).getTagByKey("list").listValue()
+            .containsExactly(LinStringTag.of("a"), LinStringTag.of("b")).inOrder();
         assertThat(tag).getTagByKey("longArray").longArrayValue().isEqualTo(new long[]{0xCAFEBABE, 0xBAEB1ADE});
         assertThat(tag).getTagByKey("long").longValue().isEqualTo(0xCAFEBABE);
         assertThat(tag).getTagByKey("short").shortValue().isEqualTo((short) 0xCAFE);
