@@ -79,7 +79,7 @@ public class MainSceneSetup {
 
     private Menu fileMenu(MenuItem openFile, MenuItem saveFile) {
         var exit = new MenuItem("E_xit", FontIcon.of(FontAwesomeSolid.SIGN_OUT_ALT, 16));
-        exit.setOnAction(__ -> {
+        exit.setOnAction(_ -> {
             if (checkExitOkay()) {
                 Platform.exit();
             }
@@ -100,7 +100,7 @@ public class MainSceneSetup {
     private MenuItem openFile(Stage stage, ExecutorService backgroundExecutor) {
         var openFile = new MenuItem("_Open...", FontIcon.of(FontAwesomeSolid.FILE_IMPORT, 16));
         openFile.setAccelerator(new KeyCharacterCombination("O", KeyCombination.SHORTCUT_DOWN));
-        openFile.setOnAction(__ -> {
+        openFile.setOnAction(_ -> {
             var chooser = new FileChooser();
             chooser.setTitle("Choose an NBT File");
             chooser.setInitialDirectory(new File("."));
@@ -120,7 +120,7 @@ public class MainSceneSetup {
         var saveFile = new MenuItem("_Save", FontIcon.of(FontAwesomeSolid.SAVE, 16));
         saveFile.disableProperty().bind(openPath.isNull().or(treeTableView.rootProperty().isNull()));
         saveFile.setAccelerator(new KeyCharacterCombination("S", KeyCombination.SHORTCUT_DOWN));
-        saveFile.setOnAction(__ -> trySave());
+        saveFile.setOnAction(_ -> trySave());
         return saveFile;
     }
 
@@ -185,9 +185,9 @@ public class MainSceneSetup {
         button.disableProperty().bind(
             treeTableView.getSelectionModel().selectedItemProperty().map(item ->
                 // Disable if we don't have any parent to move up in
-                (item == null || item.getParent() == null) ||
+                (item == null || item.getParent() == null)
                     // Disable if we're the first child
-                    item.getParent().getChildren().getFirst() == item
+                    || item.getParent().getChildren().getFirst() == item
             )
         );
         button.setOnAction(event -> {
@@ -204,9 +204,9 @@ public class MainSceneSetup {
         button.disableProperty().bind(
             treeTableView.getSelectionModel().selectedItemProperty().map(item ->
                 // Disable if we don't have any parent to move down in
-                (item == null || item.getParent() == null) ||
+                (item == null || item.getParent() == null)
                     // Disable if we're the last child
-                    item.getParent().getChildren().getLast() == item
+                    || item.getParent().getChildren().getLast() == item
             )
         );
         button.setOnAction(event -> {

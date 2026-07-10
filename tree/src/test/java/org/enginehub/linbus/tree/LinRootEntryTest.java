@@ -37,7 +37,7 @@ public class LinRootEntryTest {
     void transformValue() {
         var root = new LinRootEntry("root", LinCompoundTag.of(Map.of("Hello", LinStringTag.of("World!"))));
         var updated = root.transformValue(
-            v -> v.transformTag("Hello", LinTagType.stringTag(), t -> LinStringTag.of("New World!"))
+            v -> v.transformTag("Hello", LinTagType.stringTag(), _ -> LinStringTag.of("New World!"))
         );
         assertThat(updated.name()).isEqualTo("root");
         assertThat(updated.value()).isEqualTo(LinCompoundTag.of(Map.of("Hello", LinStringTag.of("New World!"))));

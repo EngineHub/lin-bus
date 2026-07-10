@@ -108,6 +108,7 @@ class SpinnerListCell<T extends Number> extends ListCell<T> {
     private Spinner<Long> initializeEditableGraphic() {
         record Result<T>(Spinner<Long> spinner, Function<Long, T> extractValue) {
         }
+
         // Safe because we checked it in the switch case labels
         @SuppressWarnings("unchecked")
         Result<T> result = switch (getItem()) {

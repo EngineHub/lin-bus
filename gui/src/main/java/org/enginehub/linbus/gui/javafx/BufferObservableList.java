@@ -24,7 +24,8 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
-public sealed abstract class BufferObservableList<T> extends ModifiableObservableListBase<T> {
+public abstract sealed class BufferObservableList<T> extends ModifiableObservableListBase<T>
+    permits BufferObservableList.OfByte, BufferObservableList.OfInt, BufferObservableList.OfLong {
     @Override
     protected void doAdd(int index, T element) {
         throw new UnsupportedOperationException();

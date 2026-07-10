@@ -32,7 +32,7 @@ public class ArrayEditSetup<T extends Number> {
 
     private static <T extends Number> ListView<T> createListView(BufferObservableList<T> backingList) {
         ListView<T> listView = new ListView<>(backingList);
-        listView.setCellFactory(lv -> new SpinnerListCell<>());
+        listView.setCellFactory(_ -> new SpinnerListCell<>());
         listView.setEditable(true);
         return listView;
     }
@@ -56,7 +56,7 @@ public class ArrayEditSetup<T extends Number> {
 
         dialog.show();
 
-        return MoreFutures.create((resolve, reject) -> dialog.setOnHidden(event ->
+        return MoreFutures.create((resolve, _) -> dialog.setOnHidden(_ ->
             resolve.accept(dialog.getResult() == ButtonType.APPLY)
         ));
     }

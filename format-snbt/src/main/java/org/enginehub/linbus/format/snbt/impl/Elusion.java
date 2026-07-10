@@ -23,7 +23,7 @@ package org.enginehub.linbus.format.snbt.impl;
  */
 public final class Elusion {
     /**
-     * Is {@code c} a character than can be emitted without quotes?
+     * Checks if {@code c} is a character that can be emitted without quotes.
      *
      * @param c character to check
      * @return {@code true} if {@code c} is a safe character
@@ -56,6 +56,7 @@ public final class Elusion {
                 case '\'' -> singleCharCount++;
                 case '"' -> doubleCharCount++;
                 case '\\' -> backslashCount++;
+                default -> { }
             }
         }
         if (totallySafe) {

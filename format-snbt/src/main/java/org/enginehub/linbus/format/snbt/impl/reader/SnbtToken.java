@@ -23,7 +23,9 @@ import org.enginehub.linbus.stream.token.LinToken;
 /**
  * Not to be confused with {@link LinToken}.
  */
-public sealed interface SnbtToken {
+public sealed interface SnbtToken permits
+    SnbtToken.CompoundStart, SnbtToken.CompoundEnd, SnbtToken.ListLikeStart, SnbtToken.ListLikeEnd,
+    SnbtToken.EntrySeparator, SnbtToken.ListTypeSeparator, SnbtToken.Separator, SnbtToken.Text {
     /**
      * '{'.
      */
@@ -55,7 +57,7 @@ public sealed interface SnbtToken {
     }
 
     /**
-     * '['
+     * '['.
      */
     enum ListLikeStart implements SnbtToken {
         /**
@@ -70,7 +72,7 @@ public sealed interface SnbtToken {
     }
 
     /**
-     * ']'
+     * ']'.
      */
     enum ListLikeEnd implements SnbtToken {
         /**
@@ -85,7 +87,7 @@ public sealed interface SnbtToken {
     }
 
     /**
-     * ':'
+     * ':'.
      */
     enum EntrySeparator implements SnbtToken {
         /**
@@ -100,7 +102,7 @@ public sealed interface SnbtToken {
     }
 
     /**
-     * ';'
+     * ';'.
      */
     enum ListTypeSeparator implements SnbtToken {
         /**
@@ -115,7 +117,7 @@ public sealed interface SnbtToken {
     }
 
     /**
-     * ','
+     * ','.
      */
     enum Separator implements SnbtToken {
         /**

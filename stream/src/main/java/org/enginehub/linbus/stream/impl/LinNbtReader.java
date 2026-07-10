@@ -110,7 +110,9 @@ public class LinNbtReader implements LinStream {
         return StringEncoding.UNKNOWN;
     }
 
-    private sealed interface State {
+    private sealed interface State permits
+        State.Initial, State.CompoundStart, State.CompoundEntryName, State.ListEntry, State.ReadValue,
+        State.ReadByteArray, State.ReadIntArray, State.ReadLongArray {
         /**
          * We need to initialize and return the root name.
          */
@@ -204,8 +206,9 @@ public class LinNbtReader implements LinStream {
             int n = (int) (sourceBuffer.remaining() * decoder.averageCharsPerByte());
             ensureCharBufferCapacity(n);
 
-            if ((n == 0) && (sourceBuffer.remaining() == 0))
+            if ((n == 0) && (sourceBuffer.remaining() == 0)) {
                 return "";
+            }
             decoder.reset();
             for (; ; ) {
                 CoderResult cr = sourceBuffer.hasRemaining()
@@ -261,18 +264,18 @@ public class LinNbtReader implements LinStream {
         var state = stateStack.pollLast();
         return switch (state) {
             case null -> null;
-            case State.Initial initial -> {
+            case State.Initial _ -> {
                 if (input.readUnsignedByte() != LinTagId.COMPOUND.id()) {
                     throw new NbtParseException("NBT stream does not start with a compound tag");
                 }
                 stateStack.addLast(State.CompoundStart.INSTANCE);
                 yield new LinToken.Name(readUtf(), LinTagId.COMPOUND);
             }
-            case State.CompoundStart compoundStart -> {
+            case State.CompoundStart _ -> {
                 stateStack.addLast(State.CompoundEntryName.INSTANCE);
                 yield new LinToken.CompoundStart();
             }
-            case State.CompoundEntryName compoundEntryName -> {
+            case State.CompoundEntryName _ -> {
                 var id = LinTagId.fromId(input.readUnsignedByte());
                 if (id == LinTagId.END) {
                     yield new LinToken.CompoundEnd();

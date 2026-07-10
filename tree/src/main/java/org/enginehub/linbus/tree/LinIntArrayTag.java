@@ -73,16 +73,16 @@ public final class LinIntArrayTag extends LinTag<int[]> {
             new LinToken.IntArrayStart(value.length),
             new LinStream() {
                 private static final int BUFFER_SIZE = 4096;
-                private int i = 0;
+                private int index = 0;
 
                 @Override
                 public @Nullable LinToken nextOrNull() {
-                    if (i >= value.length) {
+                    if (index >= value.length) {
                         return null;
                     }
-                    var length = Math.min(BUFFER_SIZE, value.length - i);
-                    var buffer = IntBuffer.wrap(value, i, length).asReadOnlyBuffer();
-                    i += length;
+                    var length = Math.min(BUFFER_SIZE, value.length - index);
+                    var buffer = IntBuffer.wrap(value, index, length).asReadOnlyBuffer();
+                    index += length;
                     return new LinToken.IntArrayContent(buffer);
                 }
             },
@@ -92,8 +92,12 @@ public final class LinIntArrayTag extends LinTag<int[]> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         LinIntArrayTag that = (LinIntArrayTag) o;
         return Arrays.equals(value, that.value);
     }

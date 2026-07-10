@@ -143,13 +143,13 @@ public class LinCompoundTagTest {
             "Hello", LinStringTag.of("World!"),
             "Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE)
         ));
-        var transformed = tag.transformTag("Hello", LinTagType.stringTag(), t -> LinStringTag.of("New World!"));
+        var transformed = tag.transformTag("Hello", LinTagType.stringTag(), _ -> LinStringTag.of("New World!"));
         assertThat(transformed).isEqualTo(LinCompoundTag.of(Map.of(
             "Hello", LinStringTag.of("New World!"),
             "Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE)
         )));
 
-        var transformedToNewType = tag.transformTag("Hello", LinTagType.stringTag(), t -> LinIntArrayTag.of(0xDEAD, 0xBEEF));
+        var transformedToNewType = tag.transformTag("Hello", LinTagType.stringTag(), _ -> LinIntArrayTag.of(0xDEAD, 0xBEEF));
         assertThat(transformedToNewType).isEqualTo(LinCompoundTag.of(Map.of(
             "Hello", LinIntArrayTag.of(0xDEAD, 0xBEEF),
             "Goodbye", LinIntArrayTag.of(0xCAFE, 0xBABE)
@@ -180,7 +180,7 @@ public class LinCompoundTagTest {
         var tag = LinCompoundTag.of(Map.of("Hello", LinStringTag.of("World!")));
         var ex = assertThrows(
             IllegalArgumentException.class,
-            () -> tag.transformTag("Hello", LinTagType.stringTag(), t -> LinEndTag.instance())
+            () -> tag.transformTag("Hello", LinTagType.stringTag(), _ -> LinEndTag.instance())
         );
         assertThat(ex).hasMessageThat().isEqualTo("Cannot add END tag to compound tag");
     }
@@ -190,7 +190,7 @@ public class LinCompoundTagTest {
         var tag = LinCompoundTag.of(Map.of("Hello", LinStringTag.of("World!")));
         assertThrows(
             NullPointerException.class,
-            () -> tag.transformTag("Hello", LinTagType.stringTag(), t -> null)
+            () -> tag.transformTag("Hello", LinTagType.stringTag(), _ -> null)
         );
     }
 
@@ -227,11 +227,11 @@ public class LinCompoundTagTest {
     void transformIfPresentByName() {
         var tag = LinCompoundTag.of(Map.of("Hello", LinStringTag.of("World!")));
         var transformed = tag.transformTagIfPresent(
-            "Hello", LinTagType.stringTag(), t -> LinStringTag.of("New World!")
+            "Hello", LinTagType.stringTag(), _ -> LinStringTag.of("New World!")
         );
         assertThat(transformed).getTagByKey("Hello").stringValue().isEqualTo("New World!");
 
-        assertThat(tag.transformTagIfPresent("Nope", LinTagType.stringTag(), t -> LinStringTag.of("x")))
+        assertThat(tag.transformTagIfPresent("Nope", LinTagType.stringTag(), _ -> LinStringTag.of("x")))
             .isSameInstanceAs(tag);
 
         var ex = assertThrows(
@@ -269,7 +269,7 @@ public class LinCompoundTagTest {
         }
         assertThrows(
             NullPointerException.class,
-            () -> tag.transformTagOrInsert("Hello", LinTagType.stringTag(), t -> null)
+            () -> tag.transformTagOrInsert("Hello", LinTagType.stringTag(), _ -> null)
         );
     }
 

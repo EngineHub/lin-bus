@@ -138,7 +138,7 @@ public class LinBinaryIO {
                 }
             }
             switch (token) {
-                case LinToken.Name(String name, Optional<LinTagId> id) ->
+                case LinToken.Name(String name, Optional<LinTagId> _) ->
                     // We need to hold this until we print the id
                     nextName = name;
                 case LinToken.ByteArrayStart(OptionalInt size) -> {
@@ -152,7 +152,7 @@ public class LinBinaryIO {
                     buffer.get(copy);
                     output.write(copy);
                 }
-                case LinToken.ByteArrayEnd byteArrayEnd -> {
+                case LinToken.ByteArrayEnd _ -> {
                     // Nothing to do
                 }
                 case LinToken.Byte(byte value) -> {
@@ -161,11 +161,11 @@ public class LinBinaryIO {
 
                     output.writeByte(value);
                 }
-                case LinToken.CompoundStart compoundStart -> {
+                case LinToken.CompoundStart _ -> {
                     writeIdAndNameIfNeeded(output, LinTagId.COMPOUND, nextName);
                     nextName = null;
                 }
-                case LinToken.CompoundEnd compoundEnd -> output.writeByte(LinTagId.END.id());
+                case LinToken.CompoundEnd _ -> output.writeByte(LinTagId.END.id());
                 case LinToken.Double(double value) -> {
                     writeIdAndNameIfNeeded(output, LinTagId.DOUBLE, nextName);
                     nextName = null;
@@ -189,7 +189,7 @@ public class LinBinaryIO {
                         output.writeInt(buffer.get());
                     }
                 }
-                case LinToken.IntArrayEnd intArrayEnd -> {
+                case LinToken.IntArrayEnd _ -> {
                     // Nothing to do
                 }
                 case LinToken.Int(int value) -> {
@@ -205,7 +205,7 @@ public class LinBinaryIO {
                     output.writeByte(elementId.orElseThrow().id());
                     output.writeInt(size.orElseThrow());
                 }
-                case LinToken.ListEnd listEnd -> {
+                case LinToken.ListEnd _ -> {
                     // Nothing to do
                 }
                 case LinToken.LongArrayStart(OptionalInt size) -> {
@@ -219,7 +219,7 @@ public class LinBinaryIO {
                         output.writeLong(buffer.get());
                     }
                 }
-                case LinToken.LongArrayEnd longArrayEnd -> {
+                case LinToken.LongArrayEnd _ -> {
                     // Nothing to do
                 }
                 case LinToken.Long(long value) -> {

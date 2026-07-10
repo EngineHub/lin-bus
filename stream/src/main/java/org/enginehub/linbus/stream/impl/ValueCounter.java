@@ -51,8 +51,8 @@ public class ValueCounter {
             return;
         }
         switch (token) {
-            case LinToken.CompoundStart compoundStart -> compounds++;
-            case LinToken.CompoundEnd compoundEnd -> {
+            case LinToken.CompoundStart _ -> compounds++;
+            case LinToken.CompoundEnd _ -> {
                 compounds--;
                 if (compounds < 0) {
                     throw new NbtParseException("Compound end without start");
@@ -61,8 +61,8 @@ public class ValueCounter {
                     count++;
                 }
             }
-            case LinToken.ListStart listStart -> lists++;
-            case LinToken.ListEnd listEnd -> {
+            case LinToken.ListStart _ -> lists++;
+            case LinToken.ListEnd _ -> {
                 lists--;
                 if (lists < 0) {
                     throw new NbtParseException("List end without start");
@@ -71,8 +71,8 @@ public class ValueCounter {
                     count++;
                 }
             }
-            case LinToken.ByteArrayStart byteArrayStart -> arrayType = BYTE_ARRAY;
-            case LinToken.ByteArrayEnd byteArrayEnd -> {
+            case LinToken.ByteArrayStart _ -> arrayType = BYTE_ARRAY;
+            case LinToken.ByteArrayEnd _ -> {
                 if (arrayType != BYTE_ARRAY) {
                     throw new NbtParseException("Byte array end without start");
                 }
@@ -81,8 +81,8 @@ public class ValueCounter {
                     count++;
                 }
             }
-            case LinToken.IntArrayStart intArrayStart -> arrayType = INT_ARRAY;
-            case LinToken.IntArrayEnd intArrayEnd -> {
+            case LinToken.IntArrayStart _ -> arrayType = INT_ARRAY;
+            case LinToken.IntArrayEnd _ -> {
                 if (arrayType != INT_ARRAY) {
                     throw new NbtParseException("Int array end without start");
                 }
@@ -91,8 +91,8 @@ public class ValueCounter {
                     count++;
                 }
             }
-            case LinToken.LongArrayStart longArrayStart -> arrayType = LONG_ARRAY;
-            case LinToken.LongArrayEnd longArrayEnd -> {
+            case LinToken.LongArrayStart _ -> arrayType = LONG_ARRAY;
+            case LinToken.LongArrayEnd _ -> {
                 if (arrayType != LONG_ARRAY) {
                     throw new NbtParseException("Long array end without start");
                 }

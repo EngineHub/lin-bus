@@ -29,8 +29,11 @@ import java.util.Map;
 public final class FxSS {
     private static final String OBSERVABLE_CLASS_KEY = FxSS.class.getName() + ".observablesClasses";
 
+    private FxSS() {
+    }
+
     public static void addObservableClass(Node node, ObservableValue<@Nullable String> styleClass) {
-        ChangeListener<@Nullable String> listener = (observable, oldValue, newValue) -> {
+        ChangeListener<@Nullable String> listener = (_, oldValue, newValue) -> {
             if (oldValue != null) {
                 node.getStyleClass().remove(oldValue);
             }
@@ -47,7 +50,7 @@ public final class FxSS {
         // Need to keep a reference to the style observable to prevent it from being garbage collected
         @SuppressWarnings("unchecked")
         var styleClassObservables = (Map<ObservableValue<String>, ChangeListener<String>>) node.getProperties().computeIfAbsent(
-            OBSERVABLE_CLASS_KEY, k -> new IdentityHashMap<>()
+            OBSERVABLE_CLASS_KEY, _ -> new IdentityHashMap<>()
         );
         styleClassObservables.put(styleClass, listener);
     }

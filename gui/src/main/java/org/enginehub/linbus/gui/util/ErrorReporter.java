@@ -44,7 +44,7 @@ public final class ErrorReporter {
             switch (this) {
                 case TRACK -> Logger.info(t, message);
                 case INFORM -> Logger.warn(t, message);
-                case DIE -> Logger.error(t, message);
+                default -> Logger.error(t, message);
             }
         }
     }
@@ -60,7 +60,7 @@ public final class ErrorReporter {
         var cf = new CompletableFuture<@Nullable Void>();
         // the whenComplete callback handles display errors and exit, so the returned future is unused
         @SuppressWarnings("FutureReturnValueIgnored")
-        CompletableFuture<@Nullable Void> _ = cf.whenComplete((value, t2) -> {
+        CompletableFuture<@Nullable Void> _ = cf.whenComplete((_, t2) -> {
             if (t2 != null) {
                 Logger.warn("Error displaying error to user", t2);
             }
@@ -71,7 +71,7 @@ public final class ErrorReporter {
         Platform.runLater(() -> {
             try {
                 var alert = initAlert(message, t);
-                alert.setOnHidden(e -> cf.complete(null));
+                alert.setOnHidden(_ -> cf.complete(null));
                 alert.show();
             } catch (Throwable t2) {
                 cf.completeExceptionally(t2);
@@ -119,10 +119,10 @@ public final class ErrorReporter {
      * @param message the message to include
      *
      * @return a {@link BiConsumer} that will call {@link #reportError(Level, String, Throwable)} if given a non-null
-     * {@link Throwable}
+     *     {@link Throwable}
      */
     public static BiConsumer<Object, @Nullable Throwable> bind(Level level, String message) {
-        return (value, t) -> {
+        return (_, t) -> {
             if (t != null) {
                 reportError(level, message, t);
             }

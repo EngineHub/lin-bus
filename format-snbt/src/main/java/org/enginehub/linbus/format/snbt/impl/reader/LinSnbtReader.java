@@ -42,7 +42,9 @@ import java.util.function.Supplier;
  */
 public class LinSnbtReader implements LinStream {
 
-    private sealed interface State {
+    private sealed interface State permits
+        State.InCompound, State.CompoundEntryName, State.InList, State.InByteArray, State.InIntArray,
+        State.InLongArray, State.ReadValue {
         /**
          * We're inside a compound right now.
          *
@@ -191,24 +193,24 @@ public class LinSnbtReader implements LinStream {
     private void fillTokenStack(State state) {
         switch (state) {
             case State.ReadValue readValue -> readValue(readValue);
-            case State.InCompound inCompound -> advanceCompound();
-            case State.CompoundEntryName compoundEntryName -> readName();
-            case State.InList inList -> advanceList();
-            case State.InByteArray inByteArray -> advanceArray(
+            case State.InCompound _ -> advanceCompound();
+            case State.CompoundEntryName _ -> readName();
+            case State.InList _ -> advanceList();
+            case State.InByteArray _ -> advanceArray(
                 LinToken.Byte.class,
                 ByteBuffer::allocate,
                 (buffer, t) -> buffer.put(t.value()),
                 buffer -> new LinToken.ByteArrayContent(buffer.flip().asReadOnlyBuffer()),
                 LinToken.ByteArrayEnd::new
             );
-            case State.InIntArray inIntArray -> advanceArray(
+            case State.InIntArray _ -> advanceArray(
                 LinToken.Int.class,
                 IntBuffer::allocate,
                 (buffer, t) -> buffer.put(t.value()),
                 buffer -> new LinToken.IntArrayContent(buffer.flip().asReadOnlyBuffer()),
                 LinToken.IntArrayEnd::new
             );
-            case State.InLongArray inLongArray -> advanceArray(
+            case State.InLongArray _ -> advanceArray(
                 LinToken.Long.class,
                 LongBuffer::allocate,
                 (buffer, t) -> buffer.put(t.value()),
@@ -234,7 +236,7 @@ public class LinSnbtReader implements LinStream {
         }
 
         switch (token) {
-            case SnbtToken.ListLikeStart listLikeStart -> prepareListLike();
+            case SnbtToken.ListLikeStart _ -> prepareListLike();
             case SnbtToken.Text(boolean quoted, String content) -> {
                 var linToken = quoted ? new LinToken.String(content) : getTokenFor(content);
                 tokenQueue.addLast(linToken);
@@ -247,15 +249,15 @@ public class LinSnbtReader implements LinStream {
         var typing = read();
         var token = typing.token();
         switch (token) {
-            case SnbtToken.Text text -> {
+            case SnbtToken.Text _ -> {
                 readAgainStack.addLast(typing);
                 stateStack.addLast(State.CompoundEntryName.INSTANCE);
             }
-            case SnbtToken.CompoundEnd compoundEnd -> {
+            case SnbtToken.CompoundEnd _ -> {
                 stateStack.removeLast();
                 tokenQueue.addLast(new LinToken.CompoundEnd());
             }
-            case SnbtToken.Separator separator -> stateStack.addLast(State.CompoundEntryName.INSTANCE);
+            case SnbtToken.Separator _ -> stateStack.addLast(State.CompoundEntryName.INSTANCE);
             default -> throw unexpectedTokenError(token);
         }
     }
@@ -278,11 +280,11 @@ public class LinSnbtReader implements LinStream {
     private void advanceList() {
         var token = read().token();
         switch (token) {
-            case SnbtToken.ListLikeEnd listLikeEnd -> {
+            case SnbtToken.ListLikeEnd _ -> {
                 stateStack.removeLast();
                 tokenQueue.addLast(new LinToken.ListEnd());
             }
-            case SnbtToken.Separator separator -> stateStack.addLast(State.ReadValue.ANY);
+            case SnbtToken.Separator _ -> stateStack.addLast(State.ReadValue.ANY);
             default -> throw unexpectedTokenError(token);
         }
     }
@@ -361,21 +363,21 @@ public class LinSnbtReader implements LinStream {
             case 'B', 'b' -> {
                 try {
                     yield new LinToken.Byte(Byte.parseByte(valueString.substring(0, valueString.length() - 1)));
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException _) {
                     yield new LinToken.String(valueString);
                 }
             }
             case 'L', 'l' -> {
                 try {
                     yield new LinToken.Long(Long.parseLong(valueString.substring(0, valueString.length() - 1)));
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException _) {
                     yield new LinToken.String(valueString);
                 }
             }
             case 'S', 's' -> {
                 try {
                     yield new LinToken.Short(Short.parseShort(valueString.substring(0, valueString.length() - 1)));
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException _) {
                     yield new LinToken.String(valueString);
                 }
             }
@@ -384,14 +386,14 @@ public class LinSnbtReader implements LinStream {
             case 'F', 'f' -> {
                 try {
                     yield new LinToken.Float(Float.parseFloat(valueString.substring(0, valueString.length() - 1)));
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException _) {
                     yield new LinToken.String(valueString);
                 }
             }
             case 'D', 'd' -> {
                 try {
                     yield new LinToken.Double(Double.parseDouble(valueString.substring(0, valueString.length() - 1)));
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException _) {
                     yield new LinToken.String(valueString);
                 }
             }
@@ -399,13 +401,13 @@ public class LinSnbtReader implements LinStream {
                 // Might be an integer.
                 try {
                     yield new LinToken.Int(Integer.parseInt(valueString));
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException _) {
                     // Nope.
                 }
                 // Might be a double.
                 try {
                     yield new LinToken.Double(Double.parseDouble(valueString));
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException _) {
                     // Nope.
                 }
                 // Might be a boolean.

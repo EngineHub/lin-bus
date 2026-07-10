@@ -37,7 +37,7 @@ import java.util.OptionalInt;
  * Implementation of {@link LinStringIO#write(Appendable, LinStreamable)}.
  */
 public class LinSnbtWriter {
-    private sealed interface WriteState {
+    private sealed interface WriteState permits WriteState.List, WriteState.Compound, WriteState.WritingArray {
         record List(int remainingValues) implements WriteState {
         }
 
@@ -78,7 +78,7 @@ public class LinSnbtWriter {
                 break;
             }
             switch (token) {
-                case LinToken.Name(String name, Optional<LinTagId> id) -> {
+                case LinToken.Name(String name, Optional<LinTagId> _) -> {
                     if (!(state instanceof WriteState.Compound)) {
                         throw new NbtWriteException("Names can only appear inside compounds");
                     }
@@ -90,7 +90,7 @@ public class LinSnbtWriter {
                     }
                     output.append(Elusion.escapeIfNeeded(name)).append(':');
                 }
-                case LinToken.ByteArrayStart byteArrayStart -> output.append("[B;");
+                case LinToken.ByteArrayStart _ -> output.append("[B;");
                 case LinToken.ByteArrayContent(ByteBuffer buffer) -> {
                     if (state instanceof WriteState.WritingArray) {
                         output.append(',');
@@ -104,7 +104,7 @@ public class LinSnbtWriter {
                         }
                     }
                 }
-                case LinToken.ByteArrayEnd byteArrayEnd -> {
+                case LinToken.ByteArrayEnd _ -> {
                     if (state instanceof WriteState.WritingArray) {
                         stateStack.removeLast();
                     }
@@ -117,12 +117,12 @@ public class LinSnbtWriter {
 
                     handleValueEnd(output);
                 }
-                case LinToken.CompoundStart compoundStart -> {
+                case LinToken.CompoundStart _ -> {
                     output.append('{');
 
                     stateStack.addLast(WriteState.Compound.DEFAULT);
                 }
-                case LinToken.CompoundEnd compoundEnd -> {
+                case LinToken.CompoundEnd _ -> {
                     output.append('}');
 
                     stateStack.removeLast();
@@ -138,7 +138,7 @@ public class LinSnbtWriter {
 
                     handleValueEnd(output);
                 }
-                case LinToken.IntArrayStart intArrayStart -> output.append("[I;");
+                case LinToken.IntArrayStart _ -> output.append("[I;");
                 case LinToken.IntArrayContent(IntBuffer buffer) -> {
                     if (state instanceof WriteState.WritingArray) {
                         output.append(',');
@@ -152,7 +152,7 @@ public class LinSnbtWriter {
                         }
                     }
                 }
-                case LinToken.IntArrayEnd intArrayEnd -> {
+                case LinToken.IntArrayEnd _ -> {
                     if (state instanceof WriteState.WritingArray) {
                         stateStack.removeLast();
                     }
@@ -165,18 +165,18 @@ public class LinSnbtWriter {
 
                     handleValueEnd(output);
                 }
-                case LinToken.ListStart(OptionalInt size, Optional<LinTagId> elementId) -> {
+                case LinToken.ListStart(OptionalInt size, Optional<LinTagId> _) -> {
                     output.append('[');
 
                     stateStack.addLast(new WriteState.List(size.orElseThrow()));
                 }
-                case LinToken.ListEnd listEnd -> {
+                case LinToken.ListEnd _ -> {
                     output.append(']');
 
                     stateStack.removeLast();
                     handleValueEnd(output);
                 }
-                case LinToken.LongArrayStart longArrayStart -> output.append("[L;");
+                case LinToken.LongArrayStart _ -> output.append("[L;");
                 case LinToken.LongArrayContent(LongBuffer buffer) -> {
                     if (state instanceof WriteState.WritingArray) {
                         output.append(',');
@@ -190,7 +190,7 @@ public class LinSnbtWriter {
                         }
                     }
                 }
-                case LinToken.LongArrayEnd longArrayEnd -> {
+                case LinToken.LongArrayEnd _ -> {
                     if (state instanceof WriteState.WritingArray) {
                         stateStack.removeLast();
                     }
@@ -229,7 +229,7 @@ public class LinSnbtWriter {
                     output.append(',');
                 }
             }
-            case WriteState.Compound compound -> stateStack.addLast(WriteState.Compound.HAS_PREVIOUS_ENTRY);
+            case WriteState.Compound _ -> stateStack.addLast(WriteState.Compound.HAS_PREVIOUS_ENTRY);
             default -> throw new NbtWriteException("Unexpected state: " + state);
         }
     }

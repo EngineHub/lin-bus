@@ -40,7 +40,7 @@ public class NestedTransformShowcaseTest {
         LinRootEntry withNewName = root.transformValue(v ->
             v.transformTag("Schematic", LinTagType.compoundTag(), schematic ->
                 schematic.transformTag("Metadata", LinTagType.compoundTag(), metadata ->
-                    metadata.transformTag("Name", LinTagType.stringTag(), name ->
+                    metadata.transformTag("Name", LinTagType.stringTag(), _ ->
                         LinStringTag.of("My New Schematic")
                     )
                 )

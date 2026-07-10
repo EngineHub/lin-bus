@@ -75,7 +75,7 @@ public final class NbtTreeView {
         });
 
         treeView.getStyleClass().add("zebra");
-        treeView.setRowFactory(view -> {
+        treeView.setRowFactory(_ -> {
             TreeTableRow<TagEntry> row = new TreeTableRow<>();
             // Compensate for the lack of `:not` in JavaFX CSS
             FxSS.addObservableClass(row, row.selectedProperty().map(selected -> selected ? null : "unselected"));
@@ -87,14 +87,14 @@ public final class NbtTreeView {
     private static TreeTableColumn<TagEntry, TagEntry> createTypeNameColumn() {
         TreeTableColumn<TagEntry, TagEntry> typeNameCol = new TreeTableColumn<>("Type/Name");
         typeNameCol.setCellValueFactory(cellData -> Bindings.createObjectBinding(cellData.getValue()::getValue));
-        typeNameCol.setCellFactory(column -> new TypeNameEditableCell());
+        typeNameCol.setCellFactory(_ -> new TypeNameEditableCell());
         return typeNameCol;
     }
 
     private static TreeTableColumn<TagEntry, TagEntry> createValueColumn() {
         TreeTableColumn<TagEntry, TagEntry> valueCol = new TreeTableColumn<>("Value");
         valueCol.setCellValueFactory(cellData -> cellData.getValue().valueProperty());
-        valueCol.setCellFactory(column -> new ValueEditableCell());
+        valueCol.setCellFactory(_ -> new ValueEditableCell());
         return valueCol;
     }
 
