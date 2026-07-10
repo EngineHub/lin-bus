@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     constraints {
-        for (projectName in listOf("common", "format-snbt", "stream", "tree")) {
+        for (projectName in listOf("common", "dfu", "format-snbt", "stream", "tree")) {
             api(project(":$projectName"))
         }
     }

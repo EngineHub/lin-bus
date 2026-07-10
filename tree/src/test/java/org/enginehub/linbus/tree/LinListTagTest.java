@@ -160,4 +160,15 @@ public class LinListTagTest {
             LinStringTag.of("World!")
         ).inOrder();
     }
+
+    @Test
+    void builderWithExpectedSizeBuildsList() {
+        var tag = LinListTag.builderWithExpectedSize(LinTagType.stringTag(), 2)
+            .addAll(List.of(LinStringTag.of("Hello"), LinStringTag.of("World!")))
+            .build();
+        assertThat(tag).isEqualTo(LinListTag.of(LinTagType.stringTag(), List.of(
+            LinStringTag.of("Hello"),
+            LinStringTag.of("World!")
+        )));
+    }
 }
