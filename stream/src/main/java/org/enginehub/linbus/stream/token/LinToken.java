@@ -31,7 +31,12 @@ import java.util.OptionalInt;
  */
 // token types deliberately mirror the NBT type names
 @SuppressWarnings("JavaLangClash")
-public sealed interface LinToken {
+public sealed interface LinToken permits
+    LinToken.Name, LinToken.ByteArrayStart, LinToken.ByteArrayContent, LinToken.ByteArrayEnd, LinToken.Byte,
+    LinToken.CompoundStart, LinToken.CompoundEnd, LinToken.Double, LinToken.Float, LinToken.IntArrayStart,
+    LinToken.IntArrayContent, LinToken.IntArrayEnd, LinToken.Int, LinToken.ListStart, LinToken.ListEnd,
+    LinToken.LongArrayStart, LinToken.LongArrayContent, LinToken.LongArrayEnd, LinToken.Long, LinToken.Short,
+    LinToken.String {
     /**
      * Check if this token represents a whole value on its own, i.e. there are no following tokens.
      *

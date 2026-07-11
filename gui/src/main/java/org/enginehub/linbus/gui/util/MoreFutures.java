@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class MoreFutures {
-    public static <T>CompletableFuture<T> create(BiConsumer<Consumer<T>, Consumer<? extends Throwable>> body) {
+    public static <T> CompletableFuture<T> create(BiConsumer<Consumer<T>, Consumer<? extends Throwable>> body) {
         var future = new CompletableFuture<T>();
         try {
             body.accept(future::complete, future::completeExceptionally);

@@ -28,7 +28,7 @@ import java.util.Objects;
  *
  * @param <T> the type of the canonical representation
  */
-public sealed abstract class LinTag<T> implements ToLinTag<LinTag<T>>, LinStreamable
+public abstract sealed class LinTag<T> implements ToLinTag<LinTag<T>>, LinStreamable
     permits LinByteArrayTag, LinCompoundTag, LinEndTag, LinIntArrayTag, LinListTag, LinLongArrayTag, LinNumberTag, LinStringTag {
 
     /**
@@ -63,8 +63,12 @@ public sealed abstract class LinTag<T> implements ToLinTag<LinTag<T>>, LinStream
     // distinct concrete tag types must never be equal
     @SuppressWarnings("EqualsGetClass")
     public boolean equals(@Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         LinTag<?> that = (LinTag<?>) o;
         return Objects.equals(value(), that.value());
     }

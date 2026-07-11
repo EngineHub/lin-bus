@@ -52,7 +52,7 @@ public class LinBinaryIOTest {
             0, // name size (0)
             0,
             1, // value
-            0 // end tag
+            0, // end tag
         }), s -> ImmutableList.copyOf(s.asIterator()));
         assertThat(tokens).isNotNull();
         assertThat(tokens).isNotEmpty();

@@ -1,7 +1,7 @@
 [versions]
 javafx = "22.0.2"
 tinylog = "2.7.0"
-crankcase = "0.1.0"
+crankcase = "0.1.1"
 
 [plugins]
 crankcase-java = { id = "org.enginehub.crankcase.java", version.ref = "crankcase" }
@@ -12,6 +12,7 @@ crankcase-release = { id = "org.enginehub.crankcase.release", version.ref = "cra
 osdetector = { id = "com.google.osdetector", version = "1.7.3" }
 
 [libraries]
+crankcase-checkstyle = { module = "org.enginehub.crankcase:checkstyle", version.ref = "crankcase" }
 crankcase-java = { module = "org.enginehub.crankcase:java", version.ref = "crankcase" }
 crankcase-javaLibrary = { module = "org.enginehub.crankcase:java-library", version.ref = "crankcase" }
 

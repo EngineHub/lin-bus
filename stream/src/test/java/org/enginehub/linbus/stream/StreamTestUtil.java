@@ -35,6 +35,9 @@ public class StreamTestUtil {
         T load(InputStream stream) throws IOException;
     }
 
+    private StreamTestUtil() {
+    }
+
     public static <T> T loadResource(String name, ResourceLoader<T> loader) throws IOException {
         var resource = Resources.getResource(name);
         try (var stream = Resources.asByteSource(resource).openStream();

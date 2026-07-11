@@ -33,6 +33,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Icons {
     private static final Map<LinTagId, Image> IMAGE_CACHE = new ConcurrentHashMap<>(LinTagId.values().length);
 
+    private Icons() {
+    }
+
     public static Node iconForTag(LinTag<?> tag) {
         ImageView view = new ImageView(
             IMAGE_CACHE.computeIfAbsent(tag.type().id(), Icons::initImage)

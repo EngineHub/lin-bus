@@ -72,7 +72,7 @@ class ValueEditableCell extends TreeTableCell<NbtTreeView.TagEntry, NbtTreeView.
             case LinByteArrayTag byteArrayTag -> bufferToString(byteArrayTag.view(), BYTES, ByteBuffer::get);
             case LinIntArrayTag intArrayTag -> bufferToString(intArrayTag.view(), INTS, IntBuffer::get);
             case LinLongArrayTag longArrayTag -> bufferToString(longArrayTag.view(), LONGS, LongBuffer::get);
-            case LinEndTag tag -> new FxFonts.AndString(FxFonts.ITALIC, "End");
+            case LinEndTag _ -> new FxFonts.AndString(FxFonts.ITALIC, "End");
             default -> new FxFonts.AndString(FxFonts.DEFAULT, item.tag().value().toString());
         };
     }
@@ -98,16 +98,17 @@ class ValueEditableCell extends TreeTableCell<NbtTreeView.TagEntry, NbtTreeView.
 
     private static boolean isSimpleValueTag(LinTag<?> tag) {
         return !(
-            tag instanceof LinCompoundTag ||
-                tag instanceof LinListTag ||
-                tag instanceof LinByteArrayTag ||
-                tag instanceof LinIntArrayTag ||
-                tag instanceof LinLongArrayTag ||
-                tag instanceof LinEndTag
-        );
+            tag instanceof LinCompoundTag
+                || tag instanceof LinListTag
+                || tag instanceof LinByteArrayTag
+                || tag instanceof LinIntArrayTag
+                || tag instanceof LinLongArrayTag
+                || tag instanceof LinEndTag
+            );
     }
 
-    private sealed interface EditableGraphic {
+    private sealed interface EditableGraphic
+        permits EditableGraphic.Text, EditableGraphic.LongSpinner, EditableGraphic.DoubleSpinner {
 
         Node node();
 
@@ -226,9 +227,9 @@ class ValueEditableCell extends TreeTableCell<NbtTreeView.TagEntry, NbtTreeView.
         } else {
             setEditable(false);
 
-            if (item.tag() instanceof LinLongArrayTag ||
-                item.tag() instanceof LinIntArrayTag ||
-                item.tag() instanceof LinByteArrayTag) {
+            if (item.tag() instanceof LinLongArrayTag
+                || item.tag() instanceof LinIntArrayTag
+                || item.tag() instanceof LinByteArrayTag) {
                 // These are editable, but not directly. We use a popup for them.
                 if (doubleClickHandler == null) {
                     doubleClickHandler = event -> {
@@ -253,13 +254,13 @@ class ValueEditableCell extends TreeTableCell<NbtTreeView.TagEntry, NbtTreeView.
                                 }
 
                                 applyUpdate(switch (item.tag()) {
-                                    case LinByteArrayTag __ -> LinByteArrayTag.of(
+                                    case LinByteArrayTag _ -> LinByteArrayTag.of(
                                         ((BufferObservableList.OfByte) buffer).buffer().array()
                                     );
-                                    case LinIntArrayTag __ -> LinIntArrayTag.of(
+                                    case LinIntArrayTag _ -> LinIntArrayTag.of(
                                         ((BufferObservableList.OfInt) buffer).buffer().array()
                                     );
-                                    case LinLongArrayTag __ -> LinLongArrayTag.of(
+                                    case LinLongArrayTag _ -> LinLongArrayTag.of(
                                         ((BufferObservableList.OfLong) buffer).buffer().array()
                                     );
                                     default -> throw new AssertionError("Unreachable");
@@ -295,6 +296,7 @@ class ValueEditableCell extends TreeTableCell<NbtTreeView.TagEntry, NbtTreeView.
     private EditableGraphic initializeEditableGraphic() {
         record Result(EditableGraphic graphic, Consumer<ActionEvent> onAction) {
         }
+
         Result result = switch (getItem().tag()) {
             case LinByteTag tag -> {
                 EditableGraphic.LongSpinner graphic = new EditableGraphic.LongSpinner(new Spinner<>(

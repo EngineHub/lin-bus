@@ -1,14 +1,25 @@
+import org.gradle.api.plugins.quality.Checkstyle
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 
 plugins {
     id("org.enginehub.crankcase.java")
+    id("org.enginehub.crankcase.checkstyle")
     jacoco
 }
 
 crankcaseJava {
     javaRelease = 25
     disabledLints.add("module")
+}
+
+crankcaseCheckstyle {
+    suppressionsFile = isolated.rootProject.projectDirectory.file("config/checkstyle/suppressions.xml")
+}
+
+tasks.withType<Checkstyle>().configureEach {
+    // Checkstyle has no grammar for module declarations: checkstyle/checkstyle#8240
+    exclude("**/module-info.java")
 }
 
 jacoco {

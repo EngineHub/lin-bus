@@ -70,9 +70,9 @@ public final class LinReadOptions {
 
         @Override
         public String toString() {
-            return "LinReadOptions.Builder{" +
-                "allowNormalUtf8Encoding=" + allowNormalUtf8Encoding +
-                '}';
+            return "LinReadOptions.Builder{"
+                + "allowNormalUtf8Encoding=" + allowNormalUtf8Encoding
+                + '}';
         }
     }
 
@@ -97,8 +97,8 @@ public final class LinReadOptions {
 
     @Override
     public String toString() {
-        return "LinReadOptions{" +
-            "allowNormalUtf8Encoding=" + allowNormalUtf8Encoding +
-            '}';
+        return "LinReadOptions{"
+            + "allowNormalUtf8Encoding=" + allowNormalUtf8Encoding
+            + '}';
     }
 }

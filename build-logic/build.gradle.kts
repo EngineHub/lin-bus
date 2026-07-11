@@ -7,6 +7,7 @@ configure<JavaPluginExtension> {
 }
 
 dependencies {
+    implementation(libs.crankcase.checkstyle)
     implementation(libs.crankcase.java)
     implementation(libs.crankcase.javaLibrary)
 }

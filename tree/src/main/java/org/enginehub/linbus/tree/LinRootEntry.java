@@ -103,6 +103,7 @@ public record LinRootEntry(
 
     /**
      * {@inheritDoc}
+     *
      * <p>
      * Note that the tag returned is not the same as {@link #value()}.
      */

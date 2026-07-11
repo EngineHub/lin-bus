@@ -75,7 +75,7 @@ public class LinListTagTest {
                 LinStringTag.of("Hello"),
                 LinStringTag.of("Goodbye...")
             ))
-        ).isEqualTo(initial.transformTag(1, s -> LinStringTag.of("Goodbye...")));
+        ).isEqualTo(initial.transformTag(1, _ -> LinStringTag.of("Goodbye...")));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class LinListTagTest {
         ));
         assertThrows(
             IndexOutOfBoundsException.class,
-            () -> initial.transformTag(2, s -> LinStringTag.of("Goodbye..."))
+            () -> initial.transformTag(2, _ -> LinStringTag.of("Goodbye..."))
         );
     }
 

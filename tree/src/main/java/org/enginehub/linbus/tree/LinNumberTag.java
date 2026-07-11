@@ -23,7 +23,7 @@ package org.enginehub.linbus.tree;
  *
  * @param <T> the specific type of number this tag represents
  */
-public sealed abstract class LinNumberTag<T extends Number> extends LinTag<T>
+public abstract sealed class LinNumberTag<T extends Number> extends LinTag<T>
     permits LinByteTag, LinDoubleTag, LinFloatTag, LinIntTag, LinLongTag, LinShortTag {
     /**
      * Constructor for subclasses.

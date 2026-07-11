@@ -48,8 +48,8 @@ public class LongSpinnerValueFactory extends SpinnerValueFactory<@Nullable Long>
      * @param min The minimum allowed long value for the Spinner.
      * @param max The maximum allowed long value for the Spinner.
      * @param initialValue The value of the Spinner when first instantiated, must
-     * be within the bounds of the min and max arguments, or
-     * else the min value will be used.
+     *     be within the bounds of the min and max arguments, or
+     *     else the min value will be used.
      */
     public LongSpinnerValueFactory(@NamedArg("min") long min,
                                    @NamedArg("max") long max,
@@ -63,8 +63,8 @@ public class LongSpinnerValueFactory extends SpinnerValueFactory<@Nullable Long>
      * @param min The minimum allowed long value for the Spinner.
      * @param max The maximum allowed long value for the Spinner.
      * @param initialValue The value of the Spinner when first instantiated, must
-     * be within the bounds of the min and max arguments, or
-     * else the min value will be used.
+     *     be within the bounds of the min and max arguments, or
+     *     else the min value will be used.
      * @param amountToStepBy The amount to increment or decrement by, per step.
      */
     public LongSpinnerValueFactory(@NamedArg("min") long min,
@@ -76,8 +76,10 @@ public class LongSpinnerValueFactory extends SpinnerValueFactory<@Nullable Long>
         setAmountToStepBy(amountToStepBy);
         setConverter(new LongStringConverter());
 
-        valueProperty().addListener((o, oldValue, newValue) -> {
-            if (newValue == null) return;
+        valueProperty().addListener((_, _, newValue) -> {
+            if (newValue == null) {
+                return;
+            }
 
             // when the value is set, we need to react to ensure it is a
             // valid value (and if not, blow up appropriately)
@@ -126,7 +128,7 @@ public class LongSpinnerValueFactory extends SpinnerValueFactory<@Nullable Long>
     }
 
     /**
-     * Sets the minimum allowable value for this value factory
+     * Sets the minimum allowable value for this value factory.
      *
      * @return the minimum allowable value for this value factory
      */
@@ -163,7 +165,7 @@ public class LongSpinnerValueFactory extends SpinnerValueFactory<@Nullable Long>
     }
 
     /**
-     * Sets the maximum allowable value for this value factory
+     * Sets the maximum allowable value for this value factory.
      *
      * @return the maximum allowable value for this value factory
      */

@@ -27,6 +27,9 @@ import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 
 public class BigTestPrinter {
+    private BigTestPrinter() {
+    }
+
     public static void main(String[] args) throws IOException {
         var resource = Resources.getResource("bigtest.nbt.gz");
         try (var stream = Resources.asByteSource(resource).openStream();

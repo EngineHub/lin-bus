@@ -84,7 +84,7 @@ public class LinTagIntegrationTest {
         rootCompoundSubject.getTagByKey("intTest").intValue().isEqualTo(2147483647);
         rootCompoundSubject.getTagByKey("byteTest").byteValue().isEqualTo(127);
         rootCompoundSubject.getTagByKey("stringTest").stringValue()
-            .isEqualTo("HELLO WORLD THIS IS A TEST STRING \u00c5\u00c4\u00d6!");
+            .isEqualTo("HELLO WORLD THIS IS A TEST STRING ÅÄÖ!");
         for (int i = 0; i < 5; i++) {
             rootCompoundSubject.getTagByKey("listTest (long)")
                 .getTagByIndex(i).longValue().isEqualTo(11 + i);

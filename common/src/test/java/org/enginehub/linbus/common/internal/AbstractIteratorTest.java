@@ -123,18 +123,18 @@ public class AbstractIteratorTest {
          * Ensures that computeNext is only called until it returns end().
          */
         private boolean tripwire = false;
-        private int i = 0;
+        private int index = 0;
 
         @Override
         protected String computeNext() {
-            if (i >= 10) {
+            if (index >= 10) {
                 if (tripwire) {
                     throw new IllegalStateException("Should not have called this!");
                 }
                 tripwire = true;
                 return end();
             }
-            i++;
+            index++;
             return "A simple test!";
         }
     }
