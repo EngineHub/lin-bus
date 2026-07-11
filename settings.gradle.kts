@@ -24,6 +24,13 @@ dependencyResolutionManagement {
             name = "EngineHub"
             url = uri("https://repo.enginehub.org/libs-release/")
         }
+        maven {
+            name = "Minecraft Libraries"
+            url = uri("https://libraries.minecraft.net/")
+            content {
+                includeGroup("com.mojang")
+            }
+        }
         mavenCentral()
     }
 }
@@ -36,4 +43,5 @@ include("common")
 include("stream")
 include("tree")
 include("format-snbt")
+include("dfu")
 include("gui")

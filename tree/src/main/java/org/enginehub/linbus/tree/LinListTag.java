@@ -83,6 +83,21 @@ public final class LinListTag<T extends LinTag<?>> extends LinTag<List<T>> {
     }
 
     /**
+     * Creates a new builder for a list of the given element type, sized to hold at least the
+     * expected number of elements without reallocating.
+     *
+     * @param elementType the element type of the list
+     * @param expectedSize the number of elements the list is expected to hold
+     * @param <T> the type of the elements in the list
+     * @return a new builder
+     */
+    public static <T extends LinTag<?>> Builder<T> builderWithExpectedSize(
+        LinTagType<T> elementType, int expectedSize
+    ) {
+        return new Builder<>(elementType, expectedSize);
+    }
+
+    /**
      * A builder for {@link LinListTag LinListTags}.
      *
      * @param <T> the type of the elements in the list
@@ -94,6 +109,11 @@ public final class LinListTag<T extends LinTag<?>> extends LinTag<List<T>> {
         private Builder(LinTagType<T> elementType) {
             this.elementType = elementType;
             this.collector = new ArrayList<>();
+        }
+
+        private Builder(LinTagType<T> elementType, int expectedSize) {
+            this.elementType = elementType;
+            this.collector = new ArrayList<>(expectedSize);
         }
 
         private Builder(LinListTag<T> base) {

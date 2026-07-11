@@ -18,6 +18,7 @@ crankcase-javaLibrary = { module = "org.enginehub.crankcase:java-library", versi
 
 jspecify-annotations = "org.jspecify:jspecify:0.3.0"
 guava = "com.google.guava:guava:31.0.1-jre"
+datafixerupper = "com.mojang:datafixerupper:8.0.18"
 
 ikonli-bom = "org.kordamp.ikonli:ikonli-bom:12.3.1"
 ikonli-javafx.module = "org.kordamp.ikonli:ikonli-javafx"
