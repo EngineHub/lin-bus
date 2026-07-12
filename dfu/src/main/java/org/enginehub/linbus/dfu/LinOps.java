@@ -71,8 +71,6 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
         return INSTANCE;
     }
 
-    private final LinRecordBuilder recordBuilder = new LinRecordBuilder(this);
-
     private LinOps() {
     }
 
@@ -450,7 +448,7 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
 
     @Override
     public RecordBuilder<LinTag<?>> mapBuilder() {
-        return recordBuilder;
+        return new LinRecordBuilder(this);
     }
 
     @Override

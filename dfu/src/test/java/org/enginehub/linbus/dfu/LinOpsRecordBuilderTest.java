@@ -19,6 +19,7 @@
 package org.enginehub.linbus.dfu;
 
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.RecordBuilder;
 import org.enginehub.linbus.tree.LinCompoundTag;
 import org.enginehub.linbus.tree.LinEndTag;
 import org.enginehub.linbus.tree.LinIntTag;
@@ -79,9 +80,21 @@ class LinOpsRecordBuilderTest {
     }
 
     @Test
+    @DisplayName("each mapBuilder() call is independent, so concurrent builders don't leak into each other")
+    void mapBuilderCallsAreIndependent() {
+        RecordBuilder<LinTag<?>> first = OPS.mapBuilder().add("a", LinIntTag.of(1));
+        RecordBuilder<LinTag<?>> second = OPS.mapBuilder().add("b", LinIntTag.of(2));
+
+        assertThat(first.build(OPS.empty()))
+            .hasResultThat().isEqualTo(LinCompoundTag.builder().putInt("a", 1).build());
+        assertThat(second.build(OPS.empty()))
+            .hasResultThat().isEqualTo(LinCompoundTag.builder().putInt("b", 2).build());
+    }
+
+    @Test
     void addRejectsEndValueFromDataResult() {
         assertThat(
-            OPS.mapBuilder().add("a", DataResult.success((LinTag<?>) LinEndTag.instance())).build(OPS.empty())
+            OPS.mapBuilder().add("a", DataResult.success(LinEndTag.instance())).build(OPS.empty())
         ).hasErrorWithMessageThat().startsWith("Cannot add END tag to compound: ");
     }
 }
