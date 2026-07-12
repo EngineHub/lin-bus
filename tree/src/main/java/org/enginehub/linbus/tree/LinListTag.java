@@ -18,13 +18,16 @@
 
 package org.enginehub.linbus.tree;
 
+import org.enginehub.linbus.common.LinTagId;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.stream.internal.FlatteningLinStream;
 import org.enginehub.linbus.stream.internal.SurroundingLinStream;
 import org.enginehub.linbus.stream.token.LinToken;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -51,6 +54,9 @@ public final class LinListTag<T extends LinTag<?>> extends LinTag<List<T>> {
     public static <T extends LinTag<?>> LinListTag<T> of(
         LinTagType<T> elementType, List<T> value
     ) {
+        if (value.isEmpty()) {
+            return empty(elementType);
+        }
         for (T t : value) {
             if (t.type() != elementType) {
                 throw new IllegalArgumentException("Element is not of type " + elementType.name() + " but "
@@ -60,6 +66,11 @@ public final class LinListTag<T extends LinTag<?>> extends LinTag<List<T>> {
         return new LinListTag<>(elementType, List.copyOf(value));
     }
 
+    private static final List<LinListTag<?>> EMPTY_LISTS = Arrays.stream(LinTagId.values())
+        .sorted(Comparator.comparingInt(LinTagId::id))
+        .<LinListTag<?>>map(id -> new LinListTag<>(LinTagType.fromId(id), List.of()))
+        .toList();
+
     /**
      * Get an empty list of the given element type.
      *
@@ -68,7 +79,9 @@ public final class LinListTag<T extends LinTag<?>> extends LinTag<List<T>> {
      * @return an empty list
      */
     public static <T extends LinTag<?>> LinListTag<T> empty(LinTagType<T> elementType) {
-        return builder(elementType).build();
+        @SuppressWarnings("unchecked")
+        LinListTag<T> empty = (LinListTag<T>) EMPTY_LISTS.get(elementType.id().id());
+        return empty;
     }
 
     /**
@@ -169,6 +182,9 @@ public final class LinListTag<T extends LinTag<?>> extends LinTag<List<T>> {
          * @return the built tag
          */
         public LinListTag<T> build() {
+            if (this.collector.isEmpty()) {
+                return empty(this.elementType);
+            }
             return new LinListTag<>(this.elementType, List.copyOf(this.collector));
         }
     }

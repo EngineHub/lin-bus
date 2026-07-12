@@ -54,7 +54,19 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
      * @return the tag
      */
     public static LinCompoundTag of(Map<String, ? extends LinTag<?>> value) {
+        if (value.isEmpty()) {
+            return EMPTY;
+        }
         return new LinCompoundTag(copyImmutable(value), true);
+    }
+
+    private static final LinCompoundTag EMPTY = new LinCompoundTag(Map.of(), false);
+
+    /**
+     * {@return an empty compound tag}
+     */
+    public static LinCompoundTag empty() {
+        return EMPTY;
     }
 
     /**
@@ -257,6 +269,9 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
          * @return the built tag
          */
         public LinCompoundTag build() {
+            if (this.collector.isEmpty()) {
+                return EMPTY;
+            }
             return new LinCompoundTag(copyImmutable(this.collector), false);
         }
     }

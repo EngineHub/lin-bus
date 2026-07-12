@@ -86,7 +86,7 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
 
     @Override
     public LinTag<?> emptyMap() {
-        return LinCompoundTag.builder().build();
+        return LinCompoundTag.empty();
     }
 
     @Override
