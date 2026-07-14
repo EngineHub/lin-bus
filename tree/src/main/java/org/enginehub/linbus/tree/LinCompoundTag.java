@@ -289,16 +289,20 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
     private static Map<String, LinTag<?>> copyImmutable(
         Map<String, ? extends LinTag<?>> value
     ) {
-        if (value.isEmpty()) {
+        int size = value.size();
+        if (size == 0) {
             // We would like to use the EMPTY constant whenever the map is empty
             // so we should never reach this.
             throw new AssertionError("Should not be called with an empty map");
         }
-        if (value.size() == 1) {
+        if (size == 1) {
             // Not order retaining, but for a single element it doesn't matter.
             return Map.copyOf(value);
         }
-        return new CompoundValueMap(value);
+        if (size <= CompoundValueLinearMap.RECOMMENDED_MAX_LINEAR_SIZE) {
+            return new CompoundValueLinearMap(value);
+        }
+        return new CompoundValueHashMap(value);
     }
 
     private final Map<String, LinTag<?>> value;

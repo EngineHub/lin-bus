@@ -114,7 +114,7 @@ class SipHashTest {
         long k0 = 0x07_06_05_04_03_02_01_00L;
         long k1 = 0x0F_0E_0D_0C_0B_0A_09_08L;
         for (int i = 0; i < MESSAGE_LENGTHS.length; i++) {
-            long hash = SipHash.hash24(k0, k1, referenceMessage(MESSAGE_LENGTHS[i]));
+            long hash = SipHash.hash(2, 4, k0, k1, referenceMessage(MESSAGE_LENGTHS[i]));
             assertThat(littleEndianBytes(hash)).isEqualTo(VECTORS[i]);
         }
     }

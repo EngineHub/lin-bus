@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CompoundValueMapTest {
@@ -123,6 +124,45 @@ public class CompoundValueMapTest {
             assertThat(map.get(expectedOrder.get(i))).isEqualTo(LinIntTag.of(i));
         }
         assertThat(List.copyOf(map.keySet())).isEqualTo(expectedOrder);
+    }
+
+    private static Map<String, LinTag<?>> sizedSource(int size) {
+        var source = new LinkedHashMap<String, LinTag<?>>();
+        for (int i = 0; i < size; i++) {
+            source.put("entry_" + i, LinIntTag.of(i));
+        }
+        return source;
+    }
+
+    @Test
+    void selectsLinearBelowThresholdAndHashAbove() {
+        assertThat(valueOf(sizedSource(2)))
+            .isInstanceOf(CompoundValueLinearMap.class);
+        assertThat(valueOf(sizedSource(CompoundValueLinearMap.RECOMMENDED_MAX_LINEAR_SIZE)))
+            .isInstanceOf(CompoundValueLinearMap.class);
+        assertThat(valueOf(sizedSource(CompoundValueLinearMap.RECOMMENDED_MAX_LINEAR_SIZE + 1)))
+            .isInstanceOf(CompoundValueHashMap.class);
+    }
+
+    @Test
+    void behaviorIsConsistentAcrossBackingMaps() {
+        for (int size : new int[] {
+            2,
+            CompoundValueLinearMap.RECOMMENDED_MAX_LINEAR_SIZE,
+            CompoundValueLinearMap.RECOMMENDED_MAX_LINEAR_SIZE + 1,
+            100,
+        }) {
+            Map<String, LinTag<?>> source = sizedSource(size);
+            var map = valueOf(source);
+            assertWithMessage("size %s", size).that(map).hasSize(size);
+            for (int i = 0; i < size; i++) {
+                assertWithMessage("size %s key entry_%s", size, i)
+                    .that(map.get("entry_" + i)).isEqualTo(LinIntTag.of(i));
+            }
+            assertWithMessage("size %s miss", size).that(map.get("entry_" + size)).isNull();
+            assertWithMessage("size %s order", size)
+                .that(List.copyOf(map.keySet())).isEqualTo(List.copyOf(source.keySet()));
+        }
     }
 
     @Test

@@ -19,30 +19,23 @@
 package org.enginehub.linbus.tree;
 
 /**
- * SipHash-2-4, ported from the CC0-licensed reference implementation at
+ * SipHash, ported from the CC0-licensed reference implementation at
  * <a href="https://github.com/veorq/SipHash">github.com/veorq/SipHash</a>.
  */
 final class SipHash {
-
-    private static final int COMPRESSION_ROUNDS = 2;
-    private static final int FINALIZATION_ROUNDS = 4;
-
     /**
-     * SipHash-2-4 over {@code data}'s chars, each fed as a little-endian 16-bit unit so no
-     * intermediate {@code byte[]} is allocated.
+     * SipHash-{@code compressionRounds}-{@code finalizationRounds} over {@code data}'s chars, each fed as a
+     * little-endian 16-bit unit so no intermediate {@code byte[]} is allocated.
      *
+     * @param compressionRounds the number of compression rounds
+     * @param finalizationRounds the number of finalization rounds
      * @param k0 the low half of the 128-bit key
      * @param k1 the high half of the 128-bit key
      * @param data the string to hash
      * @return the 64-bit hash
      */
-    static long hash24(long k0, long k1, String data) {
-        long[] v = {
-            0x736F6D6570736575L ^ k0,
-            0x646F72616E646F6DL ^ k1,
-            0x6C7967656E657261L ^ k0,
-            0x7465646279746573L ^ k1,
-        };
+    static long hash(int compressionRounds, int finalizationRounds, long k0, long k1, String data) {
+        var v = new State(k0, k1);
         int length = data.length();
         int fullBlocks = length & ~3;
         for (int i = 0; i < fullBlocks; i += 4) {
@@ -50,39 +43,61 @@ final class SipHash {
                 | (data.charAt(i + 1) & 0xFFFFL) << 16
                 | (data.charAt(i + 2) & 0xFFFFL) << 32
                 | (data.charAt(i + 3) & 0xFFFFL) << 48;
-            v[3] ^= m;
-            compress(v, COMPRESSION_ROUNDS);
-            v[0] ^= m;
+            v.v3 ^= m;
+            v.compress(compressionRounds);
+            v.v0 ^= m;
         }
         long b = ((long) length * 2) << 56;
         for (int i = fullBlocks; i < length; i++) {
             b |= (data.charAt(i) & 0xFFFFL) << ((i - fullBlocks) * 16);
         }
-        v[3] ^= b;
-        compress(v, COMPRESSION_ROUNDS);
-        v[0] ^= b;
-        v[2] ^= 0xFF;
-        compress(v, FINALIZATION_ROUNDS);
-        return v[0] ^ v[1] ^ v[2] ^ v[3];
+        v.v3 ^= b;
+        v.compress(compressionRounds);
+        v.v0 ^= b;
+        v.v2 ^= 0xFF;
+        v.compress(finalizationRounds);
+        return v.v0 ^ v.v1 ^ v.v2 ^ v.v3;
     }
 
-    private static void compress(long[] v, int rounds) {
-        for (int r = 0; r < rounds; r++) {
-            // See SIPROUND macro in the reference implementation.
-            v[0] += v[1];
-            v[1] = Long.rotateLeft(v[1], 13);
-            v[1] ^= v[0];
-            v[0] = Long.rotateLeft(v[0], 32);
-            v[2] += v[3];
-            v[3] = Long.rotateLeft(v[3], 16);
-            v[3] ^= v[2];
-            v[0] += v[3];
-            v[3] = Long.rotateLeft(v[3], 21);
-            v[3] ^= v[0];
-            v[2] += v[1];
-            v[1] = Long.rotateLeft(v[1], 17);
-            v[1] ^= v[2];
-            v[2] = Long.rotateLeft(v[2], 32);
+    /**
+     * Internal state of the SipHash algorithm.
+     *
+     * <p>
+     * Uses a class instead of an array, as it proved to inline better in benchmarks.
+     * In the future, we can also convert it to a value class, which will inline even better.
+     * </p>
+     */
+    private static final class State {
+        long v0;
+        long v1;
+        long v2;
+        long v3;
+
+        State(long k0, long k1) {
+            this.v0 = 0x736F6D6570736575L ^ k0;
+            this.v1 = 0x646F72616E646F6DL ^ k1;
+            this.v2 = 0x6C7967656E657261L ^ k0;
+            this.v3 = 0x7465646279746573L ^ k1;
+        }
+
+        void compress(int rounds) {
+            for (int r = 0; r < rounds; r++) {
+                // See SIPROUND macro in the reference implementation.
+                this.v0 += this.v1;
+                this.v1 = Long.rotateLeft(this.v1, 13);
+                this.v1 ^= this.v0;
+                this.v0 = Long.rotateLeft(this.v0, 32);
+                this.v2 += this.v3;
+                this.v3 = Long.rotateLeft(this.v3, 16);
+                this.v3 ^= this.v2;
+                this.v0 += this.v3;
+                this.v3 = Long.rotateLeft(this.v3, 21);
+                this.v3 ^= this.v0;
+                this.v2 += this.v1;
+                this.v1 = Long.rotateLeft(this.v1, 17);
+                this.v1 ^= this.v2;
+                this.v2 = Long.rotateLeft(this.v2, 32);
+            }
         }
     }
 
