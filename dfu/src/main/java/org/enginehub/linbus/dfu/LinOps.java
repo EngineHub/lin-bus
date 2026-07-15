@@ -39,6 +39,7 @@ import org.enginehub.linbus.tree.LinShortTag;
 import org.enginehub.linbus.tree.LinStringTag;
 import org.enginehub.linbus.tree.LinTag;
 import org.enginehub.linbus.tree.LinTagType;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -46,6 +47,7 @@ import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -57,7 +59,7 @@ import java.util.stream.Stream;
  * A {@link DynamicOps} implementation backed by lin-bus tags, analogous to Minecraft's {@code NbtOps}.
  *
  * <p>
- * The lin-bus tags are stricter than generic NBT: lists are homogeneous and compounds cannot contain an END value.
+ * The lin-bus tags are stricter than generic NBT as compounds cannot contain an END value.
  * Operations that would produce such a structure either return a failed {@link DataResult} or throw.
  * </p>
  */
@@ -189,39 +191,21 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
     @Override
     public DataResult<LinTag<?>> mergeToList(LinTag<?> list, List<LinTag<?>> values) {
         return switch (list) {
-            case LinListTag<?> existing -> mergeList(existing.value(), values);
+            case LinListTag<?> existing -> mergeRaw(unwrapStoredList(existing), values);
             case LinByteArrayTag array when array.view().hasRemaining() -> mergeBytes(array, values);
             case LinIntArrayTag array when array.view().hasRemaining() -> mergeInts(array, values);
             case LinLongArrayTag array when array.view().hasRemaining() -> mergeLongs(array, values);
-            case LinByteArrayTag _, LinIntArrayTag _, LinLongArrayTag _, LinEndTag _ -> mergeList(List.of(), values);
+            case LinByteArrayTag _, LinIntArrayTag _, LinLongArrayTag _, LinEndTag _ -> mergeRaw(List.of(), values);
             default -> DataResult.error(() -> "mergeToList called with non-list: " + list, list);
         };
     }
 
-    private static DataResult<LinTag<?>> mergeList(List<? extends LinTag<?>> prefix, List<LinTag<?>> values) {
+    private static DataResult<LinTag<?>> mergeRaw(List<LinTag<?>> prefix, List<LinTag<?>> values) {
         if (prefix.isEmpty() && values.isEmpty()) {
             return DataResult.success(LinListTag.empty(LinTagType.endTag()));
         }
-        LinTagType<? extends LinTag<?>> elementType =
-            prefix.isEmpty() ? values.getFirst().type() : prefix.getFirst().type();
-        return mergeListTyped(elementType, prefix, values);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends LinTag<?>> DataResult<LinTag<?>> mergeListTyped(
-        LinTagType<T> elementType, List<? extends LinTag<?>> prefix, List<LinTag<?>> values
-    ) {
-        LinListTag.Builder<T> builder = LinListTag.builderWithExpectedSize(
-            elementType, prefix.size() + values.size()
-        );
         try {
-            /*
-             * addAll checks every element against elementType and throws on a mismatch, so the
-             * casts to the element type are sound.
-             */
-            builder.addAll((List<? extends T>) prefix);
-            builder.addAll((List<? extends T>) values);
-            return DataResult.success(builder.build());
+            return DataResult.success(createHomogenizedList(prefix, values));
         } catch (IllegalArgumentException e) {
             return DataResult.error(e::getMessage);
         }
@@ -373,7 +357,7 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
     @Override
     public DataResult<Stream<LinTag<?>>> getStream(LinTag<?> input) {
         return switch (input) {
-            case LinListTag<?> tag -> DataResult.success(tag.value().stream().map(element -> (LinTag<?>) element));
+            case LinListTag<?> tag -> DataResult.success(unwrapStoredList(tag).stream());
             case LinByteArrayTag tag -> {
                 ByteBuffer values = tag.view();
                 yield DataResult.success(
@@ -442,22 +426,102 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
 
     @Override
     public LinTag<?> createList(Stream<LinTag<?>> input) {
-        List<LinTag<?>> elements = input.toList();
-        if (elements.isEmpty()) {
+        return createHomogenizedList(input.toList(), List.of());
+    }
+
+    private static LinTag<?> createHomogenizedList(List<LinTag<?>> prefix, List<LinTag<?>> values) {
+        LinTagType<? extends LinTag<?>> rawType = identifyRawElementType(prefix, values);
+        if (rawType == LinTagType.endTag()) {
+            assert prefix.isEmpty() && values.isEmpty()
+                : "rawType is endTag but elements are not empty: " + prefix + ", " + values;
             return LinListTag.empty(LinTagType.endTag());
         }
-        return createListTagTyped(elements.getFirst().type(), elements);
+        boolean compound = rawType == LinTagType.compoundTag();
+        LinListTag.Builder<LinTag<?>> builder = homogenizedBuilder(rawType, prefix.size() + values.size());
+        addHomogenized(builder, prefix, compound);
+        addHomogenized(builder, values, compound);
+        return builder.build();
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends LinTag<?>> LinListTag<T> createListTagTyped(
-        LinTagType<T> elementType, List<LinTag<?>> elements
+    private static LinListTag.Builder<LinTag<?>> homogenizedBuilder(
+        LinTagType<? extends LinTag<?>> elementType, int expectedSize
     ) {
         /*
-         * LinListTag.of checks every element against elementType, which is the runtime type
-         * of the first element, so casting the homogeneous list to List<T> is sound.
+         * The builder checks every element against elementType, which is the shared runtime type of the
+         * elements, so widening the builder's element type to LinTag<?> is sound.
          */
-        return LinListTag.of(elementType, (List<T>) elements);
+        return (LinListTag.Builder<LinTag<?>>) LinListTag.builderWithExpectedSize(elementType, expectedSize);
+    }
+
+    private static void addHomogenized(
+        LinListTag.Builder<LinTag<?>> builder, List<LinTag<?>> elements, boolean compound
+    ) {
+        if (!compound) {
+            builder.addAll(elements);
+            return;
+        }
+        for (LinTag<?> element : elements) {
+            builder.add(element instanceof LinCompoundTag existing ? existing : wrapElement(element));
+        }
+    }
+
+    /**
+     * {@return the shared type of {@code elements}, or the compound type if they are heterogeneous}
+     *
+     * <p>
+     * This mirrors Minecraft's {@code ListTag} raw-element-type identification: a heterogeneous list is
+     * reported as compound so its elements are stored in wrapper compounds.
+     * </p>
+     */
+    private static LinTagType<? extends LinTag<?>> identifyRawElementType(
+        List<LinTag<?>> prefix, List<LinTag<?>> values
+    ) {
+        LinTagType<? extends LinTag<?>> type = scanRawElementType(null, prefix);
+        if (type != LinTagType.compoundTag()) {
+            type = scanRawElementType(type, values);
+        }
+        return type == null ? LinTagType.endTag() : type;
+    }
+
+    private static @Nullable LinTagType<? extends LinTag<?>> scanRawElementType(
+        @Nullable LinTagType<? extends LinTag<?>> currentType, List<LinTag<?>> elements
+    ) {
+        for (LinTag<?> element : elements) {
+            LinTagType<? extends LinTag<?>> elementType = element.type();
+            // If it's a compound list or heterogeneous, we treat it as a compound list.
+            if (elementType == LinTagType.compoundTag() || (currentType != null && currentType != elementType)) {
+                return LinTagType.compoundTag();
+            }
+            currentType = elementType;
+        }
+        return currentType;
+    }
+
+    /**
+     * {@return the raw (logical) elements of a stored list, unwrapping any {@code {"": value}} wrappers}
+     */
+    private static List<LinTag<?>> unwrapStoredList(LinListTag<?> list) {
+        boolean wrapped = list.elementType() == LinTagType.compoundTag();
+        List<LinTag<?>> result = new ArrayList<>(list.value().size());
+        for (LinTag<?> element : list.value()) {
+            result.add(wrapped ? tryUnwrap(element) : element);
+        }
+        return result;
+    }
+
+    private static LinCompoundTag wrapElement(LinTag<?> element) {
+        return LinCompoundTag.of(Map.of("", element));
+    }
+
+    private static LinTag<?> tryUnwrap(LinTag<?> element) {
+        if (element instanceof LinCompoundTag compound && compound.value().size() == 1) {
+            LinTag<?> unwrapped = compound.value().get("");
+            if (unwrapped != null) {
+                return unwrapped;
+            }
+        }
+        return element;
     }
 
     @Override
