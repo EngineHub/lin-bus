@@ -44,7 +44,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
@@ -86,7 +86,7 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
 
     @Override
     public LinTag<?> emptyMap() {
-        return LinCompoundTag.builder().build();
+        return LinCompoundTag.empty();
     }
 
     @Override
@@ -99,12 +99,18 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
             case LinLongTag tag -> outOps.createLong(tag.valueAsLong());
             case LinFloatTag tag -> outOps.createFloat(tag.valueAsFloat());
             case LinDoubleTag tag -> outOps.createDouble(tag.valueAsDouble());
-            case LinByteArrayTag tag -> outOps.createByteList(tag.view());
             case LinStringTag tag -> outOps.createString(tag.value());
             case LinListTag<?> tag -> convertList(outOps, tag);
             case LinCompoundTag tag -> convertMap(outOps, tag);
-            case LinIntArrayTag tag -> outOps.createIntList(Arrays.stream(tag.value()));
-            case LinLongArrayTag tag -> outOps.createLongList(Arrays.stream(tag.value()));
+            case LinByteArrayTag tag -> outOps.createByteList(tag.view());
+            case LinIntArrayTag tag -> {
+                IntBuffer view = tag.view();
+                yield outOps.createIntList(IntStream.range(0, view.limit()).map(view::get));
+            }
+            case LinLongArrayTag tag -> {
+                LongBuffer view = tag.view();
+                yield outOps.createLongList(IntStream.range(0, view.limit()).mapToLong(view::get));
+            }
         };
     }
 
@@ -293,21 +299,27 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
             return DataResult.error(() -> "mergeToMap called with non-map: " + map, map);
         }
         LinCompoundTag.Builder output = builderFrom(map);
-        List<LinTag<?>> missed = new ArrayList<>();
+        List<LinTag<?>> missed = null;
+        Iterator<Pair<LinTag<?>, LinTag<?>>> entries = values.entries().iterator();
         try {
-            values.entries().forEach(entry -> {
+            while (entries.hasNext()) {
+                Pair<LinTag<?>, LinTag<?>> entry = entries.next();
                 LinTag<?> key = entry.getFirst();
                 if (key instanceof LinStringTag stringKey) {
                     output.put(stringKey.value(), entry.getSecond());
                 } else {
+                    if (missed == null) {
+                        missed = new ArrayList<>();
+                    }
                     missed.add(key);
                 }
-            });
+            }
         } catch (IllegalArgumentException e) {
             return DataResult.error(e::getMessage);
         }
-        if (!missed.isEmpty()) {
-            return DataResult.error(() -> "some keys are not strings: " + missed, output.build());
+        if (missed != null) {
+            List<LinTag<?>> missedKeys = missed;
+            return DataResult.error(() -> "some keys are not strings: " + missedKeys, output.build());
         }
         return DataResult.success(output.build());
     }
@@ -368,10 +380,18 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
                     IntStream.range(0, values.limit()).mapToObj(i -> LinByteTag.of(values.get(i)))
                 );
             }
-            case LinIntArrayTag tag ->
-                DataResult.success(Arrays.stream(tag.value()).mapToObj(value -> (LinTag<?>) LinIntTag.of(value)));
-            case LinLongArrayTag tag ->
-                DataResult.success(Arrays.stream(tag.value()).mapToObj(value -> (LinTag<?>) LinLongTag.of(value)));
+            case LinIntArrayTag tag -> {
+                IntBuffer values = tag.view();
+                yield DataResult.success(
+                    IntStream.range(0, values.limit()).mapToObj(i -> (LinTag<?>) LinIntTag.of(values.get(i)))
+                );
+            }
+            case LinLongArrayTag tag -> {
+                LongBuffer values = tag.view();
+                yield DataResult.success(
+                    IntStream.range(0, values.limit()).mapToObj(i -> (LinTag<?>) LinLongTag.of(values.get(i)))
+                );
+            }
             default -> DataResult.error(() -> "Not a list");
         };
     }
@@ -395,7 +415,8 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
     @Override
     public DataResult<IntStream> getIntStream(LinTag<?> input) {
         if (input instanceof LinIntArrayTag tag) {
-            return DataResult.success(Arrays.stream(tag.value()));
+            IntBuffer view = tag.view();
+            return DataResult.success(IntStream.range(0, view.limit()).map(view::get));
         }
         return DynamicOps.super.getIntStream(input);
     }
@@ -408,7 +429,8 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
     @Override
     public DataResult<LongStream> getLongStream(LinTag<?> input) {
         if (input instanceof LinLongArrayTag tag) {
-            return DataResult.success(Arrays.stream(tag.value()));
+            LongBuffer view = tag.view();
+            return DataResult.success(IntStream.range(0, view.limit()).mapToLong(view::get));
         }
         return DynamicOps.super.getLongStream(input);
     }

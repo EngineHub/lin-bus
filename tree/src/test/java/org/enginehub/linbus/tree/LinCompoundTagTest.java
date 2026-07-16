@@ -51,6 +51,22 @@ public class LinCompoundTagTest {
     }
 
     @Test
+    void emptyImplementation() {
+        assertThat(LinCompoundTag.empty()).compoundValue().isEmpty();
+        assertThat(LinCompoundTag.empty()).isSameInstanceAs(LinCompoundTag.empty());
+    }
+
+    @Test
+    void builderReturnsEmptySingleton() {
+        assertThat(LinCompoundTag.builder().build()).isSameInstanceAs(LinCompoundTag.empty());
+    }
+
+    @Test
+    void ofEmptyReturnsEmptySingleton() {
+        assertThat(LinCompoundTag.of(Map.of())).isSameInstanceAs(LinCompoundTag.empty());
+    }
+
+    @Test
     void builderRemove() {
         var initial = LinCompoundTag.of(Map.of(
             "Hello", LinStringTag.of("World!"),

@@ -95,6 +95,19 @@ public class LinListTagTest {
         var empty = LinListTag.empty(LinTagType.stringTag());
         assertThat(empty).listValue().isEmpty();
         assertThat(empty.elementType()).isEqualTo(LinTagType.stringTag());
+        assertThat(empty).isSameInstanceAs(LinListTag.empty(LinTagType.stringTag()));
+    }
+
+    @Test
+    void builderReturnsEmptySingleton() {
+        assertThat(LinListTag.builder(LinTagType.stringTag()).build())
+            .isSameInstanceAs(LinListTag.empty(LinTagType.stringTag()));
+    }
+
+    @Test
+    void ofEmptyReturnsEmptySingleton() {
+        assertThat(LinListTag.of(LinTagType.stringTag(), List.of()))
+            .isSameInstanceAs(LinListTag.empty(LinTagType.stringTag()));
     }
 
     @Test

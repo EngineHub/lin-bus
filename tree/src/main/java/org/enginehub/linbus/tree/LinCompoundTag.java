@@ -28,7 +28,6 @@ import org.enginehub.linbus.tree.impl.LinTagReader;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,14 +46,26 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
      *
      * <p>
      * The map <em>will not</em> be copied using {@link Map#copyOf(Map)}, as that fails to preserve order. Instead, the
-     * map will be copied using {@link LinkedHashMap#LinkedHashMap(Map)}.
+     * map will be copied into an immutable, insertion-ordered map.
      * </p>
      *
      * @param value the value
      * @return the tag
      */
     public static LinCompoundTag of(Map<String, ? extends LinTag<?>> value) {
+        if (value.isEmpty()) {
+            return EMPTY;
+        }
         return new LinCompoundTag(copyImmutable(value), true);
+    }
+
+    private static final LinCompoundTag EMPTY = new LinCompoundTag(Map.of(), false);
+
+    /**
+     * {@return an empty compound tag}
+     */
+    public static LinCompoundTag empty() {
+        return EMPTY;
     }
 
     /**
@@ -147,7 +158,7 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
          * @return this builder
          */
         public Builder putCompound(String name, Map<String, ? extends LinTag<?>> value) {
-            return put(name, new LinCompoundTag(copyImmutable(value), true));
+            return put(name, of(value));
         }
 
         /**
@@ -257,6 +268,9 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
          * @return the built tag
          */
         public LinCompoundTag build() {
+            if (this.collector.isEmpty()) {
+                return EMPTY;
+            }
             return new LinCompoundTag(copyImmutable(this.collector), false);
         }
     }
@@ -275,7 +289,20 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
     private static Map<String, LinTag<?>> copyImmutable(
         Map<String, ? extends LinTag<?>> value
     ) {
-        return Collections.unmodifiableMap(new LinkedHashMap<>(value));
+        int size = value.size();
+        if (size == 0) {
+            // We would like to use the EMPTY constant whenever the map is empty
+            // so we should never reach this.
+            throw new AssertionError("Should not be called with an empty map");
+        }
+        if (size == 1) {
+            // Not order retaining, but for a single element it doesn't matter.
+            return Map.copyOf(value);
+        }
+        if (size <= CompoundValueLinearMap.RECOMMENDED_MAX_LINEAR_SIZE) {
+            return new CompoundValueLinearMap(value);
+        }
+        return new CompoundValueHashMap(value);
     }
 
     private final Map<String, LinTag<?>> value;
@@ -421,7 +448,7 @@ public final class LinCompoundTag extends LinTag<Map<String, ? extends LinTag<?>
         }
         LinkedHashMap<String, LinTag<?>> newMap = new LinkedHashMap<>(this.value);
         newMap.put(name, value);
-        return new LinCompoundTag(Collections.unmodifiableMap(newMap), false);
+        return new LinCompoundTag(copyImmutable(newMap), false);
     }
 
     /**
