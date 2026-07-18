@@ -462,8 +462,24 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
             return;
         }
         for (LinTag<?> element : elements) {
-            builder.add(element instanceof LinCompoundTag existing ? existing : wrapElement(element));
+            builder.add(wrapElementIfNeeded(element));
         }
+    }
+
+    private static LinCompoundTag wrapElementIfNeeded(LinTag<?> element) {
+        // If the element is a compound that isn't already wrapper-looking, we can use it as-is.
+        // Otherwise, we need to wrap it again to preserve the value when unwrapped later.
+        if (element instanceof LinCompoundTag compound && unwrapOrNull(compound) == null) {
+            return compound;
+        }
+        return LinCompoundTag.of(Map.of("", element));
+    }
+
+    private static @Nullable LinTag<?> unwrapOrNull(LinCompoundTag compound) {
+        if (compound.value().size() == 1) {
+            return compound.value().get("");
+        }
+        return null;
     }
 
     /**
@@ -510,13 +526,9 @@ public final class LinOps implements DynamicOps<LinTag<?>> {
         return result;
     }
 
-    private static LinCompoundTag wrapElement(LinTag<?> element) {
-        return LinCompoundTag.of(Map.of("", element));
-    }
-
     private static LinTag<?> tryUnwrap(LinTag<?> element) {
-        if (element instanceof LinCompoundTag compound && compound.value().size() == 1) {
-            LinTag<?> unwrapped = compound.value().get("");
+        if (element instanceof LinCompoundTag compound) {
+            LinTag<?> unwrapped = unwrapOrNull(compound);
             if (unwrapped != null) {
                 return unwrapped;
             }
