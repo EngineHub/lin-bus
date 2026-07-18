@@ -117,6 +117,39 @@ class LinOpsListTest {
     }
 
     @Test
+    @NbtOpsBehavior
+    void createListWrapsWrapperShapedCompoundElements() {
+        LinCompoundTag wrapperShaped = wrap(LinIntTag.of(1));
+        LinCompoundTag other = LinCompoundTag.builder().putInt("a", 1).build();
+        LinTag<?> list = OPS.createList(Stream.of(wrapperShaped, other));
+        assertThat(list)
+            .isEqualTo(LinListTag.of(LinTagType.compoundTag(), List.of(wrap(wrapperShaped), other)));
+        assertThat(OPS.getStream(list))
+            .hasStreamResultThat().containsExactly(wrapperShaped, other).inOrder();
+    }
+
+    @Test
+    @NbtOpsBehavior
+    void createListWrapsWrapperShapedCompoundElementsAlone() {
+        LinCompoundTag wrapperShaped = wrap(LinIntTag.of(1));
+        LinTag<?> list = OPS.createList(Stream.of(wrapperShaped));
+        assertThat(list)
+            .isEqualTo(LinListTag.of(LinTagType.compoundTag(), List.of(wrap(wrapperShaped))));
+        assertThat(OPS.getStream(list))
+            .hasStreamResultThat().containsExactly(wrapperShaped).inOrder();
+    }
+
+    @Test
+    @NbtOpsBehavior
+    void createListOfOnlyWrapperShapedCompoundsRoundTrips() {
+        LinCompoundTag a = wrap(LinIntTag.of(1));
+        LinCompoundTag b = wrap(LinStringTag.of("x"));
+        LinTag<?> list = OPS.createList(Stream.of(a, b));
+        assertThat(list).isEqualTo(LinListTag.of(LinTagType.compoundTag(), List.of(wrap(a), wrap(b))));
+        assertThat(OPS.getStream(list)).hasStreamResultThat().containsExactly(a, b).inOrder();
+    }
+
+    @Test
     void mergeToListOntoEndTakesElementType() {
         assertThat(OPS.mergeToList(LinEndTag.instance(), LinIntTag.of(1)))
             .hasResultThat().isEqualTo(LinListTag.of(LinTagType.intTag(), List.of(LinIntTag.of(1))));
@@ -155,6 +188,20 @@ class LinOpsListTest {
             .hasResultThat().isEqualTo(LinListTag.of(LinTagType.compoundTag(), List.of(
                 wrap(LinIntTag.of(1)), wrap(LinStringTag.of("x")), wrap(LinIntTag.of(2))
             )));
+    }
+
+    @Test
+    @NbtOpsBehavior
+    void mergeToListWrapsWrapperShapedCompound() {
+        LinCompoundTag wrapperShaped = wrap(LinIntTag.of(2));
+        LinTag<?> list = OPS.mergeToList(
+            LinListTag.of(LinTagType.intTag(), List.of(LinIntTag.of(1))), wrapperShaped
+        ).result().orElseThrow();
+        assertThat(list).isEqualTo(LinListTag.of(LinTagType.compoundTag(), List.of(
+            wrap(LinIntTag.of(1)), wrap(wrapperShaped)
+        )));
+        assertThat(OPS.getStream(list))
+            .hasStreamResultThat().containsExactly(LinIntTag.of(1), wrapperShaped).inOrder();
     }
 
     @Test
