@@ -29,15 +29,19 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.enginehub.linbus.dfu.DataResultSubject.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LinOpsListTest {
 
     private static final LinOps OPS = LinOps.getInstance();
+
+    private static LinCompoundTag wrap(LinTag<?> value) {
+        return LinCompoundTag.of(Map.of("", value));
+    }
 
     @Test
     void getStreamReadsList() {
@@ -76,11 +80,40 @@ class LinOpsListTest {
     }
 
     @Test
-    void createListRejectsMixedElementTypes() {
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> OPS.createList(Stream.of(LinIntTag.of(1), LinStringTag.of("x")))
-        );
+    @NbtOpsBehavior
+    void createListWrapsMixedElementTypes() {
+        assertThat(OPS.createList(Stream.of(LinIntTag.of(1), LinStringTag.of("x"))))
+            .isEqualTo(LinListTag.of(LinTagType.compoundTag(), List.of(
+                wrap(LinIntTag.of(1)), wrap(LinStringTag.of("x"))
+            )));
+    }
+
+    @Test
+    @NbtOpsBehavior
+    void getStreamUnwrapsMixedElementTypes() {
+        LinTag<?> mixed = OPS.createList(Stream.of(LinIntTag.of(1), LinStringTag.of("x")));
+        assertThat(OPS.getStream(mixed))
+            .hasStreamResultThat().containsExactly(LinIntTag.of(1), LinStringTag.of("x")).inOrder();
+    }
+
+    @Test
+    @NbtOpsBehavior
+    void createListKeepsGenuineCompoundElements() {
+        LinCompoundTag a = LinCompoundTag.builder().putInt("a", 1).build();
+        LinCompoundTag b = LinCompoundTag.builder().putInt("b", 2).build();
+        LinTag<?> list = OPS.createList(Stream.of(a, b));
+        assertThat(list).isEqualTo(LinListTag.of(LinTagType.compoundTag(), List.of(a, b)));
+        assertThat(OPS.getStream(list)).hasStreamResultThat().containsExactly(a, b).inOrder();
+    }
+
+    @Test
+    @NbtOpsBehavior
+    void createListWrapsOnlyNonCompoundElementsWhenMixedWithCompound() {
+        LinCompoundTag a = LinCompoundTag.builder().putInt("a", 1).build();
+        LinTag<?> list = OPS.createList(Stream.of(a, LinIntTag.of(2)));
+        assertThat(list)
+            .isEqualTo(LinListTag.of(LinTagType.compoundTag(), List.of(a, wrap(LinIntTag.of(2)))));
+        assertThat(OPS.getStream(list)).hasStreamResultThat().containsExactly(a, LinIntTag.of(2)).inOrder();
     }
 
     @Test
@@ -103,10 +136,25 @@ class LinOpsListTest {
     }
 
     @Test
-    void mergeToListRejectsMismatchedElementInList() {
+    @NbtOpsBehavior
+    void mergeToListWrapsMismatchedElement() {
         assertThat(OPS.mergeToList(
             LinListTag.of(LinTagType.intTag(), List.of(LinIntTag.of(1))), LinStringTag.of("x")
-        )).hasErrorWithMessageThat().startsWith("Element is not of type ");
+        )).hasResultThat().isEqualTo(LinListTag.of(LinTagType.compoundTag(), List.of(
+            wrap(LinIntTag.of(1)), wrap(LinStringTag.of("x"))
+        )));
+    }
+
+    @Test
+    @NbtOpsBehavior
+    void mergeToListGrowsWrappedList() {
+        LinTag<?> mixed = OPS.mergeToList(
+            LinListTag.of(LinTagType.intTag(), List.of(LinIntTag.of(1))), LinStringTag.of("x")
+        ).result().orElseThrow();
+        assertThat(OPS.mergeToList(mixed, LinIntTag.of(2)))
+            .hasResultThat().isEqualTo(LinListTag.of(LinTagType.compoundTag(), List.of(
+                wrap(LinIntTag.of(1)), wrap(LinStringTag.of("x")), wrap(LinIntTag.of(2))
+            )));
     }
 
     @Test
