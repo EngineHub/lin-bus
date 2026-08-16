@@ -20,7 +20,7 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "${rootProject.group}.format"
+            groupId = "${providers.gradleProperty("group").get()}.format"
             artifactId = "lin-bus-format-snbt"
             from(components["java"])
         }
