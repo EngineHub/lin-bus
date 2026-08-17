@@ -13,6 +13,9 @@ fun BuildSteps.configuredGradle(init: GradleBuildStep.() -> Unit) {
         enableStacktrace = true
 
         init()
+
+        // Revert when TeamCity is updated to 2026.2 (https://youtrack.jetbrains.com/issue/TW-98463)
+        gradleParams = "-Dorg.gradle.isolated-projects=false ${gradleParams ?: ""}".trim()
     }
 }
 
