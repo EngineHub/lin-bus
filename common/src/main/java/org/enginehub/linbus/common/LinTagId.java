@@ -76,6 +76,8 @@ public enum LinTagId {
     LONG_ARRAY(12),
     ;
 
+    private static final LinTagId[] VALUES = values();
+    
     /**
      * Get the {@link LinTagId} for the given int ID.
      *
@@ -83,10 +85,10 @@ public enum LinTagId {
      * @return the corresponding {@link LinTagId}
      */
     public static LinTagId fromId(int id) {
-        if (id < 0 || id >= LinTagId.values().length) {
+        if (id < 0 || id >= VALUES.length) {
             throw new IllegalArgumentException("Invalid NBT ID: " + id);
         }
-        return LinTagId.values()[id];
+        return VALUES[id];
     }
 
     private final int id;
